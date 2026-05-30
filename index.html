@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ครูกอล์ฟ — เรียนเขียนโปรแกรมสำหรับเด็กไทย</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* responsive */
+    @media (max-width: 1000px) {
+      .hero-grid, .detail-hero, .detail-body, .lesson-grid { grid-template-columns: 1fr !important; }
+      .steps-grid, .course-grid { grid-template-columns: 1fr 1fr !important; }
+      .detail-body aside, .lesson-grid aside { position: static !important; }
+      footer .wrap[style*="grid"] { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 0 20px !important; }
+      .nav-links, .nav-cta { display: none !important; }
+      .nav-burger { display: block !important; }
+      .steps-grid, .course-grid { grid-template-columns: 1fr !important; }
+      footer .wrap[style*="grid"] { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
 <body>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="20" fill="#F1E8D7"/>
+      <rect x="30" y="30" width="40" height="40" rx="11" fill="#211B14"/>
+      <path d="M45 44 L40 50 L45 56 M55 44 L60 50 L55 56" stroke="#FCF8F0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="70" cy="30" r="7" fill="#E26D5C"/>
+    </svg>
+  </template>
+  <div id="root"></div>
 
-<h1>This is heading 1</h1>
-<h2>This is heading 2</h2>
-<h3>This is heading 3</h3>
-<h4>This is heading 4</h4>
-<h5>This is heading 5</h5>
-<h6>This is heading 6</h6>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
+  <script type="text/babel" src="ui.jsx"></script>
+  <script type="text/babel" src="landing.jsx"></script>
+  <script type="text/babel" src="catalog.jsx"></script>
+  <script type="text/babel" src="lesson.jsx"></script>
+  <script type="text/babel" src="app.jsx"></script>
 </body>
 </html>
