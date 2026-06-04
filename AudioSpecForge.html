@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Audio Spec Forge — จัดสเป็คเครื่องเสียง DIY by KG Audio</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0e0c0a; color: #ece4d6; min-height: 100%; font-family: sans-serif; }
+  #root { min-height: 100vh; }
+  #loading { color: #ff9e3d; text-align: center; padding: 60px 20px; font-size: 15px; }
+</style>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "lucide-react": "https://esm.sh/lucide-react@0.383.0?deps=react@18.3.1"
+  }
+}
+</script>
+</head>
+<body>
+<div id="root"><div id="loading">กำลังโหลดคอนฟิกูเรเตอร์… (ต้องเชื่อมต่ออินเทอร์เน็ตครั้งแรก)</div></div>
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState, useMemo } from "react";
+import {
+  Bluetooth, Speaker, Cpu, Zap, Battery, Plug, Volume2, Scale,
+  CheckCircle2, AlertTriangle, Info, Copy, Download, RotateCcw,
+  Gauge, Activity, Layers, Sparkles, Music, Clock, Wallet, ChevronRight, Waves, Disc
+} from "lucide-react";
+
+/* ============================================================
+   AUDIO SPEC FORGE — คอนฟิกูเรเตอร์จัดสเป็คเครื่องเสียง DIY
+   ข้อมูลอุปกรณ์เป็น "ตัวอย่าง" อิงแบรนด์สาย DIY (Wuzhi/GemAudio ฯลฯ)
+   แก้ไข/เพิ่มรุ่นได้ในอาเรย์ด้านล่างนี้เลย
+   ============================================================ */
+
+const baht = (n) => "฿" + Math.round(n).toLocaleString("th-TH");
+
+const AMPS = [
+  { id: "a_tb21", name: "ZK-TB21 (2.1)", brand: "Wuzhi Audio", price: 450, weight: 55, type: "2.1", ratedW: 50, subW: 100, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 26, vRated: 21, idleW: 2.6, bt: true, note: "2.1 บลูทูธ ยอดฮิตทำตู้เบส เบสหนักแน่น" },
+  { id: "a_ht21", name: "ZK-HT21 3G (2.1)", brand: "Wuzhi Audio", price: 1090, weight: 165, type: "2.1", ratedW: 160, subW: 220, ratedLoad: 4, minImp: 2, vMin: 24, vMax: 48, vRated: 38, idleW: 5.5, bt: true, note: "2.1 พลังสูงรวม 540W สาย DIY ตู้ใหญ่จัดเต็ม" },
+  { id: "a_502mt", name: "ZK-502MT (สเตอริโอ)", brand: "Wuzhi Audio", price: 390, weight: 45, type: "stereo", ratedW: 50, subW: 0, ratedLoad: 4, minImp: 4, vMin: 8, vMax: 26, vRated: 21, idleW: 2.2, bt: true, note: "BT จิ๋ว สเตอริโอ/โมโน นิยมโมย้ายวอลลุ่ม" },
+  { id: "a_1001u", name: "ZK-1001U (โมโน)", brand: "Wuzhi Audio", price: 365, weight: 60, type: "mono", ratedW: 100, subW: 0, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 27, vRated: 24, idleW: 2.8, bt: true, app: true, note: "โมโน 100W ปรับแหลม-เบส คุมผ่านแอป" },
+  { id: "a_aptx2", name: "ZK-APTX2 (2.1)", brand: "Wuzhi Audio", price: 2199, weight: 200, type: "2.1", ratedW: 200, subW: 400, ratedLoad: 4, minImp: 4, vMin: 15, vMax: 40, vRated: 36, idleW: 5, bt: true, note: "2.1 พลัง ~800W (200+200 + ซับ 400W) TPA3223 + บลูทูธ QCC3034 aptX-HD DC15-40V" },
+  { id: "a_st21", name: "ZK-ST21 (2.1)", brand: "Wuzhi Audio", price: 795, weight: 90, type: "2.1", ratedW: 100, subW: 200, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 30, vRated: 24, idleW: 3.5, bt: true, note: "2.1 รวม 400W (100+100 + ซับ 200W) TPA3221×2 BT5.1 รับ BT/AUX/USB" },
+  { id: "a_as21", name: "ZK-AS21 (2.1)", brand: "Wuzhi Audio", price: 1350, weight: 160, type: "2.1", ratedW: 220, subW: 350, ratedLoad: 4, minImp: 2, vMin: 18, vMax: 48, vRated: 38, idleW: 5.5, bt: true, note: "2.1 รวม ~790W (220+220 + ซับ 350W) ชิป TPA3255 บลูทูธ" },
+  { id: "a_1002t", name: "ZK-1002T (สเตอริโอ)", brand: "Wuzhi Audio", price: 599, weight: 70, type: "stereo", ratedW: 100, subW: 0, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 26, vRated: 24, idleW: 3, bt: true, app: true, note: "สเตอริโอ 2×100W ย้ายวอลลุ่ม BT5.0 ปรับผ่านแอป" },
+  { id: "a_502t", name: "ZK-502T (สเตอริโอ)", brand: "Wuzhi Audio", price: 460, weight: 45, type: "stereo", ratedW: 50, subW: 0, ratedLoad: 4, minImp: 4, vMin: 8, vMax: 26, vRated: 21, idleW: 2.3, bt: true, note: "สเตอริโอ 2×50W ย้ายวอลลุ่ม (มีรุ่น +APP/สายชีลด์)" },
+  { id: "a_tb21f", name: "ZK-TB21F (2.1)", brand: "Wuzhi Audio", price: 575, weight: 60, type: "2.1", ratedW: 50, subW: 100, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 26, vRated: 21, idleW: 2.6, bt: true, note: "2.1 รวม 200W (50+50 + ซับ 100W) TPA3116D2 BT5.0 ย้ายสายโรงงาน" },
+  { id: "a_am100f", name: "ZK-AM100F (2.1)", brand: "Wuzhi Audio", price: 1050, weight: 80, type: "2.1", ratedW: 50, subW: 100, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 26, vRated: 21, idleW: 2.8, bt: true, note: "2.1 รวม 200W (50+50 + ซับ 100W) BT5.1 มีไมค์ ×2 รับ AUX/USB" },
+  { id: "a_m60", name: "GemAudio M60 (2.1)", brand: "GemAudio", price: 620, weight: 90, type: "2.1", ratedW: 100, subW: 200, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 30, vRated: 24, idleW: 4, bt: true, app: true, note: "2.1 ยอดนิยม 400W ชิป TPA3221 เสียงกลางใส เบสนุ่มลึก ต่อ BT/AUX/USB ปรับผ่านแอป" },
+  { id: "a_m200", name: "GemAudio M200 (2.1)", brand: "GemAudio", price: 390, weight: 60, type: "2.1", ratedW: 50, subW: 100, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 24, vRated: 21, idleW: 2.6, bt: true, note: "2.1 ชิป TPA3116 รวม 200W เหมาะลำโพงขนาดกลาง" },
+  { id: "a_gem20", name: "GemAudio 2.0 (สเตอริโอ)", brand: "GemAudio", price: 320, weight: 45, type: "stereo", ratedW: 50, subW: 0, ratedLoad: 4, minImp: 4, vMin: 12, vMax: 24, vRated: 21, idleW: 2.3, bt: true, note: "สเตอริโอ 2×50W จ่ายไฟเสถียร เหมาะลำโพง BT 2.0" },
+  { id: "a_aptx3", name: "ZK-APTX3 (2.1 พลังสูง)", brand: "Wuzhi Audio", price: 2220, weight: 200, type: "2.1", ratedW: 300, subW: 600, ratedLoad: 4, minImp: 2, vMin: 18, vMax: 50, vRated: 44, idleW: 6, bt: true, note: "2.1 สูงสุด 1200W (300+300 + ซับ 600W) TPA3255 + บลูทูธ Qualcomm DC18-50V" },
+];
+
+const SUBAMPS = [
+  { id: "sub_none", name: "ไม่ใช้ซับแอมป์แยก", brand: "—", price: 0, weight: 0, type: "none", ratedW: 0, subW: 0, ratedLoad: 4, minImp: 4, vMin: 0, vMax: 99, vRated: 24, idleW: 0, bt: false, note: "ใช้เฉพาะบอร์ดแอมป์หลัก (หรือบอร์ด 2.1 ที่มีช่องซับอยู่แล้ว)" },
+  { id: "a_sub600", name: "ZK-SUB600 (2.1)", brand: "Wuzhi Audio", price: 1050, weight: 180, type: "2.1", ratedW: 300, subW: 300, ratedLoad: 4, minImp: 2, vMin: 18, vMax: 50, vRated: 44, idleW: 5.5, bt: true, note: "TPA3255 2.0 + ช่องซับ (สเปคดิบ 300+300+300W) บลูทูธ DC18-50V" },
+  { id: "a_sub1200q", name: "ZK-SUB1200Q (2.1)", brand: "Wuzhi Audio", price: 2129, weight: 220, type: "2.1", ratedW: 600, subW: 600, ratedLoad: 4, minImp: 2, vMin: 18, vMax: 50, vRated: 44, idleW: 6.5, bt: true, note: "2.0 + ซับ (600+600+ซับ) TPA3255 PurePath HD, QCC3034 + DAC ES9023 DC18-50V" },
+  { id: "a_3002", name: "ZK-3002 (TPA3255)", brand: "Wuzhi Audio", price: 695, weight: 150, type: "stereo", ratedW: 200, subW: 0, ratedLoad: 4, minImp: 2, vMin: 18, vMax: 48, vRated: 36, idleW: 5.5, bt: false, note: "TPA3255 ปรับเสียงสูง-ต่ำได้ดี (มีรุ่น 2G)" },
+  { id: "a_6002", name: "ZK-6002 (ซับ 1200W)", brand: "Wuzhi Audio", price: 1050, weight: 180, type: "stereo", ratedW: 600, subW: 0, ratedLoad: 4, minImp: 2, vMin: 24, vMax: 48, vRated: 42, idleW: 6, bt: false, note: "TPA3255 บอร์ดขับซับวูฟเฟอร์ รวม ~1200W ขับซับได้เต็มกำลัง" },
+];
+
+const FULLRANGE = [
+  { id: "v_hk225", name: 'HK 2.25" ฟูลเรนจ์', brand: "HK", price: 109, weight: 90, qty: 2, size: '2.25"', impedance: 4, powerW: 20, sens: 84, note: "โครงพลาสติก ABS เหมาะลำโพงพกพา" },
+  { id: "v_hk2", name: 'HK 2" ฟูลเรนจ์', brand: "HK", price: 99, weight: 80, qty: 2, size: '2"', impedance: 4, powerW: 15, sens: 83, note: "ฟูลเรนจ์จิ๋ว เสียงกลางใส" },
+  { id: "v_aura3", name: 'AURA 3" ขอบโฟม', brand: "AURA", price: 99, weight: 120, qty: 2, size: '3"', impedance: 4, powerW: 10, sens: 83, note: "รุ่นเก่า ขอบโฟม โทนนุ่ม" },
+  { id: "v_lg3_15", name: 'LG 3" ฟูลเรนจ์', brand: "LG", price: 75, weight: 130, qty: 2, size: '3"', impedance: 4, powerW: 15, sens: 84, note: "ราคาคุ้มสุด เหมาะตู้เล็ก" },
+  { id: "v_myl3", name: 'MYL 3" ฟูลเรนจ์', brand: "MYL", price: 148, weight: 140, qty: 2, size: '3"', impedance: 4, powerW: 20, sens: 85, note: "ฟูลเรนจ์ เสียงครบย่าน" },
+  { id: "v_jbl3", name: 'JBL 3" มิดวูฟเฟอร์', brand: "JBL", price: 150, weight: 160, qty: 2, size: '3"', impedance: 4, powerW: 25, sens: 86, note: "ฟูลเรนจ์/มิดวูฟเฟอร์ เบสดี" },
+  { id: "v_lg3_sub", name: 'LG 3" วูฟเฟอร์เล็ก', brand: "LG", price: 99, weight: 150, qty: 2, size: '3"', impedance: 4, powerW: 30, sens: 85, note: "ดอกเน้นเบส 3 นิ้ว เหมาะทำ 2.0" },
+  { id: "v_3", name: 'ฟูลเรนจ์ 3" (ทั่วไป)', brand: "Generic", price: 160, weight: 120, qty: 2, size: '3"', impedance: 4, powerW: 15, sens: 84, note: "เสียงกลางใส เหมาะลำโพงพกพาเล็ก" },
+  { id: "v_4", name: 'วูฟเฟอร์ 4" + ทวีตเตอร์', brand: "GemAudio", price: 320, weight: 260, qty: 2, size: '4"+T', impedance: 4, powerW: 30, sens: 87, note: "ครบย่าน เหมาะลำโพงตั้งโต๊ะ" },
+  { id: "v_5", name: 'วูฟเฟอร์ 5.25"', brand: "Generic", price: 445, weight: 380, qty: 2, size: '5.25"', impedance: 8, powerW: 50, sens: 88, note: "8Ω เบสลึก ต้องการแอมป์แรง" },
+  { id: "v_6", name: 'วูฟเฟอร์ 6.5"', brand: "GemAudio", price: 700, weight: 550, qty: 2, size: '6.5"', impedance: 4, powerW: 80, sens: 90, note: "เสียงเต็ม ดังกระหึ่ม กินกำลัง" },
+  { id: "v_set21", name: 'ชุดลำโพง 2.1 (ซับ6.5+2+3นิ้ว)', brand: "Chatchawan", price: 777, weight: 1800, qty: 1, size: 'ชุด 2.1', impedance: 4, powerW: 80, sens: 87, note: "ชุดโปรฯ ซับ HK6.5นิ้ว 2Ω80W + HK2นิ้ว + Aura3นิ้ว ครบชุด 2.1" },
+];
+
+const TWEETERS = [
+  { id: "tw_none", name: "ไม่ใส่ทวีตเตอร์", brand: "—", price: 0, weight: 0, qty: 0, size: "—", impedance: 4, powerW: 0, sens: 0, note: "ใช้ดอกฟูลเรนจ์อย่างเดียว (ไม่มีดอกแหลมแยก)" },
+  { id: "v_tw_gen2", name: 'ทวีตเตอร์ 2" ทั่วไป', brand: "Generic", price: 52, weight: 65, qty: 2, size: '2"', impedance: 4, powerW: 20, sens: 87, note: "ดอกเสียงแหลม 2 นิ้ว ราคาประหยัด" },
+  { id: "v_tw_hk2blk", name: 'ทวีตเตอร์ HK 2" (ดำ)', brand: "HK", price: 58, weight: 70, qty: 2, size: '2"', impedance: 4, powerW: 20, sens: 88, note: "ดอกเสียงแหลม หน้าสีดำ" },
+  { id: "v_tw_hk2or", name: 'ทวีตเตอร์ HK 2" (ผ้าส้ม)', brand: "HK", price: 68, weight: 70, qty: 2, size: '2"', impedance: 4, powerW: 20, sens: 88, note: "หน้าผ้าสีส้ม เสียงแหลม" },
+  { id: "v_tw_hk2ti", name: 'ทวีตเตอร์ HK 2" โดมไทเทเนียม', brand: "HK", price: 88, weight: 75, qty: 2, size: '2"', impedance: 4, powerW: 20, sens: 89, note: "โดมไททาเนียม เสียงแหลมใส" },
+  { id: "v_tw_peerless", name: 'ทวีตเตอร์ Peerless 2"', brand: "Peerless", price: 99, weight: 80, qty: 2, size: '2"', impedance: 4, powerW: 15, sens: 89, note: "Peerless เสียงแหลมคุณภาพ" },
+];
+
+const SUBWOOFERS = [
+  { id: "sd_none", name: "ไม่ใส่ดอกซับ", brand: "—", price: 0, weight: 0, qty: 0, size: "—", impedance: 4, powerW: 0, sens: 0, note: "ไม่มีดอกซับวูฟเฟอร์แยก" },
+  { id: "v_jl3_sub", name: 'JL 3" ซับวูฟเฟอร์', brand: "JL", price: 189, weight: 200, qty: 1, size: '3"', impedance: 4, powerW: 30, sens: 84, note: "ดอกซับ 3 นิ้ว (ใช้ 1 ดอกคู่ซับแอมป์)" },
+  { id: "v_jbl4", name: 'JBL BB2 4"', brand: "JBL", price: 257, weight: 300, qty: 2, size: '4"', impedance: 4, powerW: 50, sens: 86, note: "ดอก 4 นิ้ว เสียงเต็ม ใช้เป็นวูฟเฟอร์/ซับเล็ก" },
+  { id: "v_apple45", name: 'แอปเปิ้ล 4.5" ซับ', brand: "Apple", price: 425, weight: 350, qty: 2, size: '4.5"', impedance: 4, powerW: 50, sens: 86, note: "ดอกซับ/วูฟเฟอร์ 4.5 นิ้ว เบสแน่น" },
+  { id: "v_hk65big", name: 'HK 6.5" แม่เหล็กใหญ่', brand: "HK", price: 485, weight: 900, qty: 2, size: '6.5"', impedance: 4, powerW: 100, sens: 89, note: "แม่เหล็กใหญ่ 4Ω 100W (มีรุ่น 2Ω 80W) เบสหนัก" },
+  { id: "v_hk65su", name: 'HK 6.5" SU', brand: "HK", price: 399, weight: 850, qty: 2, size: '6.5"', impedance: 4, powerW: 100, sens: 88, note: "ซับ 6.5 นิ้ว 4Ω 100W พร้อมส่ง" },
+  { id: "v_hk8sub", name: 'HK 8" ซับวูฟเฟอร์', brand: "HK", price: 897, weight: 1600, qty: 1, size: '8"', impedance: 4, powerW: 200, sens: 88, note: "ซับ 8 นิ้ว 4Ω 200W กล่องโฟม" },
+  { id: "v_hk10sub", name: 'HK 10" ซับวูฟเฟอร์', brand: "HK", price: 1198, weight: 2400, qty: 1, size: '10"', impedance: 3, powerW: 200, sens: 89, note: "ซับ 10 นิ้ว 3Ω 200W ดอกใหญ่ เบสลึก" },
+];
+
+const BATTERIES = [
+  { id: "b_3s", name: "3S Li-ion 11.1V 5200mAh", brand: "Generic", price: 480, weight: 320, nominalV: 11.1, mAh: 5200, note: "เบา เหมาะแอมป์เล็ก-กลาง" },
+  { id: "b_4s", name: "4S Li-ion 14.8V 6000mAh", brand: "Generic", price: 720, weight: 460, nominalV: 14.8, mAh: 6000, note: "สมดุลดี ใช้ได้นาน" },
+  { id: "b_6s", name: "6S Li-ion 22.2V 5000mAh", brand: "Generic", price: 1100, weight: 640, nominalV: 22.2, mAh: 5000, note: "แรงดันสูง ป้อนแอมป์กำลังเยอะ" },
+  { id: "b_lifepo4_8s", name: "LiFePO4 8S 2P 30Ah", brand: "The Power", price: 3794, weight: 6000, nominalV: 25.6, mAh: 30000, note: "ลิเธียมฟอสเฟต 32140 8S2P BMS 60A 30,000mAh แถมที่ชาร์จ (ชาร์จเต็ม ~29V)" },
+  { id: "b_lifepo4_10s", name: "LiFePO4 10S 1P 15Ah", brand: "The Power", price: 2614, weight: 3800, nominalV: 32, mAh: 15000, note: "ลิเธียมฟอสเฟต 32140 10S1P 15,000mAh แถมสายชาร์จ เหมาะบอร์ดไฟสูง (ชาร์จเต็ม ~36V)" },
+  { id: "b_lifepo4_8s1p", name: "LiFePO4 8S 1P 15Ah", brand: "Mpower", price: 3190, weight: 3000, nominalV: 25.6, mAh: 15000, note: "ลิเธียมฟอสเฟต Mpower 8S1P BMS 15A 15,000mAh (ชาร์จเต็ม ~29V) ไม่รวมที่ชาร์จ" },
+];
+
+const CATS = [
+  { key: "amp", label: "บอร์ดแอมป์", icon: Zap, list: AMPS, required: true },
+  { key: "subAmp", label: "บอร์ดขยายซับวูฟเฟอร์", icon: Waves, list: SUBAMPS, required: false },
+  { key: "driver", label: "ดอกฟูลเรนจ์ / วูฟเฟอร์", icon: Speaker, list: FULLRANGE, required: true },
+  { key: "subDriver", label: "ดอกซับวูฟเฟอร์", icon: Disc, list: SUBWOOFERS, required: false },
+  { key: "tweeter", label: "ดอกแหลม (ทวีตเตอร์)", icon: Volume2, list: TWEETERS, required: false },
+  { key: "battery", label: "แบตเตอรี่", icon: Battery, list: BATTERIES, required: true },
+];
+
+const find = (list, id) => list.find((x) => x.id === id);
+
+function analyze(sel) {
+  const amp = find(AMPS, sel.amp);
+  const subAmp = find(SUBAMPS, sel.subAmp);
+  const driver = find(FULLRANGE, sel.driver);
+  const tweeter = find(TWEETERS, sel.tweeter);
+  const subDriver = find(SUBWOOFERS, sel.subDriver);
+  const battery = find(BATTERIES, sel.battery);
+
+  const issues = [];
+  let score = 100;
+  const add = (level, text) => {
+    issues.push({ level, text });
+    if (level === "error") score -= 40;
+    else if (level === "warn") score -= 13;
+    else if (level === "info") score -= 4;
+  };
+
+  // power source (แบตเตอรี่อย่างเดียว)
+  const hasBat = battery && battery.nominalV > 0;
+  let supplyV = 0;
+  if (hasBat) supplyV = battery.nominalV;
+  else add("error", "ยังไม่ได้เลือกแบตเตอรี่ — ต้องเลือกแบตอย่างน้อย 1 ก้อน");
+
+  if (!amp) add("error", "ยังไม่ได้เลือกบอร์ดแอมป์");
+  if (!driver) add("error", "ยังไม่ได้เลือกดอกลำโพง");
+
+  // voltage range
+  if (amp && supplyV > 0) {
+    if (supplyV < amp.vMin)
+      add("error", `ไฟเลี้ยง ${supplyV}V ต่ำกว่าที่ ${amp.name} ต้องการ (${amp.vMin}–${amp.vMax}V) แอมป์อาจไม่ทำงานเต็มกำลัง`);
+    else if (supplyV > amp.vMax)
+      add("error", `ไฟเลี้ยง ${supplyV}V เกินพิกัด ${amp.name} (สูงสุด ${amp.vMax}V) เสี่ยงบอร์ดพัง!`);
+  }
+
+  // impedance
+  if (amp && driver) {
+    if (driver.impedance < amp.minImp)
+      add("error", `ดอกลำโพง ${driver.impedance}Ω ต่ำกว่าโหลดต่ำสุดของแอมป์ (${amp.minImp}Ω) เสี่ยงแอมป์ร้อน/ตัดการทำงาน`);
+  }
+
+  // estimated output
+  let estPerCh = 0, subEst = 0, vFactor = 0;
+  if (amp && supplyV > 0) vFactor = Math.min(Math.pow(supplyV / amp.vRated, 2), 1.05);
+  if (amp && driver && supplyV > 0) {
+    const impFactor = amp.ratedLoad / driver.impedance; // 8Ω ≈ ครึ่งกำลังของ 4Ω
+    estPerCh = Math.max(0, amp.ratedW * vFactor * impFactor);
+    estPerCh = Math.min(estPerCh, amp.ratedW * 1.1);
+    if (estPerCh > driver.powerW * 1.05)
+      add("warn", `กำลังแอมป์ราว ${Math.round(estPerCh)}W/ข้าง สูงกว่าวัตต์ดอกลำโพง (${driver.powerW}W) ระวังเปิดดังเกินทำดอกพัง`);
+  }
+  if (amp && amp.type === "2.1" && supplyV > 0) subEst = Math.round(amp.subW * vFactor);
+  const mainCh = amp ? (amp.type === "mono" ? 1 : 2) : 0;
+
+  // board-type guidance (ไม่หักคะแนน)
+  if (amp && amp.type === "preamp")
+    add("warn", `${amp.name} เป็นบอร์ดรับบลูทูธ/ปรีแอมป์ ไม่มีภาคขยายกำลัง ต้องต่อเพาเวอร์แอมป์เพิ่มเพื่อขับลำโพง`);
+  if (amp && amp.type === "2.1")
+    issues.push({ level: "info", text: `บอร์ด 2.1 มีแชนแนลซับแยก (~${subEst || amp.subW}W) ต้องเตรียมดอกซับวูฟเฟอร์เพิ่มต่างหากจากดอก L/R` });
+  if (amp && amp.type === "mono")
+    issues.push({ level: "info", text: "บอร์ดโมโน ขับได้ 1 แชนแนล เหมาะทำตู้ซับ — ดอกลำโพงคู่จะใช้เพียงข้างเดียวหรือต่อพ่วงตามอิมพีแดนซ์ที่แอมป์รับได้" });
+  if (amp && amp.bt && amp.type !== "preamp")
+    issues.push({ level: "info", text: "บอร์ดนี้รับบลูทูธในตัว ต่อมือถือ/แท็บเล็ตได้เลยไม่ต้องมีโมดูลแยก" });
+
+  // subwoofer amp (อุปกรณ์เสริม)
+  const hasSub = subAmp && subAmp.id !== "sub_none";
+  let subAmpOut = 0;
+  if (hasSub) {
+    if (supplyV > 0) {
+      if (supplyV < subAmp.vMin)
+        add("error", `ไฟเลี้ยง ${supplyV}V ต่ำกว่าที่ซับแอมป์ ${subAmp.name} ต้องการ (${subAmp.vMin}–${subAmp.vMax}V)`);
+      else if (supplyV > subAmp.vMax)
+        add("error", `ไฟเลี้ยง ${supplyV}V เกินพิกัดซับแอมป์ ${subAmp.name} (สูงสุด ${subAmp.vMax}V) เสี่ยงบอร์ดพัง!`);
+      const vf = Math.min(Math.pow(supplyV / subAmp.vRated, 2), 1.05);
+      const ch = subAmp.type === "mono" ? 1 : 2;
+      subAmpOut = Math.round(subAmp.ratedW * vf * ch + subAmp.subW * vf);
+    }
+    issues.push({ level: "info", text: `ซับแอมป์ ${subAmp.name}: ต้องเตรียมดอกซับวูฟเฟอร์แยก (โหลดต่ำสุด ${subAmp.minImp}Ω) จ่ายไฟ ${subAmp.vMin}–${subAmp.vMax}V` });
+  }
+
+  // speaker driver pairing (ดอกซับ / ทวีตเตอร์)
+  const hasTweeter = tweeter && tweeter.id !== "tw_none";
+  const hasSubDriver = subDriver && subDriver.id !== "sd_none";
+  const subCapable = hasSub || (amp && amp.type === "2.1"); // มีภาคขยายซับหรือไม่
+  if (hasSubDriver && subCapable) {
+    const subMinImp = hasSub ? subAmp.minImp : (amp ? amp.minImp : 4);
+    if (subDriver.impedance < subMinImp)
+      add("error", `ดอกซับ ${subDriver.impedance}Ω ต่ำกว่าโหลดต่ำสุดของภาคขยายซับ (${subMinImp}Ω) เสี่ยงแอมป์ร้อน/ตัด`);
+  }
+  if (hasSub && !hasSubDriver)
+    issues.push({ level: "info", text: "เลือกซับแอมป์แล้ว อย่าลืมเลือกดอกซับวูฟเฟอร์ด้วย" });
+  if (hasSubDriver && !subCapable)
+    issues.push({ level: "info", text: "มีดอกซับแต่ยังไม่มีภาคขยายซับ — เลือกบอร์ด 2.1 หรือซับแอมป์เพื่อขับดอกซับ" });
+  if (hasTweeter)
+    issues.push({ level: "info", text: "ทวีตเตอร์ต้องต่อผ่านครอสโอเวอร์/คาปาซิเตอร์กับวูฟเฟอร์ (ระบบ 2 ทาง)" });
+
+  if (issues.filter((i) => i.level === "error").length === 0 &&
+      issues.filter((i) => i.level === "warn").length === 0)
+    add("ok", "อุปกรณ์เข้ากันได้ดี พร้อมลงมือประกอบ!");
+
+  // power & runtime
+  const totalOut = estPerCh * mainCh;
+  const drawOut = totalOut + subEst + subAmpOut;
+  const avgDraw = amp ? amp.idleW + (hasSub ? subAmp.idleW : 0) + 0.8 + (drawOut * 0.12) / 0.85 : 0;
+  const peakDraw = amp ? amp.idleW + (hasSub ? subAmp.idleW : 0) + drawOut / 0.85 : 0;
+  let runtimeH = 0;
+  if (hasBat && avgDraw > 0) {
+    const wh = (battery.nominalV * battery.mAh) / 1000;
+    runtimeH = (wh * 0.85) / avgDraw;
+  }
+
+  const parts = [amp, hasSub ? subAmp : null, battery].filter(Boolean);
+  const driverQty = driver ? (driver.qty || 1) : 0;
+  let totalPrice = parts.reduce((s, p) => s + p.price, 0);
+  let totalWeight = parts.reduce((s, p) => s + p.weight, 0);
+  [driver, tweeter, subDriver].forEach((d) => {
+    if (d) { totalPrice += d.price * (d.qty || 0); totalWeight += d.weight * (d.qty || 0); }
+  });
+
+  return {
+    amp, subAmp: hasSub ? subAmp : null, driver, driverQty,
+    tweeter: hasTweeter ? tweeter : null, subDriver: hasSubDriver ? subDriver : null,
+    battery, hasBat,
+    issues, score: Math.max(0, Math.round(score)),
+    supplyV, estPerCh: Math.round(estPerCh), totalOut: Math.round(totalOut), subEst, subAmpOut, mainCh,
+    avgDraw, peakDraw, runtimeH, totalPrice, totalWeight,
+  };
+}
+
+const DEFAULT_SEL = { amp: "a_tb21", subAmp: "sub_none", driver: "v_4", tweeter: "tw_none", subDriver: "sd_none", battery: "b_6s" };
+
+const COLORS = {
+  bg: "#0e0c0a", panel: "#181410", panel2: "#211b15", line: "#3a2f23",
+  amber: "#ff9e3d", amberSoft: "#ffb866", text: "#ece4d6", muted: "#9c8d76",
+  ok: "#74d68a", warn: "#ffc24d", err: "#ff6b5e", cyan: "#5ed1d1",
+};
+
+export default function AudioSpecForge() {
+  const [tab, setTab] = useState("build");
+  const [sel, setSel] = useState(DEFAULT_SEL);
+  const [cmpCat, setCmpCat] = useState("amp");
+  const [copied, setCopied] = useState(false);
+
+  const A = useMemo(() => analyze(sel), [sel]);
+  const pick = (cat, id) => setSel((s) => ({ ...s, [cat]: id }));
+
+  const errCount = A.issues.filter((i) => i.level === "error").length;
+  const statusColor = errCount > 0 ? COLORS.err : A.score >= 90 ? COLORS.ok : COLORS.warn;
+
+  const summaryText = useMemo(() => {
+    const L = [];
+    L.push("🔊 สเป็คเครื่องเสียง DIY (Audio Spec Forge)");
+    L.push("──────────────────────");
+    CATS.forEach((c) => {
+      const item = find(c.list, sel[c.key]);
+      if (!item) return;
+      const lineTotal = item.qty ? item.price * item.qty : item.price;
+      const qtyTxt = item.qty ? ` (${item.qty} ดอก)` : "";
+      L.push(`• ${c.label}: ${item.name}${item.brand !== "—" ? " (" + item.brand + ")" : ""}${qtyTxt} — ${baht(lineTotal)}`);
+    });
+    L.push("──────────────────────");
+    if (A.amp && A.amp.type === "preamp")
+      L.push("⚡ บอร์ดปรีแอมป์/รับบลูทูธ — ต้องต่อเพาเวอร์แอมป์แยกเพื่อขับลำโพง");
+    else
+      L.push(`⚡ กำลังขับโดยประมาณ: ${A.estPerCh}W ×${A.mainCh}${A.subEst ? ` + ซับ ~${A.subEst}W` : ` = ${A.totalOut}W`} ที่ไฟเลี้ยง ${A.supplyV}V`);
+    if (A.hasBat) L.push(`🔋 ใช้งานต่อเนื่อง ~${A.runtimeH.toFixed(1)} ชม. (ระดับฟังปกติ)`);
+    L.push(`⚖️ น้ำหนักรวมอุปกรณ์: ~${A.totalWeight} g`);
+    L.push(`💰 ราคารวม: ${baht(A.totalPrice)}`);
+    L.push(`✅ คะแนนความเข้ากัน: ${A.score}/100`);
+    return L.join("\n");
+  }, [sel, A]);
+
+  const doCopy = () => {
+    navigator.clipboard?.writeText(summaryText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  };
+  const doDownload = () => {
+    const data = { selection: sel, summary: A, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "audio-build-spec.json"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{ background: COLORS.bg, color: COLORS.text, minHeight: "100%", fontFamily: "'IBM Plex Sans Thai', sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
+        .asf-mono { font-family: 'JetBrains Mono', monospace; }
+        .asf-display { font-family: 'Kanit', sans-serif; letter-spacing: .3px; }
+        .asf-grain::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;
+          background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+        .asf-glow{box-shadow:0 0 0 1px ${COLORS.amber}55, 0 0 22px -4px ${COLORS.amber}66, inset 0 0 18px -10px ${COLORS.amber};}
+        .asf-card{transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;}
+        .asf-card:hover{transform:translateY(-2px);}
+        @keyframes vu{0%{height:18%}25%{height:72%}50%{height:40%}75%{height:90%}100%{height:30%}}
+        .vu-bar{width:5px;border-radius:2px;background:linear-gradient(${COLORS.amber},${COLORS.err});animation:vu 1.1s ease-in-out infinite;}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+        .fade{animation:fadeUp .5s ease both;}
+        .asf-scroll::-webkit-scrollbar{height:6px;width:6px}
+        .asf-scroll::-webkit-scrollbar-thumb{background:${COLORS.line};border-radius:9px}
+      `}</style>
+
+      <div className="asf-grain" />
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1180, margin: "0 auto", padding: "0 16px 56px" }}>
+
+        {/* HEADER */}
+        <header style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "center", justifyContent: "space-between", padding: "22px 0 18px", borderBottom: `1px solid ${COLORS.line}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div className="asf-glow" style={{ width: 46, height: 46, borderRadius: 12, background: COLORS.panel2, display: "grid", placeItems: "center" }}>
+              <Volume2 size={24} color={COLORS.amber} />
+            </div>
+            <div>
+              <div className="asf-display" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1 }}>
+                AUDIO <span style={{ color: COLORS.amber }}>SPEC FORGE</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: COLORS.muted, marginTop: 3 }}>จัดสเป็คเครื่องเสียงลำโพงบลูทูธ DIY by KG Audio</div>
+            </div>
+          </div>
+          <nav style={{ display: "flex", gap: 6, background: COLORS.panel, padding: 5, borderRadius: 12, border: `1px solid ${COLORS.line}` }}>
+            {[["build", "จัดสเป็ค", Layers], ["compare", "เทียบสเป็ค", Activity]].map(([k, label, Ic]) => (
+              <button key={k} onClick={() => setTab(k)}
+                className="asf-display"
+                style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 16px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600,
+                  background: tab === k ? COLORS.amber : "transparent", color: tab === k ? "#1a1208" : COLORS.muted }}>
+                <Ic size={16} /> {label}
+              </button>
+            ))}
+          </nav>
+        </header>
+
+        {tab === "build" ? (
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 22, marginTop: 22 }} className="asf-build">
+            <style>{`@media(min-width:980px){.asf-build{grid-template-columns:1fr 360px !important}}`}</style>
+
+            {/* LEFT: pickers */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              {CATS.map((cat, ci) => {
+                const Ic = cat.icon;
+                return (
+                  <section key={cat.key} className="fade" style={{ animationDelay: `${ci * 60}ms` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 10 }}>
+                      <Ic size={17} color={COLORS.amber} />
+                      <h3 className="asf-display" style={{ fontSize: 15.5, fontWeight: 600, margin: 0 }}>{cat.label}</h3>
+                      {cat.required && <span style={{ fontSize: 10.5, color: COLORS.err, border: `1px solid ${COLORS.err}55`, padding: "1px 7px", borderRadius: 20 }}>จำเป็น</span>}
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(168px,1fr))", gap: 10 }}>
+                      {cat.list.map((opt) => {
+                        const active = sel[cat.key] === opt.id;
+                        return (
+                          <button key={opt.id} onClick={() => pick(cat.key, opt.id)}
+                            className={"asf-card" + (active ? " asf-glow" : "")}
+                            style={{ textAlign: "left", cursor: "pointer", padding: "12px 13px", borderRadius: 12,
+                              color: COLORS.text,
+                              background: active ? COLORS.panel2 : COLORS.panel,
+                              border: `1px solid ${active ? COLORS.amber + "88" : COLORS.line}` }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: 6, alignItems: "flex-start" }}>
+                              <span style={{ fontSize: 13.5, fontWeight: 600, lineHeight: 1.25 }}>{opt.name}</span>
+                              {active && <CheckCircle2 size={16} color={COLORS.amber} style={{ flexShrink: 0 }} />}
+                            </div>
+                            <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 4 }}>{opt.brand !== "—" ? opt.brand : "\u00A0"}</div>
+                            {opt.type && opt.type !== "none" && (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
+                                <span style={{ fontSize: 9.5, fontWeight: 600, color: COLORS.amberSoft, border: `1px solid ${COLORS.amber}55`, padding: "1px 6px", borderRadius: 20 }}>
+                                  {opt.type === "2.1" ? "2.1 ch" : opt.type === "mono" ? "โมโน" : opt.type === "preamp" ? "ปรีแอมป์" : "สเตอริโอ"}
+                                </span>
+                                {opt.bt && <span style={{ fontSize: 9.5, fontWeight: 600, color: COLORS.cyan, border: `1px solid ${COLORS.cyan}55`, padding: "1px 6px", borderRadius: 20 }}>BT ในตัว</span>}
+                                {opt.app && <span style={{ fontSize: 9.5, fontWeight: 600, color: COLORS.cyan, border: `1px solid ${COLORS.cyan}55`, padding: "1px 6px", borderRadius: 20 }}>App</span>}
+                              </div>
+                            )}
+                            <div style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 7, lineHeight: 1.4, minHeight: 32 }}>{opt.note}</div>
+                            <div className="asf-mono" style={{ fontSize: 13, fontWeight: 700, color: active ? COLORS.amber : COLORS.text, marginTop: 6 }}>
+                              {opt.price > 0 ? (opt.qty ? `${baht(opt.price)} /ดอก ×${opt.qty}` : baht(opt.price)) : "ฟรี / —"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+
+            {/* RIGHT: live summary */}
+            <aside style={{ position: "sticky", top: 14, alignSelf: "start", display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* VU + score */}
+              <div style={{ background: COLORS.panel, border: `1px solid ${COLORS.line}`, borderRadius: 16, padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span className="asf-display" style={{ fontSize: 13, color: COLORS.muted }}>สถานะระบบ</span>
+                  <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: statusColor }}>
+                    {errCount > 0 ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                    {errCount > 0 ? "มีปัญหา" : A.score >= 90 ? "พร้อมประกอบ" : "ใช้ได้ มีข้อควรระวัง"}
+                  </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 12 }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 56, padding: "0 4px" }}>
+                    {[0,1,2,3,4,5,6].map((i) => (
+                      <div key={i} className="vu-bar" style={{ animationDelay: `${i * 0.12}s`, opacity: errCount > 0 ? 0.35 : 1 }} />
+                    ))}
+                  </div>
+                  <div style={{ marginLeft: "auto", textAlign: "right" }}>
+                    <div className="asf-mono" style={{ fontSize: 30, fontWeight: 700, color: statusColor, lineHeight: 1 }}>{A.score}</div>
+                    <div style={{ fontSize: 11, color: COLORS.muted }}>คะแนนความเข้ากัน</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* metrics */}
+              <div style={{ background: COLORS.panel, border: `1px solid ${COLORS.line}`, borderRadius: 16, padding: 6 }}>
+                {[
+                  [Gauge, "กำลังขับโดยประมาณ",
+                    A.amp && A.amp.type === "preamp" ? "ปรีแอมป์" : `${A.estPerCh}W ×${A.mainCh}`,
+                    A.amp && A.amp.type === "preamp" ? "ไม่มีภาคขยายกำลัง" : A.subEst ? `+ ซับ ~${A.subEst}W @ ${A.supplyV}V` : `${A.totalOut}W รวม @ ${A.supplyV}V`],
+                  ...(A.subAmp ? [[Waves, "ขยายซับวูฟเฟอร์", `~${A.subAmpOut}W`, A.subAmp.name]] : []),
+                  [Clock, "ใช้งานต่อเนื่อง", A.hasBat ? `~${A.runtimeH.toFixed(1)} ชม.` : "—", A.hasBat ? "ระดับฟังปกติ" : "เลือกแบตก่อน"],
+                  [Scale, "น้ำหนักอุปกรณ์", `~${A.totalWeight} g`, "ยังไม่รวมตู้/สายไฟ"],
+                  [Wallet, "ราคารวม", baht(A.totalPrice), "เฉพาะอุปกรณ์อิเล็กฯ"],
+                ].map(([Ic, label, big, sub], i, arr) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 12px", borderBottom: i < arr.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
+                    <Ic size={18} color={COLORS.amber} style={{ flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11.5, color: COLORS.muted }}>{label}</div>
+                      <div style={{ fontSize: 10.5, color: COLORS.muted, opacity: .8 }}>{sub}</div>
+                    </div>
+                    <div className="asf-mono" style={{ fontSize: 15, fontWeight: 700, color: COLORS.text }}>{big}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* compatibility */}
+              <div style={{ background: COLORS.panel, border: `1px solid ${COLORS.line}`, borderRadius: 16, padding: 14 }}>
+                <div className="asf-display" style={{ fontSize: 13, color: COLORS.muted, marginBottom: 9, display: "flex", alignItems: "center", gap: 7 }}>
+                  <Sparkles size={14} color={COLORS.amber} /> ผลตรวจความเข้ากัน
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {A.issues.map((it, i) => {
+                    const c = it.level === "error" ? COLORS.err : it.level === "warn" ? COLORS.warn : it.level === "ok" ? COLORS.ok : COLORS.cyan;
+                    const Ic = it.level === "error" ? AlertTriangle : it.level === "warn" ? AlertTriangle : it.level === "ok" ? CheckCircle2 : Info;
+                    return (
+                      <div key={i} style={{ display: "flex", gap: 9, fontSize: 12, lineHeight: 1.45, color: COLORS.text }}>
+                        <Ic size={15} color={c} style={{ flexShrink: 0, marginTop: 1 }} />
+                        <span>{it.text}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* actions */}
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={doCopy} className="asf-display"
+                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "12px", borderRadius: 11, border: "none", cursor: "pointer", fontSize: 13.5, fontWeight: 600, background: COLORS.amber, color: "#1a1208" }}>
+                  <Copy size={15} /> {copied ? "คัดลอกแล้ว!" : "คัดลอกสเป็ค"}
+                </button>
+                <button onClick={doDownload} title="ดาวน์โหลด JSON"
+                  style={{ padding: "12px 14px", borderRadius: 11, cursor: "pointer", border: `1px solid ${COLORS.line}`, background: COLORS.panel, color: COLORS.text }}>
+                  <Download size={16} />
+                </button>
+                <button onClick={() => setSel(DEFAULT_SEL)} title="รีเซ็ต"
+                  style={{ padding: "12px 14px", borderRadius: 11, cursor: "pointer", border: `1px solid ${COLORS.line}`, background: COLORS.panel, color: COLORS.text }}>
+                  <RotateCcw size={16} />
+                </button>
+              </div>
+            </aside>
+          </div>
+        ) : (
+          /* ================= COMPARE TAB ================= */
+          <div style={{ marginTop: 22 }} className="fade">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 }}>
+              {CATS.map((c) => {
+                const Ic = c.icon;
+                const active = cmpCat === c.key;
+                return (
+                  <button key={c.key} onClick={() => setCmpCat(c.key)} className="asf-display"
+                    style={{ display: "flex", alignItems: "center", gap: 7, padding: "9px 14px", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 600,
+                      border: `1px solid ${active ? COLORS.amber + "88" : COLORS.line}`, background: active ? COLORS.panel2 : COLORS.panel, color: active ? COLORS.amber : COLORS.muted }}>
+                    <Ic size={15} /> {c.label}
+                  </button>
+                );
+              })}
+            </div>
+            <CompareTable cat={CATS.find((c) => c.key === cmpCat)} selectedId={sel[cmpCat]} onPick={(id) => { pick(cmpCat, id); setTab("build"); }} />
+            <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 16, display: "flex", alignItems: "center", gap: 6 }}>
+              <Music size={13} color={COLORS.amber} /> แตะปุ่ม "เลือก" เพื่อใส่อุปกรณ์ลงสเป็คแล้วกลับไปดูผลคำนวณ
+            </p>
+          </div>
+        )}
+
+        <footer style={{ marginTop: 40, paddingTop: 16, borderTop: `1px solid ${COLORS.line}`, fontSize: 11.5, color: COLORS.muted, lineHeight: 1.6 }}>
+          ตัวเลขกำลังขับ/แบตเตอรี่เป็น <b style={{ color: COLORS.amberSoft }}>ค่าประมาณการ</b> สำหรับวางแผนเบื้องต้น
+          ราคาเป็น <b style={{ color: COLORS.amberSoft }}>ราคาอ้างอิงตลาด (โดยประมาณ)</b> อาจต่างจากราคาร้านจริง แก้ไข/เพิ่มสินค้าได้ในไฟล์โค้ด · Audio Spec Forge
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function CompareTable({ cat, selectedId, onPick }) {
+  const specKeys = {
+    amp: [["type", "ชนิด"], ["ratedW", "วัตต์/ข้าง"], ["subW", "ซับ (W)"], ["minImp", "โหลดต่ำสุด (Ω)"], ["vMin", "ไฟต่ำสุด (V)"], ["vMax", "ไฟสูงสุด (V)"], ["idleW", "กินไฟ idle (W)"]],
+    subAmp: [["type", "ชนิด"], ["ratedW", "วัตต์/ข้าง"], ["subW", "ซับ (W)"], ["minImp", "โหลดต่ำสุด (Ω)"], ["vMin", "ไฟต่ำสุด (V)"], ["vMax", "ไฟสูงสุด (V)"], ["idleW", "กินไฟ idle (W)"]],
+    driver: [["size", "ขนาด"], ["impedance", "อิมพีแดนซ์ (Ω)"], ["powerW", "รับกำลัง (W)"], ["sens", "ความไว (dB)"], ["qty", "ใช้ (ดอก)"]],
+    tweeter: [["size", "ขนาด"], ["impedance", "อิมพีแดนซ์ (Ω)"], ["powerW", "รับกำลัง (W)"], ["sens", "ความไว (dB)"], ["qty", "ใช้ (ดอก)"]],
+    subDriver: [["size", "ขนาด"], ["impedance", "อิมพีแดนซ์ (Ω)"], ["powerW", "รับกำลัง (W)"], ["sens", "ความไว (dB)"], ["qty", "ใช้ (ดอก)"]],
+    battery: [["nominalV", "แรงดัน (V)"], ["mAh", "ความจุ (mAh)"]],
+  }[cat.key];
+
+  const typeLabel = { stereo: "สเตอริโอ", "2.1": "2.1 ch", mono: "โมโน", preamp: "ปรีแอมป์", none: "—" };
+  const fmt = (v) => (typeLabel[v] ? typeLabel[v] : typeof v === "boolean" ? (v ? "✓ มี" : "✕ ไม่มี") : v === 0 || v === "" ? "—" : v);
+
+  return (
+    <div className="asf-scroll" style={{ overflowX: "auto", border: `1px solid ${COLORS.line}`, borderRadius: 14 }}>
+      <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 560, fontSize: 13 }}>
+        <thead>
+          <tr style={{ background: COLORS.panel2 }}>
+            <th className="asf-display" style={{ textAlign: "left", padding: "12px 14px", color: COLORS.muted, fontWeight: 600, position: "sticky", left: 0, background: COLORS.panel2 }}>รุ่น</th>
+            {specKeys.map(([k, label]) => (
+              <th key={k} className="asf-display" style={{ textAlign: "left", padding: "12px 14px", color: COLORS.muted, fontWeight: 600, whiteSpace: "nowrap" }}>{label}</th>
+            ))}
+            <th style={{ padding: "12px 14px", textAlign: "right", color: COLORS.muted }}>ราคา</th>
+            <th style={{ padding: "12px 14px" }} />
+          </tr>
+        </thead>
+        <tbody>
+          {cat.list.map((opt) => {
+            const active = opt.id === selectedId;
+            return (
+              <tr key={opt.id} style={{ borderTop: `1px solid ${COLORS.line}`, background: active ? COLORS.amber + "12" : "transparent" }}>
+                <td style={{ padding: "12px 14px", fontWeight: 600, position: "sticky", left: 0, background: active ? "#241a10" : COLORS.bg }}>
+                  {opt.name}
+                  <div style={{ fontSize: 11, color: COLORS.muted, fontWeight: 400 }}>{opt.brand}</div>
+                </td>
+                {specKeys.map(([k]) => (
+                  <td key={k} className="asf-mono" style={{ padding: "12px 14px", color: COLORS.text, whiteSpace: "nowrap" }}>{fmt(opt[k])}</td>
+                ))}
+                <td className="asf-mono" style={{ padding: "12px 14px", textAlign: "right", fontWeight: 700, color: COLORS.amber, whiteSpace: "nowrap" }}>{opt.price > 0 ? baht(opt.price) : "—"}</td>
+                <td style={{ padding: "12px 14px", textAlign: "right" }}>
+                  <button onClick={() => onPick(opt.id)} className="asf-display"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "7px 12px", borderRadius: 9, cursor: "pointer", fontSize: 12.5, fontWeight: 600,
+                      border: "none", background: active ? COLORS.line : COLORS.amber, color: active ? COLORS.muted : "#1a1208" }}>
+                    {active ? "เลือกอยู่" : "เลือก"} {!active && <ChevronRight size={14} />}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+import { createRoot } from "react-dom/client";
+createRoot(document.getElementById("root")).render(<AudioSpecForge />);
+</script>
+</body>
+</html>
