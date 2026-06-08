@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เรียน Python แบบโต้ตอบ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#16192a;--bg3:#1e2235;--bg4:#252a40;
+  --acc:#6c63ff;--acc2:#8b85ff;--acc3:#b3b0ff;
+  --grn:#22c55e;--grn2:#4ade80;--amb:#f59e0b;--red:#ef4444;
+  --txt:#e2e8f0;--txt2:#94a3b8;--txt3:#5a6a85;
+  --bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.12);
+  --code:#0d1117;
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--txt);font-size:17px;line-height:1.8;min-height:100vh}
+
+/* TOP BAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--bdr);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.logo-txt{font-size:16px;font-weight:700;color:var(--acc3);margin-right:12px;white-space:nowrap}
+.instructor-info{display:flex;flex-direction:column;gap:1px;padding-left:14px;margin-right:8px;border-left:1px solid var(--bdr2);line-height:1.3}
+.instr-name{font-size:13px;font-weight:600;color:var(--txt)}
+.instr-school{font-size:11px;color:var(--txt3)}
+.search-wrap{flex:1;min-width:140px;max-width:240px}
+.search-wrap input{width:100%;padding:8px 14px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:8px;color:var(--txt);font-size:14px;font-family:'Sarabun',sans-serif;outline:none}
+.search-wrap input:focus{border-color:var(--acc)}
+.search-wrap input::placeholder{color:var(--txt3)}
+.progress-info{font-size:14px;color:var(--txt3);margin-left:auto;white-space:nowrap}
+.prog-bar{width:70px;height:4px;background:var(--bg4);border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:8px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--grn));border-radius:4px;transition:width .4s}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+.sidebar{width:250px;min-width:250px;background:var(--bg2);border-right:1px solid var(--bdr);padding:8px 0;overflow-y:auto;position:sticky;top:56px;height:calc(100vh - 56px);align-self:flex-start}
+.cat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);padding:14px 16px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:14px;color:var(--txt2);transition:all .12s;border:none;background:none;width:100%;text-align:left;border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--txt)}
+.nav-item.active{background:rgba(108,99,255,.12);color:var(--acc3);border-left-color:var(--acc)}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--bdr2);flex-shrink:0;transition:background .3s}
+.nav-item.done .nav-dot{background:var(--grn)}
+.nav-num{font-size:10px;color:var(--txt3);min-width:16px}
+
+/* CONTENT */
+.content{flex:1;padding:40px;max-width:960px;min-width:0;margin:0 auto}
+
+/* CHAPTER */
+.ch-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bdr)}
+.ch-num{width:52px;height:52px;border-radius:12px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--acc2);flex-shrink:0}
+.ch-title{font-size:26px;font-weight:700;color:#fff;line-height:1.2}
+.ch-sub{font-size:15px;color:var(--txt3);margin-top:4px}
+h3{font-size:18px;font-weight:600;color:var(--txt);margin:22px 0 10px;display:flex;align-items:center;gap:8px}
+h3::before{content:'';width:3px;height:13px;background:var(--acc);border-radius:2px;flex-shrink:0}
+p{color:var(--txt2);margin-bottom:12px;font-size:16px}
+code{font-family:'JetBrains Mono',monospace;font-size:13.5px;background:var(--bg3);color:var(--acc3);padding:2px 7px;border-radius:4px}
+strong{color:var(--txt);font-weight:600}
+
+/* CODE BLOCK */
+.cb{background:var(--code);border:1px solid var(--bdr2);border-radius:10px;overflow:hidden;margin:12px 0}
+.cb-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bdr)}
+.cb-lang{font-size:11px;font-weight:600;color:var(--acc2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:5px}
+.cb-lang::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--acc)}
+.cb-copy{font-size:11px;color:var(--txt3);background:none;border:1px solid var(--bdr2);border-radius:5px;padding:3px 10px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .15s}
+.cb-copy:hover{border-color:var(--acc);color:var(--acc2)}
+.cb-copy.ok{color:var(--grn);border-color:var(--grn)}
+pre{padding:18px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:14.5px;line-height:1.75;color:#abb2bf}
+
+/* OUTPUT */
+.out{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:12px 16px;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--grn2);white-space:pre-wrap}
+.out-lbl{font-size:10px;font-weight:600;color:var(--grn);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-family:'Sarabun',sans-serif}
+
+/* CALLOUTS */
+.tip,.warn,.note{border-radius:8px;padding:12px 16px;margin:14px 0;font-size:15px;display:flex;gap:10px;align-items:flex-start}
+.tip{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);color:var(--acc3)}
+.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.note{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:#93c5fd}
+
+/* TABLES */
+.tbl{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{background:var(--bg3);color:var(--acc3);font-weight:600;padding:10px 14px;text-align:left;font-size:14px}
+td{padding:10px 14px;border-top:1px solid var(--bdr);color:var(--txt2)}
+tr:hover td{background:rgba(255,255,255,.015)}
+
+/* QUIZ */
+.quiz{background:var(--bg2);border:1px solid var(--bdr2);border-radius:12px;overflow:hidden;margin:18px 0}
+.quiz-hdr{padding:10px 16px;background:rgba(108,99,255,.08);border-bottom:1px solid rgba(108,99,255,.15);font-size:13px;font-weight:600;color:var(--acc3);display:flex;align-items:center;gap:8px}
+.quiz-body{padding:16px}
+.quiz-q{font-size:16px;color:var(--txt);margin-bottom:14px;font-weight:500}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.quiz-opt{padding:11px 16px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:8px;cursor:pointer;font-size:15px;color:var(--txt2);transition:all .15s;text-align:left;width:100%;font-family:'Sarabun',sans-serif}
+.quiz-opt:hover{border-color:var(--acc2);color:var(--txt)}
+.quiz-opt.correct{background:rgba(34,197,94,.1);border-color:var(--grn);color:var(--grn2)}
+.quiz-opt.wrong{background:rgba(239,68,68,.08);border-color:var(--red);color:#fca5a5}
+.quiz-opt:disabled{cursor:default}
+.quiz-fb{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:13px;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(34,197,94,.1);color:var(--grn2);border:1px solid rgba(34,197,94,.2)}
+.quiz-fb.bad{background:rgba(239,68,68,.08);color:#fca5a5;border:1px solid rgba(239,68,68,.2)}
+
+/* ── EDITOR ── */
+.editor-wrap{background:var(--bg2);border:1px solid var(--bdr2);border-radius:12px;overflow:hidden;margin:20px 0}
+.editor-topbar{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(108,99,255,.08);border-bottom:1px solid rgba(108,99,255,.2)}
+.editor-label{font-size:14px;font-weight:600;color:var(--acc3)}
+.editor-actions{display:flex;gap:7px;align-items:center}
+.pyodide-status{font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:5px}
+.py-dot{width:6px;height:6px;border-radius:50%;background:var(--amb);flex-shrink:0;transition:background .4s;animation:blink 1.2s ease-in-out infinite}
+.py-dot.ready{background:var(--grn);animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-reset{background:none;border:1px solid var(--bdr2);color:var(--txt3);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:'Sarabun',sans-serif;transition:all .15s}
+.btn-reset:hover{border-color:var(--acc);color:var(--acc3)}
+.btn-run{background:var(--acc);border:none;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Sarabun',sans-serif;transition:all .15s}
+.btn-run:hover:not(:disabled){background:var(--acc2)}
+.btn-run:disabled{opacity:.45;cursor:not-allowed}
+.editor-body{display:flex;position:relative}
+.line-nums{background:#0a0c14;padding:16px 8px 16px 6px;font-family:'JetBrains Mono',monospace;font-size:14.5px;line-height:1.75;color:var(--txt3);text-align:right;user-select:none;min-width:38px;border-right:1px solid var(--bdr);overflow:hidden;flex-shrink:0}
+.code-ta{flex:1;background:var(--code);border:none;outline:none;padding:16px 14px 16px 12px;font-family:'JetBrains Mono',monospace;font-size:14.5px;line-height:1.75;color:#abb2bf;resize:vertical;min-height:120px;caret-color:var(--acc2);tab-size:4;-moz-tab-size:4;white-space:pre;overflow-wrap:normal;overflow-x:auto}
+.code-ta::selection{background:rgba(108,99,255,.35)}
+.out-area{border-top:1px solid var(--bdr);background:#070a0f}
+.out-bar{font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;padding:6px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;font-family:'Sarabun',sans-serif}
+.clear-btn{background:none;border:none;color:var(--txt3);cursor:pointer;font-size:11px;font-family:'Sarabun',sans-serif;padding:0}
+.clear-btn:hover{color:var(--red)}
+.run-out{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.7;min-height:42px;white-space:pre-wrap;word-break:break-all}
+.run-out.idle{color:var(--txt3);font-style:italic}
+.run-out.ok{color:var(--grn2)}
+.run-out.err{color:#f87171}
+
+/* BOTTOM NAV */
+.bn{display:flex;justify-content:space-between;align-items:center;padding:22px 0 0;border-top:1px solid var(--bdr);margin-top:28px;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--bdr2);color:var(--txt2);padding:10px 18px;border-radius:8px;cursor:pointer;font-size:15px;font-family:'Sarabun',sans-serif;transition:all .15s}
+.btn:hover{border-color:var(--acc);color:var(--acc3)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{background:var(--acc2)}
+.btn.inv{opacity:0;pointer-events:none}
+
+/* DONE */
+.done-wrap{margin-top:14px;display:flex;justify-content:flex-end}
+.btn-done{background:none;border:1px solid var(--bdr2);color:var(--txt3);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:'Sarabun',sans-serif;transition:all .15s}
+.btn-done:hover{border-color:var(--grn);color:var(--grn2)}
+.btn-done.marked{border-color:var(--grn);color:var(--grn2)}
+
+/* INDEX */
+.idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:20px}
+.idx-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s}
+.idx-card:hover{border-color:var(--acc);background:var(--bg3)}
+.idx-card.done-card{border-color:rgba(34,197,94,.3)}
+.idx-num{font-size:12px;color:var(--txt3);margin-bottom:4px}
+.idx-name{font-size:15px;font-weight:500;color:var(--txt)}
+.idx-tag{font-size:10px;margin-top:5px;color:var(--grn);display:none}
+.idx-card.done-card .idx-tag{display:block}
+
+@media(max-width:700px){.sidebar{width:190px;min-width:190px}.content{padding:20px 16px}}
+@media(max-width:540px){.sidebar{display:none}.content{padding:16px}.instructor-info{display:none}}
+@media(max-width:780px){.search-wrap{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="data:image/png;base64,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" alt="โลโก้โรงเรียน" style="height:36px;width:36px;object-fit:contain;border-radius:4px">
+  <span class="logo-txt">Python Interactive</span>
+  <div class="instructor-info">
+    <span class="instr-name">ผู้สอน: นายราชศักดิ์ ฐานมั่น</span>
+    <span class="instr-school">โรงเรียนกาญจนาภิเษกวิทยาลัย ชัยภูมิ</span>
+  </div>
+  <div class="search-wrap"><input type="text" id="searchInput" placeholder="ค้นหาหัวข้อ..." oninput="doSearch(this.value)"></div>
+  <div class="progress-info">
+    <span id="doneCount">0</span>/34 บท
+    <span class="prog-bar"><span class="prog-fill" id="progFill" style="width:0%"></span></span>
+  </div>
+</div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="content" id="mainContent"></main>
+</div>
+
+<script>
+var chapters=[
+  {id:0,cat:"\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19",title:"\u0e20\u0e32\u0e1e\u0e23\u0e27\u0e21 Python",sub:"\u0e41\u0e19\u0e30\u0e19\u0e33\u0e20\u0e32\u0e29\u0e32 Python",icon:"\ud83c\udfe0"},
+  {id:1,cat:"\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19",title:"\u0e15\u0e34\u0e14\u0e15\u0e31\u0e49\u0e07 Python",sub:"Setup & Hello World",icon:"\u2699\ufe0f"},
+  {id:2,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e41\u0e2a\u0e14\u0e07\u0e1c\u0e25\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25",sub:"print() & Output",icon:"\ud83d\udce4"},
+  {id:3,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e2b\u0e21\u0e32\u0e22\u0e40\u0e2b\u0e15\u0e38",sub:"Comment",icon:"\ud83d\udcac"},
+  {id:4,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",sub:"Data Types",icon:"\ud83d\uddc2\ufe0f"},
+  {id:5,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e01\u0e32\u0e23\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23",sub:"Variable",icon:"\ud83d\udce6"},
+  {id:6,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e23\u0e31\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e08\u0e32\u0e01\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49",sub:"Input",icon:"\u2328\ufe0f"},
+  {id:7,cat:"\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19",title:"\u0e01\u0e32\u0e23\u0e41\u0e1b\u0e25\u0e07\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25",sub:"Casting",icon:"\ud83d\udd04"},
+  {id:8,cat:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e04\u0e13\u0e34\u0e15\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c",sub:"Arithmetic",icon:"\u2795"},
+  {id:9,cat:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e04\u0e48\u0e32",sub:"Assignment",icon:"\ud83d\udcdd"},
+  {id:10,cat:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e40\u0e1b\u0e23\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e35\u0e22\u0e1a",sub:"Comparison",icon:"\u2696\ufe0f"},
+  {id:11,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",sub:"If...Else",icon:"\ud83d\udd00"},
+  {id:12,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"Ternary Operator",sub:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e41\u0e1a\u0e1a\u0e2a\u0e31\u0e49\u0e19",icon:"\u26a1"},
+  {id:13,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e15\u0e23\u0e23\u0e01\u0e30",sub:"Logical",icon:"\ud83d\udd17"},
+  {id:14,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"\u0e42\u0e1b\u0e23\u0e41\u0e01\u0e23\u0e21\u0e15\u0e31\u0e14\u0e40\u0e01\u0e23\u0e14",sub:"Grade Program",icon:"\ud83c\udf93"},
+  {id:15,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"Nested If",sub:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e0b\u0e49\u0e2d\u0e19",icon:"\ud83e\ude86"},
+  {id:16,cat:"\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",title:"Match Statement",sub:"Switch-like",icon:"\ud83c\udfaf"},
+  {id:17,cat:"\u0e25\u0e39\u0e1b",title:"While Loop",sub:"\u0e27\u0e19\u0e0b\u0e49\u0e33\u0e15\u0e32\u0e21\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02",icon:"\ud83d\udd01"},
+  {id:18,cat:"\u0e25\u0e39\u0e1b",title:"For Loop",sub:"\u0e27\u0e19\u0e0b\u0e49\u0e33\u0e15\u0e32\u0e21\u0e25\u0e33\u0e14\u0e31\u0e1a",icon:"\ud83d\udd02"},
+  {id:19,cat:"\u0e25\u0e39\u0e1b",title:"\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a Loop",sub:"break/continue/pass",icon:"\u23f9\ufe0f"},
+  {id:20,cat:"\u0e25\u0e39\u0e1b",title:"\u0e41\u0e2a\u0e14\u0e07\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13",sub:"\u0e15\u0e32\u0e23\u0e32\u0e07\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13",icon:"\u2716\ufe0f"},
+  {id:21,cat:"\u0e25\u0e39\u0e1b",title:"\u0e2b\u0e32\u0e1c\u0e25\u0e23\u0e27\u0e21 (5 \u0e08\u0e33\u0e19\u0e27\u0e19)",sub:"Fixed Sum",icon:"\ud83e\uddee"},
+  {id:22,cat:"\u0e25\u0e39\u0e1b",title:"\u0e2b\u0e32\u0e1c\u0e25\u0e23\u0e27\u0e21 (\u0e44\u0e21\u0e48\u0e08\u0e33\u0e01\u0e31\u0e14)",sub:"Dynamic Sum",icon:"\u2211"},
+  {id:23,cat:"\u0e25\u0e39\u0e1b",title:"Nested Loop",sub:"\u0e25\u0e39\u0e1b\u0e0b\u0e49\u0e2d\u0e19\u0e25\u0e39\u0e1b",icon:"\ud83c\udf00"},
+  {id:24,cat:"\u0e25\u0e39\u0e1b",title:"\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13 (\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e0a\u0e48\u0e27\u0e07)",sub:"Range Loop",icon:"\ud83d\udcd0"},
+  {id:25,cat:"String",title:"\u0e40\u0e08\u0e32\u0e30\u0e25\u0e36\u0e01 String",sub:"String in-depth",icon:"\ud83d\udcdd"},
+  {id:26,cat:"String",title:"\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 String",sub:"String Methods",icon:"\ud83d\udd27"},
+  {id:27,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"List",sub:"\u0e25\u0e34\u0e2a\u0e15\u0e4c",icon:"\ud83d\udccb"},
+  {id:28,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 List",sub:"List Methods",icon:"\ud83d\udd27"},
+  {id:29,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"Tuple",sub:"\u0e17\u0e39\u0e40\u0e1e\u0e34\u0e25",icon:"\ud83d\udd12"},
+  {id:30,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"Set",sub:"\u0e40\u0e0b\u0e15",icon:"\ud83c\udfb1"},
+  {id:31,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"Dictionary",sub:"\u0e1e\u0e08\u0e19\u0e32\u0e19\u0e38\u0e01\u0e23\u0e21",icon:"\ud83d\udcd6"},
+  {id:32,cat:"\u0e04\u0e2d\u0e25\u0e40\u0e25\u0e01\u0e0a\u0e31\u0e19",title:"\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 Dictionary",sub:"Dict Methods",icon:"\ud83d\udd27"},
+  {id:33,cat:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e40\u0e2d\u0e01\u0e25\u0e31\u0e01\u0e29\u0e13\u0e4c",sub:"Identity",icon:"\ud83e\udeaa"},
+  {id:34,cat:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23",title:"\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01",sub:"Membership",icon:"\ud83d\udc65"},
+];
+var content={
+0:"",
+1:"<div class=\"ch-header\"><div class=\"ch-num\">\u2699\ufe0f</div><div><div class=\"ch-title\">\u0e15\u0e34\u0e14\u0e15\u0e31\u0e49\u0e07 Python</div><div class=\"ch-sub\">Setup & First Program</div></div></div><h3>\u0e02\u0e31\u0e49\u0e19\u0e15\u0e2d\u0e19\u0e15\u0e34\u0e14\u0e15\u0e31\u0e49\u0e07</h3><p>1. \u0e44\u0e1b\u0e17\u0e35\u0e48 <strong>python.org/downloads</strong> \u0e41\u0e25\u0e49\u0e27\u0e14\u0e32\u0e27\u0e19\u0e4c\u0e42\u0e2b\u0e25\u0e14\u0e40\u0e27\u0e2d\u0e23\u0e4c\u0e0a\u0e31\u0e19\u0e25\u0e48\u0e32\u0e2a\u0e38\u0e14</p><p>2. \u0e15\u0e34\u0e14\u0e15\u0e31\u0e49\u0e07 \u2014 Windows \u0e43\u0e2b\u0e49\u0e15\u0e34\u0e4a\u0e01 <strong style='color:var(--grn)'>\u2713 Add Python to PATH</strong> \u0e14\u0e49\u0e27\u0e22!</p><p>3. \u0e40\u0e1b\u0e34\u0e14 Terminal \u0e41\u0e25\u0e49\u0e27\u0e1e\u0e34\u0e21\u0e1e\u0e4c:</p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Terminal</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>python --version</pre></div><h3>\u0e42\u0e1b\u0e23\u0e41\u0e01\u0e23\u0e21\u0e41\u0e23\u0e01</h3><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>print(\"Hello, World!\")\nprint(\"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 Python!\")</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>Hello, World!\n\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 Python!</div><h3>IDE \u0e17\u0e35\u0e48\u0e41\u0e19\u0e30\u0e19\u0e33</h3><div class=\"tbl\"><table><thead><tr><th>IDE</th><th>\u0e40\u0e2b\u0e21\u0e32\u0e30\u0e01\u0e31\u0e1a</th></tr></thead><tbody><tr><td>VS Code</td><td>\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b / \u0e1c\u0e39\u0e49\u0e40\u0e23\u0e34\u0e48\u0e21\u0e15\u0e49\u0e19</td></tr><tr><td>PyCharm</td><td>\u0e42\u0e1b\u0e23\u0e40\u0e08\u0e01\u0e15\u0e4c\u0e43\u0e2b\u0e0d\u0e48</td></tr><tr><td>Google Colab</td><td>\u0e2d\u0e2d\u0e19\u0e44\u0e25\u0e19\u0e4c \u0e44\u0e21\u0e48\u0e15\u0e49\u0e2d\u0e07\u0e15\u0e34\u0e14\u0e15\u0e31\u0e49\u0e07</td></tr><tr><td>Replit</td><td>\u0e2d\u0e2d\u0e19\u0e44\u0e25\u0e19\u0e4c \u0e40\u0e23\u0e34\u0e48\u0e21\u0e40\u0e23\u0e47\u0e27</td></tr></tbody></table></div>",
+2:"<div class=\"ch-header\"><div class=\"ch-num\">📤</div><div><div class=\"ch-title\">แสดงผลข้อมูล</div><div class=\"ch-sub\">print() & Output</div></div></div><h3>print() พื้นฐาน</h3><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">คัดลอก</button></div><pre>print(\"สวัสดี!\")\nprint(42)\nprint(3.14)\nprint(True)</pre></div><div class=\"out\"><div class=\"out-lbl\">ผลลัพธ์</div>สวัสดี!\n42\n3.14\nTrue</div><h3>print() หลายค่า + sep, end</h3><p>เราใส่หลายค่าใน print() ได้ โดยคั่นด้วยจุลภาค (,) ปกติ Python จะคั่นแต่ละค่าด้วย<strong>ช่องว่าง 1 ตัว</strong> และขึ้นบรรทัดใหม่เมื่อจบ เราปรับได้ด้วย 2 พารามิเตอร์:</p><div class=\"tbl\"><table><thead><tr><th>พารามิเตอร์</th><th>ความหมาย</th><th>ค่าเริ่มต้น</th></tr></thead><tbody><tr><td><code>sep</code></td><td>ตัวคั่นระหว่างค่าแต่ละตัว (separator)</td><td>ช่องว่าง <code>\" \"</code></td></tr><tr><td><code>end</code></td><td>สิ่งที่พิมพ์ต่อท้ายเมื่อจบ print()</td><td>ขึ้นบรรทัดใหม่ <code>\"\\n\"</code></td></tr></tbody></table></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">คัดลอก</button></div><pre>print(\"ชื่อ:\", \"สมชาย\")\nprint(1, 2, 3, sep=\"-\")\nprint(\"A\", end=\" | \")\nprint(\"B\")</pre></div><div class=\"out\"><div class=\"out-lbl\">ผลลัพธ์</div>ชื่อ: สมชาย\n1-2-3\nA | B</div><h3>f-string (แนะนำ)</h3><p><strong>f-string</strong> คือวิธีสร้างข้อความที่แทรกค่าตัวแปรเข้าไปได้โดยตรง เพียงใส่ <code>f</code> นำหน้าเครื่องหมายคำพูด แล้วใส่ชื่อตัวแปรหรือนิพจน์ไว้ใน<strong>วงเล็บปีกกา</strong> <code>{ }</code> Python จะแทนค่าให้อัตโนมัติ เป็นวิธีที่อ่านง่ายและนิยมใช้มากที่สุด</p><div class=\"tbl\"><table><thead><tr><th>การเขียน</th><th>ความหมาย</th></tr></thead><tbody><tr><td><code>f\"...{name}...\"</code></td><td>แทนค่าตัวแปร name ลงในข้อความ</td></tr><tr><td><code>f\"{a + b}\"</code></td><td>คำนวณนิพจน์ในวงเล็บแล้วแสดงผล</td></tr><tr><td><code>f\"{3.14159:.2f}\"</code></td><td>จัดรูปแบบทศนิยม 2 ตำแหน่ง → 3.14</td></tr></tbody></table></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">คัดลอก</button></div><pre>name = \"นิดา\"\nage = 17\nprint(f\"ชื่อ: {name}, อายุ: {age} ปี\")\nprint(f\"pi = {3.14159:.2f}\")</pre></div><div class=\"out\"><div class=\"out-lbl\">ผลลัพธ์</div>ชื่อ: นิดา, อายุ: 17 ปี\npi = 3.14</div><div class=\"quiz\"><div class=\"quiz-hdr\"><span>🧠</span>ทดสอบความเข้าใจ</div><div class=\"quiz-body\"><div class=\"quiz-q\">ผลลัพธ์ของ print(1, 2, 3, sep=\"*\") คืออะไร?</div><div class=\"quiz-opts\"><button class=\"quiz-opt\" onclick=\"ans(this,false)\">A. 1 2 3</button><button class=\"quiz-opt\" onclick=\"ans(this,true)\">B. 1*2*3</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">C. 123</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">D. 1,2,3</button></div><div class=\"quiz-fb\"></div></div></div>",
+3:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udcac</div><div><div class=\"ch-title\">\u0e2b\u0e21\u0e32\u0e22\u0e40\u0e2b\u0e15\u0e38</div><div class=\"ch-sub\">Comment</div></div></div><p>Comment \u0e04\u0e37\u0e2d\u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e17\u0e35\u0e48 Python \u0e44\u0e21\u0e48\u0e1b\u0e23\u0e30\u0e21\u0e27\u0e25\u0e1c\u0e25 \u0e43\u0e0a\u0e49\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e42\u0e04\u0e49\u0e14</p><h3>Single-line Comment</h3><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre># \u0e19\u0e35\u0e48\u0e04\u0e37\u0e2d comment\nprint(\"Hello\")  # comment \u0e17\u0e49\u0e32\u0e22\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14</pre></div><h3>Multi-line Comment</h3><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>\"\"\"\nComment \u0e2b\u0e25\u0e32\u0e22\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\nPython \u0e44\u0e21\u0e48\u0e1b\u0e23\u0e30\u0e21\u0e27\u0e25\u0e1c\u0e25\u0e2a\u0e48\u0e27\u0e19\u0e19\u0e35\u0e49\n\"\"\"\nprint(\"\u0e08\u0e1a\")</pre></div><div class=\"tip\"><span>\ud83d\udca1</span><span>\u0e40\u0e02\u0e35\u0e22\u0e19 comment \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e27\u0e48\u0e32 '\u0e17\u0e33\u0e44\u0e21' \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e48\u0e41\u0e04\u0e48 '\u0e17\u0e33\u0e2d\u0e30\u0e44\u0e23'</span></div>",
+4:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\uddc2\ufe0f</div><div><div class=\"ch-title\">\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1e\u0e37\u0e49\u0e19\u0e10\u0e32\u0e19</div><div class=\"ch-sub\">Data Types</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e0a\u0e19\u0e34\u0e14</th><th>\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07</th><th>\u0e04\u0e33\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22</th></tr></thead><tbody><tr><td><code>str</code></td><td><code>\"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35\"</code></td><td>\u0e02\u0e49\u0e2d\u0e04\u0e27\u0e32\u0e21</td></tr><tr><td><code>int</code></td><td><code>42</code></td><td>\u0e08\u0e33\u0e19\u0e27\u0e19\u0e40\u0e15\u0e47\u0e21</td></tr><tr><td><code>float</code></td><td><code>3.14</code></td><td>\u0e17\u0e28\u0e19\u0e34\u0e22\u0e21</td></tr><tr><td><code>bool</code></td><td><code>True/False</code></td><td>\u0e08\u0e23\u0e34\u0e07/\u0e40\u0e17\u0e47\u0e08</td></tr><tr><td><code>list</code></td><td><code>[1,2,3]</code></td><td>\u0e25\u0e34\u0e2a\u0e15\u0e4c</td></tr><tr><td><code>dict</code></td><td><code>{\"k\":\"v\"}</code></td><td>\u0e1e\u0e08\u0e19\u0e32\u0e19\u0e38\u0e01\u0e23\u0e21</td></tr><tr><td><code>NoneType</code></td><td><code>None</code></td><td>\u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e48\u0e32</td></tr></tbody></table></div><h3>\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</h3><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>x = 42\nprint(type(x))         # &lt;class 'int'&gt;\nprint(isinstance(x, int)) # True</pre></div>",
+5:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udce6</div><div><div class=\"ch-title\">\u0e01\u0e32\u0e23\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23</div><div class=\"ch-sub\">Variable</div></div></div><p>\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23\u0e40\u0e2b\u0e21\u0e37\u0e2d\u0e19 <strong>\u0e01\u0e25\u0e48\u0e2d\u0e07\u0e40\u0e01\u0e47\u0e1a\u0e02\u0e2d\u0e07</strong> \u2014 Python \u0e01\u0e33\u0e2b\u0e19\u0e14\u0e0a\u0e19\u0e34\u0e14\u0e2d\u0e31\u0e15\u0e42\u0e19\u0e21\u0e31\u0e15\u0e34 (Dynamic Typing)</p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>name = \"\u0e2a\u0e21\u0e0a\u0e32\u0e22\"\nage = 18\nheight = 175.5\n\n# \u0e01\u0e33\u0e2b\u0e19\u0e14\u0e2b\u0e25\u0e32\u0e22\u0e04\u0e48\u0e32\u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e01\u0e31\u0e19\na, b, c = 1, 2, 3\nprint(a, b, c)</pre></div><div class=\"note\"><span>\ud83d\udccc</span><span>\u0e0a\u0e37\u0e48\u0e2d\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23: \u0e02\u0e36\u0e49\u0e19\u0e15\u0e49\u0e19\u0e14\u0e49\u0e27\u0e22\u0e15\u0e31\u0e27\u0e2d\u0e31\u0e01\u0e29\u0e23\u0e2b\u0e23\u0e37\u0e2d _ \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49 keyword \u0e2a\u0e07\u0e27\u0e19 (if, for, while...) \u0e41\u0e19\u0e30\u0e19\u0e33 snake_case</span></div>",
+6:"<div class=\"ch-header\"><div class=\"ch-num\">\u2328\ufe0f</div><div><div class=\"ch-title\">\u0e23\u0e31\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e08\u0e32\u0e01\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49</div><div class=\"ch-sub\">Input</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>name = input(\"\u0e01\u0e23\u0e38\u0e13\u0e32\u0e43\u0e2a\u0e48\u0e0a\u0e37\u0e48\u0e2d: \")\nprint(f\"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 {name}!\")</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>\u0e01\u0e23\u0e38\u0e13\u0e32\u0e43\u0e2a\u0e48\u0e0a\u0e37\u0e48\u0e2d: \u0e2a\u0e21\u0e0a\u0e32\u0e22\n\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 \u0e2a\u0e21\u0e0a\u0e32\u0e22!</div><div class=\"warn\"><span>\u26a0\ufe0f</span><span>input() \u0e04\u0e37\u0e19\u0e04\u0e48\u0e32\u0e40\u0e1b\u0e47\u0e19 <code>str</code> \u0e40\u0e2a\u0e21\u0e2d! \u0e15\u0e49\u0e2d\u0e07\u0e41\u0e1b\u0e25\u0e07\u0e16\u0e49\u0e32\u0e15\u0e49\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02</span></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>age = int(input(\"\u0e2d\u0e32\u0e22\u0e38: \"))\nheight = float(input(\"\u0e2a\u0e48\u0e27\u0e19\u0e2a\u0e39\u0e07 (\u0e0b\u0e21.): \"))</pre></div>",
+7:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd04</div><div><div class=\"ch-title\">\u0e01\u0e32\u0e23\u0e41\u0e1b\u0e25\u0e07\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</div><div class=\"ch-sub\">Casting</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>int(\"42\")      # 42\nint(3.9)       # 3 (\u0e15\u0e31\u0e14\u0e17\u0e28\u0e19\u0e34\u0e22\u0e21 \u0e44\u0e21\u0e48\u0e1b\u0e31\u0e14\u0e02\u0e36\u0e49\u0e19!)\nfloat(\"3.14\")  # 3.14\nstr(100)       # \"100\"\nbool(0)        # False\nbool(\"hello\")  # True</pre></div><div class=\"quiz\"><div class=\"quiz-hdr\"><span>\ud83e\udde0</span>\u0e17\u0e14\u0e2a\u0e2d\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e02\u0e49\u0e32\u0e43\u0e08</div><div class=\"quiz-body\"><div class=\"quiz-q\">int(3.9) \u0e21\u0e35\u0e04\u0e48\u0e32\u0e40\u0e17\u0e48\u0e32\u0e44\u0e23?</div><div class=\"quiz-opts\"><button class=\"quiz-opt\" onclick=\"ans(this,false)\">A. 4</button><button class=\"quiz-opt\" onclick=\"ans(this,true)\">B. 3</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">C. 3.9</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">D. Error</button></div><div class=\"quiz-fb\"></div></div></div>",
+8:"<div class=\"ch-header\"><div class=\"ch-num\">\u2795</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e04\u0e13\u0e34\u0e15\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c</div><div class=\"ch-sub\">Arithmetic Operators</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23</th><th>\u0e04\u0e27\u0e32\u0e21\u0e2b\u0e21\u0e32\u0e22</th><th>\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07</th><th>\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</th></tr></thead><tbody><tr><td><code>+</code></td><td>\u0e1a\u0e27\u0e01</td><td><code>10+3</code></td><td>13</td></tr><tr><td><code>-</code></td><td>\u0e25\u0e1a</td><td><code>10-3</code></td><td>7</td></tr><tr><td><code>*</code></td><td>\u0e04\u0e39\u0e13</td><td><code>10*3</code></td><td>30</td></tr><tr><td><code>/</code></td><td>\u0e2b\u0e32\u0e23</td><td><code>10/3</code></td><td>3.333...</td></tr><tr><td><code>//</code></td><td>\u0e2b\u0e32\u0e23\u0e40\u0e2d\u0e32\u0e2a\u0e48\u0e27\u0e19</td><td><code>10//3</code></td><td>3</td></tr><tr><td><code>%</code></td><td>\u0e2b\u0e32\u0e23\u0e40\u0e2d\u0e32\u0e40\u0e28\u0e29</td><td><code>10%3</code></td><td>1</td></tr><tr><td><code>**</code></td><td>\u0e22\u0e01\u0e01\u0e33\u0e25\u0e31\u0e07</td><td><code>2**8</code></td><td>256</td></tr></tbody></table></div><div class=\"tip\"><span>\ud83d\udca1</span><span>\u0e25\u0e33\u0e14\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e04\u0e33\u0e19\u0e27\u0e13: <code>**</code> \u2192 <code>* / // %</code> \u2192 <code>+ -</code></span></div>",
+9:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udcdd</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e04\u0e48\u0e32</div><div class=\"ch-sub\">Assignment Operators</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23</th><th>\u0e40\u0e17\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e48\u0e32</th><th>\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07</th></tr></thead><tbody><tr><td><code>=</code></td><td>\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e04\u0e48\u0e32</td><td><code>x = 10</code></td></tr><tr><td><code>+=</code></td><td><code>x = x+n</code></td><td><code>x += 5</code></td></tr><tr><td><code>-=</code></td><td><code>x = x-n</code></td><td><code>x -= 3</code></td></tr><tr><td><code>*=</code></td><td><code>x = x*n</code></td><td><code>x *= 2</code></td></tr><tr><td><code>/=</code></td><td><code>x = x/n</code></td><td><code>x /= 4</code></td></tr><tr><td><code>//=</code></td><td><code>x = x//n</code></td><td><code>x //= 2</code></td></tr><tr><td><code>%=</code></td><td><code>x = x%n</code></td><td><code>x %= 2</code></td></tr><tr><td><code>**=</code></td><td><code>x = x**n</code></td><td><code>x **= 3</code></td></tr></tbody></table></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>x = 10\nx += 5   # 15\nx *= 2   # 30\nx -= 10  # 20\nprint(x) # 20</pre></div>",
+10:"<div class=\"ch-header\"><div class=\"ch-num\">\u2696\ufe0f</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e40\u0e1b\u0e23\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e35\u0e22\u0e1a</div><div class=\"ch-sub\">Comparison Operators</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23</th><th>\u0e04\u0e27\u0e32\u0e21\u0e2b\u0e21\u0e32\u0e22</th><th>\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07</th><th>\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</th></tr></thead><tbody><tr><td><code>==</code></td><td>\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a</td><td><code>5==5</code></td><td>True</td></tr><tr><td><code>!=</code></td><td>\u0e44\u0e21\u0e48\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a</td><td><code>5!=3</code></td><td>True</td></tr><tr><td><code>&gt;</code></td><td>\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32</td><td><code>7&gt;3</code></td><td>True</td></tr><tr><td><code>&lt;</code></td><td>\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32</td><td><code>3&lt;7</code></td><td>True</td></tr><tr><td><code>&gt;=</code></td><td>\u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a</td><td><code>5&gt;=5</code></td><td>True</td></tr><tr><td><code>&lt;=</code></td><td>\u0e19\u0e49\u0e2d\u0e22\u0e01\u0e27\u0e48\u0e32\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e1a</td><td><code>4&lt;=5</code></td><td>True</td></tr></tbody></table></div>",
+11:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd00</div><div><div class=\"ch-title\">\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02</div><div class=\"ch-sub\">if / elif / else</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>score = 75\n\nif score &gt;= 80:\n    print(\"\u0e40\u0e01\u0e23\u0e14 A\")\nelif score &gt;= 70:\n    print(\"\u0e40\u0e01\u0e23\u0e14 B\")\nelif score &gt;= 60:\n    print(\"\u0e40\u0e01\u0e23\u0e14 C\")\nelse:\n    print(\"\u0e15\u0e49\u0e2d\u0e07\u0e1b\u0e23\u0e31\u0e1a\u0e1b\u0e23\u0e38\u0e07\")</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>\u0e40\u0e01\u0e23\u0e14 B</div><div class=\"warn\"><span>\ud83d\udccc</span><span>Python \u0e43\u0e0a\u0e49 indentation (4 spaces) \u0e41\u0e17\u0e19\u0e27\u0e07\u0e40\u0e25\u0e47\u0e1a\u0e1b\u0e35\u0e01\u0e01\u0e32 { } \u2014 \u0e2a\u0e33\u0e04\u0e31\u0e0d\u0e21\u0e32\u0e01!</span></div>",
+12:"<div class=\"ch-header\"><div class=\"ch-num\">\u26a1</div><div><div class=\"ch-title\">Ternary Operator</div><div class=\"ch-sub\">Conditional Expression</div></div></div><p>\u0e40\u0e02\u0e35\u0e22\u0e19\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02 if-else \u0e43\u0e19\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\u0e40\u0e14\u0e35\u0e22\u0e27: <code>\u0e04\u0e48\u0e32_\u0e16\u0e49\u0e32\u0e08\u0e23\u0e34\u0e07 if \u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02 else \u0e04\u0e48\u0e32_\u0e16\u0e49\u0e32\u0e40\u0e17\u0e47\u0e08</code></p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>age = 20\nstatus = \"\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\" if age &gt;= 18 else \"\u0e40\u0e22\u0e32\u0e27\u0e0a\u0e19\"\nprint(status)  # \u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\n\nscore = 55\nresult = \"\u0e1c\u0e48\u0e32\u0e19\" if score &gt;= 60 else \"\u0e44\u0e21\u0e48\u0e1c\u0e48\u0e32\u0e19\"\nprint(result)  # \u0e44\u0e21\u0e48\u0e1c\u0e48\u0e32\u0e19</pre></div>",
+13:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd17</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e15\u0e23\u0e23\u0e01\u0e30</div><div class=\"ch-sub\">and / or / not</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23</th><th>\u0e04\u0e27\u0e32\u0e21\u0e2b\u0e21\u0e32\u0e22</th><th>\u0e15\u0e31\u0e27\u0e2d\u0e22\u0e48\u0e32\u0e07</th><th>\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</th></tr></thead><tbody><tr><td><code>and</code></td><td>\u0e17\u0e31\u0e49\u0e07\u0e2a\u0e2d\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e08\u0e23\u0e34\u0e07</td><td><code>True and False</code></td><td>False</td></tr><tr><td><code>or</code></td><td>\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e49\u0e2d\u0e22\u0e2b\u0e19\u0e36\u0e48\u0e07\u0e08\u0e23\u0e34\u0e07</td><td><code>True or False</code></td><td>True</td></tr><tr><td><code>not</code></td><td>\u0e01\u0e25\u0e31\u0e1a\u0e04\u0e48\u0e32</td><td><code>not True</code></td><td>False</td></tr></tbody></table></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>age = 20\nhas_id = True\nif age &gt;= 18 and has_id:\n    print(\"\u0e40\u0e02\u0e49\u0e32\u0e44\u0e14\u0e49\")</pre></div>",
+14:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83c\udf93</div><div><div class=\"ch-title\">\u0e42\u0e1b\u0e23\u0e41\u0e01\u0e23\u0e21\u0e15\u0e31\u0e14\u0e40\u0e01\u0e23\u0e14</div><div class=\"ch-sub\">Grade Program</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>score = float(input(\"\u0e43\u0e2a\u0e48\u0e04\u0e30\u0e41\u0e19\u0e19: \"))\nif score &gt;= 80:   print(\"\u0e40\u0e01\u0e23\u0e14 A\")\nelif score &gt;= 75: print(\"\u0e40\u0e01\u0e23\u0e14 B+\")\nelif score &gt;= 70: print(\"\u0e40\u0e01\u0e23\u0e14 B\")\nelif score &gt;= 65: print(\"\u0e40\u0e01\u0e23\u0e14 C+\")\nelif score &gt;= 60: print(\"\u0e40\u0e01\u0e23\u0e14 C\")\nelif score &gt;= 50: print(\"\u0e40\u0e01\u0e23\u0e14 D\")\nelse:             print(\"\u0e40\u0e01\u0e23\u0e14 F\")</pre></div>",
+15:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83e\ude86</div><div><div class=\"ch-title\">Nested If</div><div class=\"ch-sub\">\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e0b\u0e49\u0e2d\u0e19\u0e01\u0e31\u0e19</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>age = 20\nincome = 25000\nif age &gt;= 18:\n    print(\"\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\")\n    if income &gt;= 15000:\n        print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e1e\u0e2d\")\n        if income &gt;= 30000:\n            print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\")\n        else:\n            print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e1b\u0e32\u0e19\u0e01\u0e25\u0e32\u0e07\")\nelse:\n    print(\"\u0e40\u0e22\u0e32\u0e27\u0e0a\u0e19\")</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\n\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e1e\u0e2d\n\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e1b\u0e32\u0e19\u0e01\u0e25\u0e32\u0e07</div><div class=\"warn\"><span>\u26a0\ufe0f</span><span>\u0e44\u0e21\u0e48\u0e04\u0e27\u0e23\u0e0b\u0e49\u0e2d\u0e19 if \u0e40\u0e01\u0e34\u0e19 3 \u0e0a\u0e31\u0e49\u0e19 \u2014 \u0e42\u0e04\u0e49\u0e14\u0e08\u0e30\u0e2d\u0e48\u0e32\u0e19\u0e22\u0e32\u0e01</span></div>",
+16:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83c\udfaf</div><div><div class=\"ch-title\">Match Statement</div><div class=\"ch-sub\">Python 3.10+ \u2014 \u0e04\u0e25\u0e49\u0e32\u0e22 Switch-Case</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>day = \"Monday\"\nmatch day:\n    case \"Monday\":\n        print(\"\u0e40\u0e23\u0e34\u0e48\u0e21\u0e2a\u0e31\u0e1b\u0e14\u0e32\u0e2b\u0e4c\")\n    case \"Friday\":\n        print(\"\u0e43\u0e01\u0e25\u0e49\u0e2b\u0e22\u0e38\u0e14\u0e41\u0e25\u0e49\u0e27!\")\n    case \"Saturday\" | \"Sunday\":\n        print(\"\u0e27\u0e31\u0e19\u0e2b\u0e22\u0e38\u0e14!\")\n    case _:\n        print(\"\u0e27\u0e31\u0e19\u0e17\u0e33\u0e07\u0e32\u0e19\")</pre></div><div class=\"note\"><span>\ud83d\udcd8</span><span>match-case \u0e43\u0e0a\u0e49\u0e44\u0e14\u0e49\u0e43\u0e19 Python 3.10 \u0e02\u0e36\u0e49\u0e19\u0e44\u0e1b\u0e40\u0e17\u0e48\u0e32\u0e19\u0e31\u0e49\u0e19</span></div>",
+17:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd01</div><div><div class=\"ch-title\">While Loop</div><div class=\"ch-sub\">\u0e27\u0e19\u0e0b\u0e49\u0e33\u0e15\u0e32\u0e21\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>i = 1\nwhile i &lt;= 5:\n    print(f\"\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 {i}\")\n    i += 1\nprint(\"\u0e08\u0e1a\u0e25\u0e39\u0e1b\")</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 1\n\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 2\n\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 3\n\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 4\n\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 5\n\u0e08\u0e1a\u0e25\u0e39\u0e1b</div><div class=\"warn\"><span>\u26a0\ufe0f</span><span>\u0e2d\u0e22\u0e48\u0e32\u0e25\u0e37\u0e21\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e04\u0e48\u0e32 i \u0e43\u0e19\u0e25\u0e39\u0e1b \u0e44\u0e21\u0e48\u0e07\u0e31\u0e49\u0e19\u0e08\u0e30\u0e40\u0e01\u0e34\u0e14 infinite loop!</span></div>",
+18:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd02</div><div><div class=\"ch-title\">For Loop</div><div class=\"ch-sub\">\u0e27\u0e19\u0e0b\u0e49\u0e33\u0e15\u0e32\u0e21\u0e25\u0e33\u0e14\u0e31\u0e1a</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>for i in range(5):        # 0,1,2,3,4\n    print(i, end=\" \")\n\nfor i in range(1, 6):     # 1,2,3,4,5\n    print(i, end=\" \")\n\nfor i in range(0, 10, 2): # 0,2,4,6,8\n    print(i, end=\" \")\n\nfruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nfor f in fruits:\n    print(f)</pre></div>",
+19:"<div class=\"ch-header\"><div class=\"ch-num\">\u23f9\ufe0f</div><div><div class=\"ch-title\">\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e01\u0e31\u0e1a Loop</div><div class=\"ch-sub\">break / continue / pass</div></div></div><div class=\"tbl\"><table><thead><tr><th>\u0e04\u0e33\u0e2a\u0e31\u0e48\u0e07</th><th>\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48</th></tr></thead><tbody><tr><td><code>break</code></td><td>\u0e2b\u0e22\u0e38\u0e14\u0e25\u0e39\u0e1b\u0e17\u0e31\u0e19\u0e17\u0e35 \u0e2d\u0e2d\u0e01\u0e08\u0e32\u0e01\u0e25\u0e39\u0e1b</td></tr><tr><td><code>continue</code></td><td>\u0e02\u0e49\u0e32\u0e21\u0e23\u0e2d\u0e1a\u0e19\u0e35\u0e49 \u0e44\u0e1b\u0e23\u0e2d\u0e1a\u0e16\u0e31\u0e14\u0e44\u0e1b</td></tr><tr><td><code>pass</code></td><td>\u0e44\u0e21\u0e48\u0e17\u0e33\u0e2d\u0e30\u0e44\u0e23 (placeholder)</td></tr></tbody></table></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre># break\nfor i in range(10):\n    if i == 5: break\n    print(i, end=\" \")  # 0 1 2 3 4\n\n# continue\nfor i in range(1, 11):\n    if i % 2 == 0: continue\n    print(i, end=\" \")  # 1 3 5 7 9</pre></div>",
+20:"<div class=\"ch-header\"><div class=\"ch-num\">\u2716\ufe0f</div><div><div class=\"ch-title\">\u0e41\u0e2a\u0e14\u0e07\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13</div><div class=\"ch-sub\">\u0e15\u0e32\u0e23\u0e32\u0e07\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>n = int(input(\"\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13\u0e41\u0e21\u0e48\u0e44\u0e2b\u0e19? \"))\nprint(f\"--- \u0e41\u0e21\u0e48 {n} ---\")\nfor i in range(1, 13):\n    print(f\"{n} x {i:2d} = {n*i:3d}\")</pre></div>",
+21:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83e\uddee</div><div><div class=\"ch-title\">\u0e2b\u0e32\u0e1c\u0e25\u0e23\u0e27\u0e21 5 \u0e08\u0e33\u0e19\u0e27\u0e19</div><div class=\"ch-sub\">Fixed Sum</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>total = 0\nfor i in range(1, 6):\n    num = float(input(f\"\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02\u0e17\u0e35\u0e48 {i}: \"))\n    total += num\nprint(f\"\u0e1c\u0e25\u0e23\u0e27\u0e21 = {total}\")\nprint(f\"\u0e40\u0e09\u0e25\u0e35\u0e48\u0e22 = {total/5:.2f}\")</pre></div>",
+22:"<div class=\"ch-header\"><div class=\"ch-num\">\u2211</div><div><div class=\"ch-title\">\u0e2b\u0e32\u0e1c\u0e25\u0e23\u0e27\u0e21 (\u0e44\u0e21\u0e48\u0e08\u0e33\u0e01\u0e31\u0e14\u0e08\u0e33\u0e19\u0e27\u0e19)</div><div class=\"ch-sub\">Dynamic Sum with Sentinel</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>total = 0\ncount = 0\nwhile True:\n    val = input(\"\u0e43\u0e2a\u0e48\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02 (\u0e1e\u0e34\u0e21\u0e1e\u0e4c \u0e08\u0e1a \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e2b\u0e22\u0e38\u0e14): \")\n    if val == \"\u0e08\u0e1a\":\n        break\n    total += float(val)\n    count += 1\nif count &gt; 0:\n    print(f\"\u0e1c\u0e25\u0e23\u0e27\u0e21 = {total}, \u0e40\u0e09\u0e25\u0e35\u0e48\u0e22 = {total/count:.2f}\")\nelse:\n    print(\"\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\")</pre></div>",
+23:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83c\udf00</div><div><div class=\"ch-title\">Nested Loop</div><div class=\"ch-sub\">\u0e25\u0e39\u0e1b\u0e0b\u0e49\u0e2d\u0e19\u0e25\u0e39\u0e1b</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre># \u0e2a\u0e35\u0e48\u0e40\u0e2b\u0e25\u0e35\u0e48\u0e22\u0e21\u0e14\u0e32\u0e27\nfor r in range(4):\n    for c in range(6):\n        print(\"\u2605\", end=\" \")\n    print()\n\n# \u0e2a\u0e32\u0e21\u0e40\u0e2b\u0e25\u0e35\u0e48\u0e22\u0e21\nfor i in range(1, 6):\n    print(\"\u2605\" * i)</pre></div><div class=\"out\"><div class=\"out-lbl\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c</div>\u2605 \u2605 \u2605 \u2605 \u2605 \u2605\n\u2605 \u2605 \u2605 \u2605 \u2605 \u2605\n...\n\u2605\n\u2605\u2605\n\u2605\u2605\u2605\n\u2605\u2605\u2605\u2605\n\u2605\u2605\u2605\u2605\u2605</div>",
+24:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udcd0</div><div><div class=\"ch-title\">\u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13\u0e41\u0e1a\u0e1a\u0e01\u0e33\u0e2b\u0e19\u0e14\u0e0a\u0e48\u0e27\u0e07</div><div class=\"ch-sub\">Range Loop</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>start = 2\nend = 4\nfor n in range(start, end + 1):\n    print(f\"\\n--- \u0e41\u0e21\u0e48 {n} ---\")\n    for i in range(1, 13):\n        print(f\"  {n} x {i:2d} = {n*i:3d}\")</pre></div>",
+25:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udcdd</div><div><div class=\"ch-title\">\u0e40\u0e08\u0e32\u0e30\u0e25\u0e36\u0e01 String</div><div class=\"ch-sub\">String in-depth</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>s = \"Hello, Python!\"\nprint(len(s))         # 14\nprint(s[0])           # H\nprint(s[-1])          # !\nprint(s[0:5])         # Hello\nprint(s[::-1])        # !nohtyP ,olleH\nprint(\"Hello\" * 3)    # HelloHelloHello\nprint(\"Python\" in s)  # True</pre></div>",
+26:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd27</div><div><div class=\"ch-title\">\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 String</div><div class=\"ch-sub\">String Methods</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>s = \"  Hello, Python World!  \"\nprint(s.upper())\nprint(s.lower())\nprint(s.strip())\nprint(s.replace(\"Python\", \"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35\"))\nprint(s.split(\",\"))\nprint(\"-\".join([\"a\",\"b\",\"c\"]))\nprint(s.find(\"Python\"))\nprint(\"42\".isdigit())</pre></div>",
+27:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udccb</div><div><div class=\"ch-title\">List (\u0e25\u0e34\u0e2a\u0e15\u0e4c)</div><div class=\"ch-sub\">\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2b\u0e25\u0e32\u0e22\u0e04\u0e48\u0e32\u0e40\u0e23\u0e35\u0e22\u0e07\u0e25\u0e33\u0e14\u0e31\u0e1a</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>nums = [1, 2, 3, 4, 5]\nprint(nums[0])      # 1\nprint(nums[-1])     # 5\nprint(nums[1:4])    # [2, 3, 4]\nprint(len(nums))    # 5\n\nfruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nfor i, f in enumerate(fruits):\n    print(f\"{i}: {f}\")</pre></div>",
+28:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd27</div><div><div class=\"ch-title\">\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 List</div><div class=\"ch-sub\">List Methods</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>lst = [3, 1, 4, 1, 5, 9]\nlst.append(2)         # \u0e40\u0e1e\u0e34\u0e48\u0e21\u0e17\u0e49\u0e32\u0e22\nlst.insert(0, 0)      # \u0e40\u0e1e\u0e34\u0e48\u0e21\u0e17\u0e35\u0e48\u0e15\u0e33\u0e41\u0e2b\u0e19\u0e48\u0e07 0\nlst.remove(1)         # \u0e25\u0e1a\u0e04\u0e48\u0e32\u0e41\u0e23\u0e01\u0e17\u0e35\u0e48\u0e40\u0e08\u0e2d\nlst.pop()             # \u0e25\u0e1a\u0e15\u0e31\u0e27\u0e2a\u0e38\u0e14\u0e17\u0e49\u0e32\u0e22\nlst.sort()            # \u0e40\u0e23\u0e35\u0e22\u0e07\u0e19\u0e49\u0e2d\u0e22\u2192\u0e21\u0e32\u0e01\nlst.sort(reverse=True)# \u0e21\u0e32\u0e01\u2192\u0e19\u0e49\u0e2d\u0e22\nprint(sum(lst))\nprint(max(lst))\nprint(min(lst))</pre></div>",
+29:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd12</div><div><div class=\"ch-title\">Tuple (\u0e17\u0e39\u0e40\u0e1e\u0e34\u0e25)</div><div class=\"ch-sub\">\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e35\u0e48\u0e41\u0e01\u0e49\u0e44\u0e02\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49 (Immutable)</div></div></div><p>Tuple \u0e04\u0e25\u0e49\u0e32\u0e22 List \u0e41\u0e15\u0e48 <strong>\u0e41\u0e01\u0e49\u0e44\u0e02\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49</strong> \u0e2b\u0e25\u0e31\u0e07\u0e08\u0e32\u0e01\u0e2a\u0e23\u0e49\u0e32\u0e07 \u0e43\u0e0a\u0e49\u0e27\u0e07\u0e40\u0e25\u0e47\u0e1a <code>()</code></p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>t = (1, 2, 3, 4, 5)\nprint(t[0])      # 1\nprint(t[-1])     # 5\n\n# Unpacking\nx, y, z = (10, 20, 30)\nprint(f\"x={x}, y={y}, z={z}\")\n\nlst = list(t)    # tuple \u2192 list\nprint(type(lst))</pre></div><div class=\"tip\"><span>\ud83d\udca1</span><span>\u0e43\u0e0a\u0e49 Tuple \u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e04\u0e27\u0e23\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19 \u0e40\u0e0a\u0e48\u0e19 \u0e1e\u0e34\u0e01\u0e31\u0e14, \u0e2a\u0e35 RGB, \u0e04\u0e48\u0e32 config</span></div>",
+30:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83c\udfb1</div><div><div class=\"ch-title\">Set (\u0e40\u0e0b\u0e15)</div><div class=\"ch-sub\">\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e44\u0e21\u0e48\u0e0b\u0e49\u0e33 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e25\u0e33\u0e14\u0e31\u0e1a</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>s = {1, 2, 3, 2, 1}\nprint(s)          # {1, 2, 3}\n\na = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\nprint(a | b)  # Union: {1,2,3,4,5,6}\nprint(a &amp; b)  # Intersection: {3,4}\nprint(a - b)  # Difference: {1,2}\nprint(a ^ b)  # Symmetric: {1,2,5,6}</pre></div>",
+31:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udcd6</div><div><div class=\"ch-title\">Dictionary</div><div class=\"ch-sub\">key: value</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>student = {\n    \"name\":  \"\u0e2a\u0e21\u0e0a\u0e32\u0e22\",\n    \"age\":   18,\n    \"score\": 92.5\n}\nprint(student[\"name\"])          # \u0e2a\u0e21\u0e0a\u0e32\u0e22\nprint(student.get(\"grade\",\"N/A\")) # N/A\nstudent[\"grade\"] = \"A\"\nfor k, v in student.items():\n    print(f\"{k}: {v}\")</pre></div>",
+32:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udd27</div><div><div class=\"ch-title\">\u0e1f\u0e31\u0e07\u0e01\u0e4c\u0e0a\u0e31\u0e19 Dictionary</div><div class=\"ch-sub\">Dict Methods</div></div></div><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>d = {\"a\":1, \"b\":2, \"c\":3}\nprint(list(d.keys()))\nprint(list(d.values()))\nd.update({\"d\":4})\nx = d.pop(\"a\")\nprint(d)\n\n# Dict Comprehension\nsq = {i: i**2 for i in range(1,6)}\nprint(sq)</pre></div>",
+33:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83e\udeaa</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e40\u0e2d\u0e01\u0e25\u0e31\u0e01\u0e29\u0e13\u0e4c</div><div class=\"ch-sub\">is / is not</div></div></div><p>\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e27\u0e48\u0e32\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23\u0e2a\u0e2d\u0e07\u0e15\u0e31\u0e27 <strong>\u0e0a\u0e35\u0e49\u0e44\u0e1b\u0e17\u0e35\u0e48 object \u0e40\u0e14\u0e35\u0e22\u0e27\u0e01\u0e31\u0e19</strong> \u0e43\u0e19\u0e2b\u0e19\u0e48\u0e27\u0e22\u0e04\u0e27\u0e32\u0e21\u0e08\u0e33</p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>a = [1, 2, 3]\nb = a           # b \u0e0a\u0e35\u0e49 object \u0e40\u0e14\u0e35\u0e22\u0e27\u0e01\u0e31\u0e1a a\nc = [1, 2, 3]   # c \u0e04\u0e37\u0e2d object \u0e43\u0e2b\u0e21\u0e48\nprint(a is b)   # True\nprint(a is c)   # False\nprint(a == c)   # True (\u0e04\u0e48\u0e32\u0e40\u0e17\u0e48\u0e32\u0e01\u0e31\u0e19)\n\nx = None\nprint(x is None)  # True \u2713</pre></div><div class=\"warn\"><span>\u26a0\ufe0f</span><span>\u0e43\u0e0a\u0e49 <code>==</code> \u0e40\u0e1b\u0e23\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e35\u0e22\u0e1a '\u0e04\u0e48\u0e32' \u0e41\u0e25\u0e30 <code>is</code> \u0e40\u0e1b\u0e23\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e35\u0e22\u0e1a 'object' \u0e2d\u0e22\u0e48\u0e32\u0e2a\u0e31\u0e1a\u0e2a\u0e19!</span></div>",
+34:"<div class=\"ch-header\"><div class=\"ch-num\">\ud83d\udc65</div><div><div class=\"ch-title\">\u0e15\u0e31\u0e27\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01</div><div class=\"ch-sub\">in / not in</div></div></div><p>\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e27\u0e48\u0e32\u0e04\u0e48\u0e32 <strong>\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19</strong> sequence (list, tuple, set, str, dict) \u0e2b\u0e23\u0e37\u0e2d\u0e44\u0e21\u0e48</p><div class=\"cb\"><div class=\"cb-hdr\"><span class=\"cb-lang\">Python</span><button class=\"cb-copy\" onclick=\"cpBlock(this)\">\u0e04\u0e31\u0e14\u0e25\u0e2d\u0e01</button></div><pre>fruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nprint(\"\u0e01\u0e25\u0e49\u0e27\u0e22\" in fruits)       # True\nprint(\"\u0e21\u0e30\u0e21\u0e48\u0e27\u0e07\" not in fruits)  # True\n\ntext = \"Hello, Python!\"\nprint(\"Python\" in text)        # True\n\nd = {\"name\": \"\u0e19\u0e34\u0e14\u0e32\"}\nprint(\"name\" in d)             # True (\u0e15\u0e23\u0e27\u0e08 key)</pre></div><div class=\"quiz\"><div class=\"quiz-hdr\"><span>\ud83e\udde0</span>\u0e17\u0e14\u0e2a\u0e2d\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e02\u0e49\u0e32\u0e43\u0e08</div><div class=\"quiz-body\"><div class=\"quiz-q\">\u0e1c\u0e25\u0e25\u0e31\u0e1e\u0e18\u0e4c\u0e02\u0e2d\u0e07 \"Py\" in \"Python\" \u0e04\u0e37\u0e2d\u0e2d\u0e30\u0e44\u0e23?</div><div class=\"quiz-opts\"><button class=\"quiz-opt\" onclick=\"ans(this,true)\">A. True</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">B. False</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">C. Error</button><button class=\"quiz-opt\" onclick=\"ans(this,false)\">D. None</button></div><div class=\"quiz-fb\"></div></div></div>",
+};
+var editorDefaults={
+2:{code:"print(\"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 Python!\")\nprint(\"\u0e0a\u0e37\u0e48\u0e2d:\", \"\u0e2a\u0e21\u0e0a\u0e32\u0e22\")\nprint(1, 2, 3, sep=\"-\")\n\nname = \"\u0e19\u0e34\u0e14\u0e32\"\nage = 17\nprint(f\"\u0e0a\u0e37\u0e48\u0e2d: {name}, \u0e2d\u0e32\u0e22\u0e38: {age} \u0e1b\u0e35\")",label:"\u0e25\u0e2d\u0e07\u0e41\u0e01\u0e49\u0e44\u0e02\u0e41\u0e25\u0e30\u0e23\u0e31\u0e19\u0e44\u0e14\u0e49\u0e40\u0e25\u0e22"},
+3:{code:"# \u0e19\u0e35\u0e48\u0e04\u0e37\u0e2d comment \u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\u0e40\u0e14\u0e35\u0e22\u0e27\nprint(\"Hello\")  # comment \u0e17\u0e49\u0e32\u0e22\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\n\n# Python \u0e02\u0e49\u0e32\u0e21\u0e1a\u0e23\u0e23\u0e17\u0e31\u0e14\u0e19\u0e35\u0e49\u0e44\u0e1b\nprint(\"\u0e08\u0e1a\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07\u0e40\u0e02\u0e35\u0e22\u0e19 Comment"},
+4:{code:"x = 42\ny = \"hello\"\nz = 3.14\nb = True\n\nprint(type(x))\nprint(type(y))\nprint(type(z))\nprint(isinstance(x, int))",label:"\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e0a\u0e19\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25"},
+5:{code:"name = \"\u0e2a\u0e21\u0e0a\u0e32\u0e22\"\nage = 18\nheight = 175.5\n\na, b, c = 1, 2, 3\nprint(a, b, c)\n\nprint(f\"{name} \u0e2d\u0e32\u0e22\u0e38 {age} \u0e1b\u0e35 \u0e2a\u0e39\u0e07 {height} \u0e0b\u0e21.\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e15\u0e31\u0e27\u0e41\u0e1b\u0e23"},
+6:{code:"# input() \u0e08\u0e30\u0e40\u0e1b\u0e34\u0e14 popup \u0e43\u0e2b\u0e49\u0e1e\u0e34\u0e21\u0e1e\u0e4c\nname = input(\"\u0e43\u0e2a\u0e48\u0e0a\u0e37\u0e48\u0e2d\u0e02\u0e2d\u0e07\u0e04\u0e38\u0e13: \")\nage = int(input(\"\u0e43\u0e2a\u0e48\u0e2d\u0e32\u0e22\u0e38: \"))\nprint(f\"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35 {name}! \u0e04\u0e38\u0e13\u0e2d\u0e32\u0e22\u0e38 {age} \u0e1b\u0e35\")",label:"\u0e23\u0e31\u0e1a\u0e04\u0e48\u0e32\u0e08\u0e32\u0e01\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49"},
+7:{code:"print(int(\"42\"))\nprint(int(3.9))\nprint(float(\"3.14\"))\nprint(str(100))\nprint(bool(0))\nprint(bool(\"hello\"))",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Casting"},
+8:{code:"a, b = 17, 5\nprint(f\"{a} + {b} = {a + b}\")\nprint(f\"{a} - {b} = {a - b}\")\nprint(f\"{a} * {b} = {a * b}\")\nprint(f\"{a} / {b} = {a / b:.2f}\")\nprint(f\"{a} // {b} = {a // b}\")\nprint(f\"{a} % {b} = {a % b}\")\nprint(f\"2 ** 10 = {2 ** 10}\")",label:"\u0e25\u0e2d\u0e07\u0e04\u0e33\u0e19\u0e27\u0e13"},
+9:{code:"x = 10\nprint(f\"\u0e40\u0e23\u0e34\u0e48\u0e21 x = {x}\")\nx += 5\nprint(f\"x += 5  -> {x}\")\nx *= 2\nprint(f\"x *= 2  -> {x}\")\nx //= 3\nprint(f\"x //= 3 -> {x}\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Assignment Operators"},
+10:{code:"a, b = 10, 20\nprint(f\"a == b : {a == b}\")\nprint(f\"a != b : {a != b}\")\nprint(f\"a < b  : {a < b}\")\nprint(f\"a > b  : {a > b}\")\nprint(f\"a <= 10: {a <= 10}\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e23\u0e35\u0e22\u0e1a\u0e40\u0e17\u0e35\u0e22\u0e1a"},
+11:{code:"score = 75\n\nif score >= 80:\n    print(\"\u0e40\u0e01\u0e23\u0e14 A\")\nelif score >= 70:\n    print(\"\u0e40\u0e01\u0e23\u0e14 B\")\nelif score >= 60:\n    print(\"\u0e40\u0e01\u0e23\u0e14 C\")\nelse:\n    print(\"\u0e15\u0e49\u0e2d\u0e07\u0e1b\u0e23\u0e31\u0e1a\u0e1b\u0e23\u0e38\u0e07\")",label:"\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e04\u0e48\u0e32 score \u0e41\u0e25\u0e49\u0e27 Run"},
+12:{code:"age = 20\nstatus = \"\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\" if age >= 18 else \"\u0e40\u0e22\u0e32\u0e27\u0e0a\u0e19\"\nprint(status)\n\nscore = 55\nresult = \"\u0e1c\u0e48\u0e32\u0e19\" if score >= 60 else \"\u0e44\u0e21\u0e48\u0e1c\u0e48\u0e32\u0e19\"\nprint(f\"\u0e04\u0e30\u0e41\u0e19\u0e19 {score}: {result}\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Ternary Operator"},
+13:{code:"age = 20\nhas_id = True\nif age >= 18 and has_id:\n    print(\"\u0e40\u0e02\u0e49\u0e32\u0e44\u0e14\u0e49\")\n\nscore = 45\nif score < 0 or score > 100:\n    print(\"\u0e04\u0e30\u0e41\u0e19\u0e19\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07\")\nelse:\n    print(f\"\u0e04\u0e30\u0e41\u0e19\u0e19 {score} \u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07\")\n\nprint(not False)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Logical Operators"},
+14:{code:"score = 73\nif score >= 80:\n    print(\"\u0e40\u0e01\u0e23\u0e14 A\")\nelif score >= 75:\n    print(\"\u0e40\u0e01\u0e23\u0e14 B+\")\nelif score >= 70:\n    print(\"\u0e40\u0e01\u0e23\u0e14 B\")\nelif score >= 65:\n    print(\"\u0e40\u0e01\u0e23\u0e14 C+\")\nelif score >= 60:\n    print(\"\u0e40\u0e01\u0e23\u0e14 C\")\nelif score >= 50:\n    print(\"\u0e40\u0e01\u0e23\u0e14 D\")\nelse:\n    print(\"\u0e40\u0e01\u0e23\u0e14 F\")",label:"\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19 score"},
+15:{code:"age = 20\nincome = 25000\nif age >= 18:\n    print(\"\u0e1c\u0e39\u0e49\u0e43\u0e2b\u0e0d\u0e48\")\n    if income >= 15000:\n        print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e1e\u0e2d\")\n        if income >= 30000:\n            print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\")\n        else:\n            print(\"\u0e23\u0e32\u0e22\u0e44\u0e14\u0e49\u0e1b\u0e32\u0e19\u0e01\u0e25\u0e32\u0e07\")\nelse:\n    print(\"\u0e40\u0e22\u0e32\u0e27\u0e0a\u0e19\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Nested If"},
+16:{code:"day = \"Monday\"\nmatch day:\n    case \"Monday\":\n        print(\"\u0e40\u0e23\u0e34\u0e48\u0e21\u0e2a\u0e31\u0e1b\u0e14\u0e32\u0e2b\u0e4c\")\n    case \"Friday\":\n        print(\"\u0e43\u0e01\u0e25\u0e49\u0e2b\u0e22\u0e38\u0e14\u0e41\u0e25\u0e49\u0e27!\")\n    case \"Saturday\" | \"Sunday\":\n        print(\"\u0e27\u0e31\u0e19\u0e2b\u0e22\u0e38\u0e14!\")\n    case _:\n        print(\"\u0e27\u0e31\u0e19\u0e17\u0e33\u0e07\u0e32\u0e19\u0e1b\u0e01\u0e15\u0e34\")",label:"\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19 day (Python 3.10+)"},
+17:{code:"i = 1\nwhile i <= 5:\n    print(f\"\u0e23\u0e2d\u0e1a\u0e17\u0e35\u0e48 {i}\")\n    i += 1\nprint(\"\u0e08\u0e1a\u0e25\u0e39\u0e1b\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 While Loop"},
+18:{code:"for i in range(1, 6):\n    print(i, end=\" \")\nprint()\n\nfruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nfor f in fruits:\n    print(f)\n\nfor ch in \"Python\":\n    print(ch, end=\"-\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 For Loop"},
+19:{code:"print(\"--- break ---\")\nfor i in range(10):\n    if i == 5:\n        break\n    print(i, end=\" \")\nprint()\n\nprint(\"--- continue (\u0e40\u0e25\u0e02\u0e04\u0e35\u0e48) ---\")\nfor i in range(1, 11):\n    if i % 2 == 0:\n        continue\n    print(i, end=\" \")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 break / continue"},
+20:{code:"n = 7\nprint(f\"--- \u0e2a\u0e39\u0e15\u0e23\u0e04\u0e39\u0e13\u0e41\u0e21\u0e48 {n} ---\")\nfor i in range(1, 13):\n    print(f\"{n} x {i:2d} = {n*i:3d}\")",label:"\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19 n"},
+21:{code:"total = 0\nfor i in range(1, 6):\n    num = float(input(f\"\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02\u0e17\u0e35\u0e48 {i}: \"))\n    total += num\nprint(f\"\u0e1c\u0e25\u0e23\u0e27\u0e21 = {total}\")\nprint(f\"\u0e40\u0e09\u0e25\u0e35\u0e48\u0e22 = {total/5:.2f}\")",label:"\u0e23\u0e31\u0e1a\u0e04\u0e48\u0e32 5 \u0e08\u0e33\u0e19\u0e27\u0e19"},
+22:{code:"total = 0\ncount = 0\nwhile True:\n    val = input(\"\u0e43\u0e2a\u0e48\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02 (\u0e1e\u0e34\u0e21\u0e1e\u0e4c \u0e08\u0e1a \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e2b\u0e22\u0e38\u0e14): \")\n    if val == \"\u0e08\u0e1a\":\n        break\n    total += float(val)\n    count += 1\nif count > 0:\n    print(f\"\u0e1c\u0e25\u0e23\u0e27\u0e21 = {total}, \u0e40\u0e09\u0e25\u0e35\u0e48\u0e22 = {total/count:.2f}\")\nelse:\n    print(\"\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\")",label:"\u0e43\u0e2a\u0e48\u0e15\u0e31\u0e27\u0e40\u0e25\u0e02\u0e2b\u0e25\u0e32\u0e22\u0e04\u0e48\u0e32 \u0e41\u0e25\u0e49\u0e27\u0e1e\u0e34\u0e21\u0e1e\u0e4c \u0e08\u0e1a"},
+23:{code:"rows, cols = 4, 6\nfor r in range(rows):\n    for c in range(cols):\n        print(\"\u2605\", end=\" \")\n    print()\nprint()\nfor i in range(1, 6):\n    print(\"\u2605\" * i)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Nested Loop"},
+24:{code:"start = 2\nend = 4\nfor n in range(start, end + 1):\n    print(f\"\\n--- \u0e41\u0e21\u0e48 {n} ---\")\n    for i in range(1, 13):\n        print(f\"  {n} x {i:2d} = {n*i:3d}\")",label:"\u0e25\u0e2d\u0e07\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19 start/end"},
+25:{code:"s = \"Hello, Python!\"\nprint(f\"len: {len(s)}\")\nprint(f\"[0]: {s[0]}\")\nprint(f\"[-1]: {s[-1]}\")\nprint(f\"[0:5]: {s[0:5]}\")\nprint(f\"[::-1]: {s[::-1]}\")\nprint(\"Python\" in s)\nprint(\"Hello\" * 3)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 String Operations"},
+26:{code:"s = \"  Hello, Python World!  \"\nprint(s.upper())\nprint(s.lower())\nprint(s.strip())\nprint(s.replace(\"Python\", \"\u0e2a\u0e27\u0e31\u0e2a\u0e14\u0e35\"))\nprint(s.split(\",\"))\nprint(\"-\".join([\"a\", \"b\", \"c\"]))",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 String Methods"},
+27:{code:"nums = [3, 1, 4, 1, 5, 9]\nprint(nums)\nprint(nums[0], nums[-1])\nprint(nums[1:4])\nfruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nfor i, f in enumerate(fruits):\n    print(f\"{i}: {f}\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 List"},
+28:{code:"lst = [3, 1, 4, 1, 5, 9]\nlst.append(2)\nprint(\"append:\", lst)\nlst.sort()\nprint(\"sort:\", lst)\nprint(\"sum:\", sum(lst))\nprint(\"max:\", max(lst))\nprint(\"count(1):\", lst.count(1))",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 List Methods"},
+29:{code:"t = (1, 2, 3, 4, 5)\nprint(t, t[0], t[-1])\nx, y, z = (10, 20, 30)\nprint(f\"x={x}, y={y}, z={z}\")\nlst = list(t)\nprint(type(lst))",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Tuple"},
+30:{code:"s = {1, 2, 3, 2, 1}\nprint(\"Set:\", s)\ns.add(4)\na = {1, 2, 3, 4}\nb = {3, 4, 5, 6}\nprint(\"Union:\", a | b)\nprint(\"Intersect:\", a & b)\nprint(\"Diff:\", a - b)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Set"},
+31:{code:"student = {\n    \"name\": \"\u0e2a\u0e21\u0e0a\u0e32\u0e22\",\n    \"age\": 18,\n    \"score\": 92.5\n}\nprint(student[\"name\"])\nprint(student.get(\"grade\", \"N/A\"))\nstudent[\"grade\"] = \"A\"\nfor k, v in student.items():\n    print(f\"  {k}: {v}\")",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Dictionary"},
+32:{code:"d = {\"a\": 1, \"b\": 2, \"c\": 3}\nprint(list(d.keys()))\nprint(list(d.values()))\nd.update({\"d\": 4})\nprint(d)\nsq = {i: i**2 for i in range(1, 6)}\nprint(sq)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Dict Methods"},
+33:{code:"a = [1, 2, 3]\nb = a\nc = [1, 2, 3]\nprint(\"a is b:\", a is b)\nprint(\"a is c:\", a is c)\nprint(\"a == c:\", a == c)\nx = None\nprint(\"x is None:\", x is None)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Identity Operators"},
+34:{code:"fruits = [\"\u0e41\u0e2d\u0e1b\u0e40\u0e1b\u0e34\u0e49\u0e25\", \"\u0e01\u0e25\u0e49\u0e27\u0e22\", \"\u0e2a\u0e49\u0e21\"]\nprint(\"\u0e01\u0e25\u0e49\u0e27\u0e22\" in fruits)\nprint(\"\u0e21\u0e30\u0e21\u0e48\u0e27\u0e07\" not in fruits)\ntext = \"Hello, Python!\"\nprint(\"Python\" in text)\nd = {\"name\": \"\u0e19\u0e34\u0e14\u0e32\"}\nprint(\"name\" in d)\nprimes = [2, 3, 5, 7, 11]\nprint(7 in primes)",label:"\u0e17\u0e14\u0e25\u0e2d\u0e07 Membership Operators"},
+};
+
+var done = new Set();
+var cur = 0;
+var pyReady = false;
+var pyodide = null;
+
+
+/* ══════════════════════════════════════════════════════
+   MiniPython — lightweight Python 3 interpreter in JS
+   Supports all topics in this lesson
+   ══════════════════════════════════════════════════════ */
+
+var MiniPython = (function() {
+  'use strict';
+
+  /* ── TOKENIZER ── */
+  function tokenize(src) {
+    // ── Pre-process: join physical lines that are inside open brackets ──
+    // Python treats newlines inside (), [], {} as non-significant.
+    var rawLines = src.split('\n');
+    var logicalLines = [];
+    var bracketDepth = 0;
+    var buffer = '';
+    var bufferIndent = null;
+
+    function countLeading(s){ var n=0; while(n<s.length&&s[n]===' ')n++; return n; }
+
+    // Scan a line for bracket depth changes, ignoring brackets in strings/comments
+    function scanBrackets(s, startDepth) {
+      var depth = startDepth;
+      var inStr = false, strCh = '';
+      for (var i = 0; i < s.length; i++) {
+        var c = s[i];
+        if (inStr) {
+          if (c === '\\') { i++; continue; }
+          if (c === strCh) inStr = false;
+          continue;
+        }
+        if (c === '#') break; // comment — rest of line ignored
+        if (c === '"' || c === "'") { inStr = true; strCh = c; continue; }
+        if (c === '(' || c === '[' || c === '{') depth++;
+        else if (c === ')' || c === ']' || c === '}') depth--;
+      }
+      return depth;
+    }
+
+    for (var li = 0; li < rawLines.length; li++) {
+      var line = rawLines[li];
+      if (bracketDepth > 0) {
+        // Continuation of a bracketed expression — append (strip leading spaces, add one space)
+        buffer += ' ' + line.replace(/^\s+/, '');
+      } else {
+        if (buffer !== '') {
+          logicalLines.push({text: buffer, indent: bufferIndent});
+        }
+        buffer = line;
+        bufferIndent = countLeading(line);
+      }
+      bracketDepth = scanBrackets(line, bracketDepth);
+      if (bracketDepth < 0) bracketDepth = 0;
+    }
+    if (buffer !== '') logicalLines.push({text: buffer, indent: bufferIndent});
+
+    // ── Tokenize logical lines ──
+    var tokens = [];
+    var indentStack = [0];
+
+    for (var lli = 0; lli < logicalLines.length; lli++) {
+      var lineObj = logicalLines[lli];
+      var line = lineObj.text;
+      var indent = lineObj.indent;
+      var li = lli;
+      var stripped = line.slice(indent);
+
+      if (!stripped || stripped[0] === '#') {
+        tokens.push({type:'NEWLINE', line:li});
+        continue;
+      }
+
+      var curIndent = indentStack[indentStack.length-1];
+      if (indent > curIndent) {
+        indentStack.push(indent);
+        tokens.push({type:'INDENT', line:li});
+      } else {
+        while (indent < indentStack[indentStack.length-1]) {
+          indentStack.pop();
+          tokens.push({type:'DEDENT', line:li});
+        }
+      }
+
+      var pos = indent;
+      while (pos < line.length) {
+        var ch = line[pos];
+        if (ch === ' ' || ch === '\t') { pos++; continue; }
+        if (ch === '#') break;
+
+        // String literals
+        if (ch === '"' || ch === "'") {
+          var q = ch;
+          var triple = line.slice(pos,pos+3) === q+q+q;
+          if (triple) {
+            var full = line.slice(pos+3);
+            var endIdx = full.indexOf(q+q+q);
+            var val = '';
+            if (endIdx !== -1) { val = full.slice(0,endIdx); pos = pos+3+endIdx+3; }
+            else { val = full; pos = line.length; }
+            tokens.push({type:'STRING', value:val, line:li});
+          } else {
+            var val = '';
+            pos++;
+            var isFStr = pos > 1 && (line[pos-2]==='f' || line[pos-2]==='F');
+            while (pos < line.length && line[pos] !== q) {
+              if (line[pos] === '\\') {
+                var nc = line[pos+1];
+                if (nc==='n') val+='\n';
+                else if (nc==='t') val+='\t';
+                else if (nc==='\\') val+='\\';
+                else if (nc===q) val+=q;
+                else val+=nc;
+                pos+=2;
+              } else { val += line[pos++]; }
+            }
+            pos++;
+            tokens.push({type:'STRING', value:val, fstr:isFStr, line:li});
+          }
+          continue;
+        }
+
+        // f-string prefix
+        if ((ch==='f'||ch==='F') && pos+1<line.length && (line[pos+1]==='"'||line[pos+1]==="'")) {
+          var q = line[pos+1];
+          var val = '';
+          pos+=2;
+          while (pos < line.length && line[pos] !== q) {
+            if (line[pos] === '\\') {
+              var nc = line[pos+1];
+              if (nc==='n') val+='\n';
+              else if (nc==='t') val+='\t';
+              else val+=nc;
+              pos+=2;
+            } else { val += line[pos++]; }
+          }
+          pos++;
+          tokens.push({type:'FSTRING', value:val, line:li});
+          continue;
+        }
+
+        // Numbers
+        if (ch >= '0' && ch <= '9') {
+          var num = '';
+          while (pos < line.length && ((line[pos]>='0'&&line[pos]<='9')||line[pos]==='.')) num += line[pos++];
+          tokens.push({type:'NUMBER', value:num.includes('.')?parseFloat(num):parseInt(num), line:li});
+          continue;
+        }
+
+        // Identifiers and keywords
+        if ((ch>='a'&&ch<='z')||(ch>='A'&&ch<='Z')||ch==='_'||ch.charCodeAt(0)>127) {
+          var word = '';
+          while (pos<line.length && ((line[pos]>='a'&&line[pos]<='z')||(line[pos]>='A'&&line[pos]<='Z')||(line[pos]>='0'&&line[pos]<='9')||line[pos]==='_'||line.charCodeAt(pos)>127)) {
+            word += line[pos++];
+          }
+          var KW = ['if','elif','else','for','while','in','not','and','or','def','return',
+                    'True','False','None','break','continue','pass','import','from','as',
+                    'class','try','except','finally','raise','with','lambda','is','match','case',
+                    'global','nonlocal','assert','yield','del'];
+          tokens.push({type: KW.includes(word)?'KW':'NAME', value:word, line:li});
+          continue;
+        }
+
+        // Operators
+        var threeChar = line.slice(pos,pos+3);
+        if (threeChar==='//='){tokens.push({type:'OP',value:'//=',line:li});pos+=3;continue;}
+        if (threeChar==='**='){tokens.push({type:'OP',value:'**=',line:li});pos+=3;continue;}
+        if (threeChar==='...'){tokens.push({type:'OP',value:'...',line:li});pos+=3;continue;}
+        var twoChar = line.slice(pos,pos+2);
+        var OPS2 = ['==','!=','<=','>=','+=','-=','*=','/=','%=','//','**','->','<<','>>','&=','|=','^='];
+        if (OPS2.includes(twoChar)){tokens.push({type:'OP',value:twoChar,line:li});pos+=2;continue;}
+        var OPS1 = '+-*/%=<>()[]{}:,.!&|^~@';
+        if (OPS1.includes(ch)){tokens.push({type:'OP',value:ch,line:li});pos++;continue;}
+
+        pos++;
+      }
+      tokens.push({type:'NEWLINE', line:li});
+    }
+    while (indentStack.length > 1) { indentStack.pop(); tokens.push({type:'DEDENT'}); }
+    tokens.push({type:'EOF'});
+    return tokens;
+  }
+
+  /* ── PARSER → AST ── */
+  function Parser(tokens) {
+    this.tokens = tokens.filter(function(t){ return t.type !== 'NEWLINE' || false; });
+    // Actually keep NEWLINEs — we need them for statement boundaries
+    // Filter only consecutive NEWLINEs
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+
+  Parser.prototype.peek = function(offset) {
+    var p = this.pos + (offset||0);
+    while (p < this.tokens.length && this.tokens[p].type === 'NEWLINE') p++;
+    return this.tokens[p] || {type:'EOF'};
+  };
+
+  Parser.prototype.consume = function() {
+    while (this.pos < this.tokens.length && this.tokens[this.pos].type === 'NEWLINE') this.pos++;
+    return this.tokens[this.pos++] || {type:'EOF'};
+  };
+
+  Parser.prototype.expect = function(type, value) {
+    var t = this.consume();
+    if (t.type !== type && !(value !== undefined && t.value === value)) {
+      throw new PythonError('SyntaxError', 'Expected ' + (value||type) + ' got ' + t.value, t.line);
+    }
+    return t;
+  };
+
+  Parser.prototype.match = function(type, value) {
+    var t = this.peek();
+    if (t.type === type && (value === undefined || t.value === value)) {
+      this.consume(); return true;
+    }
+    return false;
+  };
+
+  function PythonError(etype, msg, line) {
+    this.etype = etype; this.msg = msg; this.line = line;
+    this.toString = function(){ return etype + ': ' + msg; };
+  }
+
+  /* ── INTERPRETER ── */
+  function Interpreter(outputFn, inputFn) {
+    this.output = outputFn;
+    this.inputFn = inputFn;
+    this.globals = this.makeBuiltins();
+    this.callStack = [];
+  }
+
+  Interpreter.prototype.makeBuiltins = function() {
+    var self = this;
+    var G = {
+      'True': true, 'False': false, 'None': null,
+      'print': function(args, kwargs) {
+        var sep = (kwargs && kwargs.sep !== undefined) ? kwargs.sep : ' ';
+        var end = (kwargs && kwargs.end !== undefined) ? kwargs.end : '\n';
+        self.output(args.map(function(a){ return self.pyStr(a); }).join(sep) + end);
+      },
+      'input': function(args) {
+        var prompt = args[0] !== undefined ? self.pyStr(args[0]) : '';
+        return self.inputFn(prompt);
+      },
+      'int': function(args) {
+        var v = args[0];
+        if (v === null) throw new PythonError('TypeError','int() argument must be a string or number');
+        var n = parseInt(v, 10);
+        if (isNaN(n)) n = Math.trunc(parseFloat(v));
+        if (isNaN(n)) throw new PythonError('ValueError', "invalid literal for int(): '" + v + "'");
+        return n;
+      },
+      'float': function(args) {
+        var n = parseFloat(args[0]);
+        if (isNaN(n)) throw new PythonError('ValueError', "could not convert to float: '" + args[0] + "'");
+        return n;
+      },
+      'str': function(args) { return self.pyStr(args[0]); },
+      'bool': function(args) { return self.pyBool(args[0]); },
+      'len': function(args) {
+        var v = args[0];
+        if (typeof v === 'string') return v.length;
+        if (Array.isArray(v)) return v.length;
+        if (v && v.__type === 'dict') return Object.keys(v.__data).length;
+        if (v && v.__type === 'set') return v.__data.length;
+        if (v && v.__type === 'tuple') return v.__data.length;
+        throw new PythonError('TypeError','object has no len()');
+      },
+      'range': function(args) {
+        var start=0, stop, step=1;
+        if (args.length===1){stop=args[0];}
+        else if (args.length===2){start=args[0];stop=args[1];}
+        else{start=args[0];stop=args[1];step=args[2];}
+        return {__type:'range',start:start,stop:stop,step:step};
+      },
+      'type': function(args) {
+        var v = args[0];
+        if (v === null) return "<class 'NoneType'>";
+        if (typeof v === 'boolean') return "<class 'bool'>";
+        if (typeof v === 'number') return Number.isInteger(v) ? "<class 'int'>" : "<class 'float'>";
+        if (typeof v === 'string') return "<class 'str'>";
+        if (Array.isArray(v)) return "<class 'list'>";
+        if (v && v.__type === 'dict') return "<class 'dict'>";
+        if (v && v.__type === 'set') return "<class 'set'>";
+        if (v && v.__type === 'tuple') return "<class 'tuple'>";
+        if (v && v.__type === 'func') return "<class 'function'>";
+        return "<class 'object'>";
+      },
+      'isinstance': function(args) {
+        var v = args[0], t = args[1];
+        if (t === 'int') return typeof v==='number'&&Number.isInteger(v);
+        if (t === 'float') return typeof v==='number';
+        if (t === 'str') return typeof v==='string';
+        if (t === 'bool') return typeof v==='boolean';
+        if (t === 'list') return Array.isArray(v);
+        return false;
+      },
+      'abs': function(args) { return Math.abs(args[0]); },
+      'max': function(args) {
+        var arr = Array.isArray(args[0]) ? args[0] : args;
+        return arr.reduce(function(a,b){ return a>b?a:b; });
+      },
+      'min': function(args) {
+        var arr = Array.isArray(args[0]) ? args[0] : args;
+        return arr.reduce(function(a,b){ return a<b?a:b; });
+      },
+      'sum': function(args) {
+        var arr = Array.isArray(args[0]) ? args[0] : args;
+        return arr.reduce(function(a,b){ return a+b; }, 0);
+      },
+      'sorted': function(args, kwargs) {
+        var arr = self.toList(args[0]).slice();
+        var rev = kwargs && kwargs.reverse;
+        arr.sort(function(a,b){ return a<b?-1:a>b?1:0; });
+        if (rev) arr.reverse();
+        return arr;
+      },
+      'reversed': function(args) { return self.toList(args[0]).slice().reverse(); },
+      'enumerate': function(args) {
+        var arr = self.toList(args[0]);
+        var start = args[1]||0;
+        return arr.map(function(v,i){ return {__type:'tuple',__data:[i+start,v]}; });
+      },
+      'zip': function(args) {
+        var len = Math.min.apply(null, args.map(function(a){ return self.toList(a).length; }));
+        var result = [];
+        for (var i=0;i<len;i++) {
+          result.push({__type:'tuple',__data:args.map(function(a){ return self.toList(a)[i]; })});
+        }
+        return result;
+      },
+      'list': function(args) { return args[0]!==undefined ? self.toList(args[0]) : []; },
+      'tuple': function(args) { return {__type:'tuple',__data: args[0]!==undefined?self.toList(args[0]):[]}; },
+      'set': function(args) {
+        var items = args[0]!==undefined ? self.toList(args[0]) : [];
+        var unique = [];
+        items.forEach(function(v){ if(!unique.some(function(u){return self.pyEq(u,v);})) unique.push(v); });
+        return {__type:'set',__data:unique};
+      },
+      'dict': function(args) { return {__type:'dict',__data:{},__keymap:{}}; },
+      'round': function(args) {
+        var n=args[0], d=args[1]||0;
+        return parseFloat(n.toFixed(d));
+      },
+      'chr': function(args) { return String.fromCharCode(args[0]); },
+      'ord': function(args) { return args[0].charCodeAt(0); },
+      'id': function(args) { return 0; },
+      'format': function(args) { return self.pyStr(args[0]); },
+      'map': function(args) {
+        var fn=args[0], lst=self.toList(args[1]);
+        return lst.map(function(v){ return self.callFn(fn,[v]); });
+      },
+      'filter': function(args) {
+        var fn=args[0], lst=self.toList(args[1]);
+        return lst.filter(function(v){ return self.pyBool(self.callFn(fn,[v])); });
+      },
+      'any': function(args) { return self.toList(args[0]).some(function(v){ return self.pyBool(v); }); },
+      'all': function(args) { return self.toList(args[0]).every(function(v){ return self.pyBool(v); }); },
+    };
+    return G;
+  };
+
+  Interpreter.prototype.pyBool = function(v) {
+    if (v === null || v === false || v === 0 || v === '' || v === 0.0) return false;
+    if (Array.isArray(v) && v.length===0) return false;
+    if (v && v.__type==='dict' && Object.keys(v.__data).length===0) return false;
+    if (v && v.__type==='set' && v.__data.length===0) return false;
+    if (v && v.__type==='tuple' && v.__data.length===0) return false;
+    return true;
+  };
+
+  Interpreter.prototype.pyStr = function(v) {
+    if (v === null) return 'None';
+    if (v === true) return 'True';
+    if (v === false) return 'False';
+    if (typeof v === 'number') {
+      if (Number.isInteger(v)) return String(v);
+      return String(v);
+    }
+    if (typeof v === 'string') return v;
+    if (Array.isArray(v)) return '[' + v.map(function(x){ return this.pyRepr(x); }, this).join(', ') + ']';
+    if (v && v.__type==='tuple') return '(' + v.__data.map(function(x){ return this.pyRepr(x); }, this).join(', ') + (v.__data.length===1?',':'') + ')';
+    if (v && v.__type==='dict') {
+      var km = v.__keymap || {};
+      var pairs = Object.keys(v.__data).map(function(strKey){
+        var origKey = km.hasOwnProperty(strKey) ? km[strKey] : strKey;
+        return this.pyRepr(origKey)+': '+this.pyRepr(v.__data[strKey]);
+      }, this);
+      return '{' + pairs.join(', ') + '}';
+    }
+    if (v && v.__type==='set') return '{' + v.__data.map(function(x){ return this.pyRepr(x); }, this).join(', ') + '}';
+    if (v && v.__type==='range') return 'range(' + v.start+', '+v.stop + ')';
+    if (v && v.__type==='func') return '<function ' + (v.name||'?') + '>';
+    return String(v);
+  };
+
+  Interpreter.prototype.pyRepr = function(v) {
+    if (typeof v === 'string') return "'" + v.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + "'";
+    return this.pyStr(v);
+  };
+
+  Interpreter.prototype.pyEq = function(a, b) {
+    if (a === b) return true;
+    if (a === null && b === null) return true;
+    if (Array.isArray(a) && Array.isArray(b)) {
+      if (a.length!==b.length) return false;
+      return a.every(function(v,i){ return this.pyEq(v,b[i]); }, this);
+    }
+    if (a && a.__type==='tuple' && b && b.__type==='tuple') return this.pyEq(a.__data, b.__data);
+    return false;
+  };
+
+  Interpreter.prototype.toList = function(v) {
+    if (Array.isArray(v)) return v;
+    if (v && v.__type==='tuple') return v.__data;
+    if (v && v.__type==='set') return v.__data;
+    if (v && v.__type==='range') {
+      var r=[], i=v.start;
+      if (v.step>0){ while(i<v.stop){r.push(i);i+=v.step;} }
+      else { while(i>v.stop){r.push(i);i+=v.step;} }
+      return r;
+    }
+    if (typeof v==='string') return v.split('');
+    if (v && v.__type==='dict') return Object.keys(v.__data);
+    return [];
+  };
+
+  Interpreter.prototype.getAttr = function(obj, attr) {
+    var self = this;
+    if (typeof obj === 'string') {
+      var strMethods = {
+        'upper': function(){ return obj.toUpperCase(); },
+        'lower': function(){ return obj.toLowerCase(); },
+        'strip': function(args){ return args&&args[0]?obj.replace(new RegExp('['+args[0]+']+','g'),''):obj.trim(); },
+        'lstrip': function(){ return obj.trimStart(); },
+        'rstrip': function(){ return obj.trimEnd(); },
+        'replace': function(args){ return obj.split(args[0]).join(args[1]); },
+        'split': function(args){ return args&&args[0]?obj.split(args[0]):obj.trim().split(/\s+/); },
+        'join': function(args){ return self.toList(args[0]).map(function(v){return self.pyStr(v);}).join(obj); },
+        'find': function(args){ return obj.indexOf(args[0]); },
+        'index': function(args){ var i=obj.indexOf(args[0]); if(i<0) throw new PythonError('ValueError','substring not found'); return i; },
+        'count': function(args){ return obj.split(args[0]).length-1; },
+        'startswith': function(args){ return obj.startsWith(args[0]); },
+        'endswith': function(args){ return obj.endsWith(args[0]); },
+        'isdigit': function(){ return /^\d+$/.test(obj); },
+        'isalpha': function(){ return /^[a-zA-Z]+$/.test(obj); },
+        'isalnum': function(){ return /^[a-zA-Z0-9]+$/.test(obj); },
+        'isupper': function(){ return obj===obj.toUpperCase()&&obj!==obj.toLowerCase(); },
+        'islower': function(){ return obj===obj.toLowerCase()&&obj!==obj.toUpperCase(); },
+        'title': function(){ return obj.replace(/\b\w/g,function(c){return c.toUpperCase();}); },
+        'capitalize': function(){ return obj[0].toUpperCase()+obj.slice(1).toLowerCase(); },
+        'center': function(args){ var n=args[0]-obj.length,f=args[1]||' '; return f.repeat(Math.floor(n/2))+obj+f.repeat(Math.ceil(n/2)); },
+        'ljust': function(args){ return obj.padEnd(args[0],args[1]||' '); },
+        'rjust': function(args){ return obj.padStart(args[0],args[1]||' '); },
+        'zfill': function(args){ return obj.padStart(args[0],'0'); },
+        'format': function(args){ return obj; },
+        'encode': function(){ return obj; },
+      };
+      if (attr in strMethods) {
+        return {__type:'method', call: function(args,kw){ return strMethods[attr](args,kw); }};
+      }
+    }
+    if (Array.isArray(obj)) {
+      var listMethods = {
+        'append': function(args){ obj.push(args[0]); return null; },
+        'extend': function(args){ self.toList(args[0]).forEach(function(v){obj.push(v);}); return null; },
+        'insert': function(args){ obj.splice(args[0],0,args[1]); return null; },
+        'remove': function(args){ var i=obj.findIndex(function(v){return self.pyEq(v,args[0]);}); if(i<0)throw new PythonError('ValueError','not in list'); obj.splice(i,1); return null; },
+        'pop': function(args){ return args&&args[0]!==undefined?obj.splice(args[0],1)[0]:obj.pop(); },
+        'clear': function(){ obj.length=0; return null; },
+        'index': function(args){ var i=obj.findIndex(function(v){return self.pyEq(v,args[0]);}); if(i<0)throw new PythonError('ValueError','not in list'); return i; },
+        'count': function(args){ return obj.filter(function(v){return self.pyEq(v,args[0]);}).length; },
+        'sort': function(args,kw){ obj.sort(function(a,b){var r=a<b?-1:a>b?1:0; return (kw&&kw.reverse)?-r:r;}); return null; },
+        'reverse': function(){ obj.reverse(); return null; },
+        'copy': function(){ return obj.slice(); },
+      };
+      if (attr in listMethods) return {__type:'method',call:function(args,kw){return listMethods[attr](args,kw);}};
+    }
+    if (obj && obj.__type==='dict') {
+      var d = obj.__data;
+      var dictMethods = {
+        'keys': function(){ var km=obj.__keymap||{}; return Object.keys(d).map(function(k){return km.hasOwnProperty(k)?km[k]:k;}); },
+        'values': function(){ return Object.values(d); },
+        'items': function(){ var km=obj.__keymap||{}; return Object.keys(d).map(function(k){return {__type:'tuple',__data:[km.hasOwnProperty(k)?km[k]:k, d[k]]};}); },
+        'get': function(args){ return d.hasOwnProperty(args[0])?d[args[0]]:args[1]!==undefined?args[1]:null; },
+        'update': function(args){ var o=args[0]; if(o&&o.__type==='dict'){Object.assign(d,o.__data);}return null; },
+        'pop': function(args){ var v=d[args[0]]; delete d[args[0]]; return v!==undefined?v:args[1]; },
+        'clear': function(){ for(var k in d)delete d[k]; return null; },
+        'copy': function(){ return {__type:'dict',__data:Object.assign({},d)}; },
+        'setdefault': function(args){ if(!d.hasOwnProperty(args[0])){d[args[0]]=args[1]!==undefined?args[1]:null;} return d[args[0]]; },
+      };
+      if (attr in dictMethods) return {__type:'method',call:function(args,kw){return dictMethods[attr](args,kw);}};
+    }
+    if (obj && obj.__type==='set') {
+      var s = obj.__data;
+      var setMethods = {
+        'add': function(args){ if(!s.some(function(v){return self.pyEq(v,args[0]);}))s.push(args[0]); return null; },
+        'remove': function(args){ var i=s.findIndex(function(v){return self.pyEq(v,args[0]);}); if(i<0)throw new PythonError('KeyError',self.pyStr(args[0])); s.splice(i,1); return null; },
+        'discard': function(args){ var i=s.findIndex(function(v){return self.pyEq(v,args[0]);}); if(i>=0)s.splice(i,1); return null; },
+        'pop': function(){ return s.pop(); },
+        'clear': function(){ s.length=0; return null; },
+        'union': function(args){ var r=s.slice(); self.toList(args[0]).forEach(function(v){if(!r.some(function(u){return self.pyEq(u,v);}))r.push(v);}); return {__type:'set',__data:r}; },
+        'intersection': function(args){ var b=self.toList(args[0]); return {__type:'set',__data:s.filter(function(v){return b.some(function(u){return self.pyEq(u,v);});})}; },
+        'difference': function(args){ var b=self.toList(args[0]); return {__type:'set',__data:s.filter(function(v){return !b.some(function(u){return self.pyEq(u,v);});})}; },
+        'issubset': function(args){ var b=self.toList(args[0]); return s.every(function(v){return b.some(function(u){return self.pyEq(u,v);}); }); },
+      };
+      if (attr in setMethods) return {__type:'method',call:function(args,kw){return setMethods[attr](args,kw);}};
+    }
+    throw new PythonError('AttributeError', "has no attribute '" + attr + "'");
+  };
+
+  Interpreter.prototype.callFn = function(fn, args, kwargs) {
+    if (!fn) throw new PythonError('TypeError','not callable');
+    if (typeof fn === 'function') return fn(args||[], kwargs||{});
+    if (fn.__type === 'method') return fn.call(args||[], kwargs||{});
+    if (fn.__type !== 'func') throw new PythonError('TypeError', this.pyStr(fn) + ' is not callable');
+
+    var env = Object.create(fn.closure || this.globals);
+    if (fn.params) {
+      fn.params.forEach(function(p,i) {
+        env[p.name] = (args&&args[i]!==undefined) ? args[i] : (p.default!==undefined?p.default:null);
+      });
+    }
+    if (kwargs) Object.assign(env, kwargs);
+    this.callStack.push(env);
+    try {
+      var result = this.execBlock(fn.body, env);
+      this.callStack.pop();
+      if (result && result.__return !== undefined) return result.__return;
+      return null;
+    } catch(e) {
+      this.callStack.pop();
+      throw e;
+    }
+  };
+
+  Interpreter.prototype.execBlock = function(stmts, env) {
+    for (var i=0; i<stmts.length; i++) {
+      var r = this.execStmt(stmts[i], env);
+      if (r && (r.__return!==undefined||r.__break||r.__continue)) return r;
+    }
+    return null;
+  };
+
+  Interpreter.prototype.execStmt = function(stmt, env) {
+    if (!stmt) return null;
+    var self = this;
+    switch(stmt.type) {
+      case 'assign': {
+        var val = this.evalExpr(stmt.value, env);
+        this.assign(stmt.target, val, env);
+        return null;
+      }
+      case 'multiassign': {
+        var val = this.evalExpr(stmt.value, env);
+        for (var ti=0; ti<stmt.targets.length; ti++) {
+          this.assign(stmt.targets[ti], val, env);
+        }
+        return null;
+      }
+      case 'augassign': {
+        var cur = this.evalExpr(stmt.target, env);
+        var rhs = this.evalExpr(stmt.value, env);
+        var res = this.applyOp(stmt.op.replace('=',''), cur, rhs);
+        this.assign(stmt.target, res, env);
+        return null;
+      }
+      case 'expr': {
+        this.evalExpr(stmt.expr, env);
+        return null;
+      }
+      case 'if': {
+        for (var ci=0; ci<stmt.clauses.length; ci++) {
+          var clause = stmt.clauses[ci];
+          if (clause.cond === null || this.pyBool(this.evalExpr(clause.cond, env))) {
+            return this.execBlock(clause.body, env);
+          }
+        }
+        return null;
+      }
+      case 'while': {
+        var maxIter = 10000;
+        while (this.pyBool(this.evalExpr(stmt.cond, env)) && maxIter-- > 0) {
+          var r = this.execBlock(stmt.body, env);
+          if (r && r.__break) return null;
+          if (r && r.__return !== undefined) return r;
+          if (r && r.__continue) continue;
+        }
+        if (maxIter <= 0) throw new PythonError('RuntimeError', 'ลูปวนมากเกินไป (>10000 รอบ)');
+        if (stmt.elsebody) return this.execBlock(stmt.elsebody, env);
+        return null;
+      }
+      case 'for': {
+        var iterable = this.evalExpr(stmt.iter, env);
+        var items = this.toList(iterable);
+        var maxIter = 100000;
+        for (var fi=0; fi<items.length && maxIter-- > 0; fi++) {
+          this.assign(stmt.target, items[fi], env);
+          var r = this.execBlock(stmt.body, env);
+          if (r && r.__break) return null;
+          if (r && r.__return !== undefined) return r;
+        }
+        if (maxIter <= 0) throw new PythonError('RuntimeError', 'ลูปใหญ่เกินไป (>100000)');
+        return null;
+      }
+      case 'def': {
+        var fn = {__type:'func', name:stmt.name, params:stmt.params, body:stmt.body, closure:env};
+        env[stmt.name] = fn;
+        return null;
+      }
+      case 'return': {
+        return {__return: stmt.value ? this.evalExpr(stmt.value, env) : null};
+      }
+      case 'break': return {__break:true};
+      case 'continue': return {__continue:true};
+      case 'pass': return null;
+      case 'import': return null; // ignore imports gracefully
+      case 'delete': {
+        if (stmt.target.type==='index') {
+          var obj=this.evalExpr(stmt.target.obj,env), key=this.evalExpr(stmt.target.key,env);
+          if (obj && obj.__type==='dict') delete obj.__data[key];
+          else if (Array.isArray(obj)) obj.splice(key,1);
+        } else if (stmt.target.type==='name') {
+          delete env[stmt.target.name];
+        }
+        return null;
+      }
+      case 'match': {
+        var subject = this.evalExpr(stmt.subject, env);
+        for (var mi=0; mi<stmt.cases.length; mi++) {
+          var c = stmt.cases[mi];
+          if (c.pattern === '_' || this.pyEq(subject, this.evalExpr(c.pattern, env))) {
+            return this.execBlock(c.body, env);
+          }
+          if (c.patterns) {
+            for (var pi=0; pi<c.patterns.length; pi++) {
+              if (this.pyEq(subject, this.evalExpr(c.patterns[pi], env))) {
+                return this.execBlock(c.body, env);
+              }
+            }
+          }
+        }
+        return null;
+      }
+      case 'global': return null;
+      default: return null;
+    }
+  };
+
+  Interpreter.prototype.assign = function(target, val, env) {
+    if (!target) return;
+    if (target.type === 'name') {
+      env[target.name] = val;
+    } else if (target.type === 'index') {
+      var obj = this.evalExpr(target.obj, env);
+      var key = this.evalExpr(target.key, env);
+      if (obj && obj.__type === 'dict') { obj.__data[key] = val; if(!obj.__keymap)obj.__keymap={}; obj.__keymap[String(key)] = key; }
+      else if (Array.isArray(obj)) obj[key] = val;
+    } else if (target.type === 'attr') {
+      var obj = this.evalExpr(target.obj, env);
+      if (obj) obj[target.attr] = val;
+    } else if (target.type === 'tuple' || target.type === 'list') {
+      var items = this.toList(val);
+      target.elements.forEach(function(el, i) {
+        this.assign(el, items[i], env);
+      }, this);
+    }
+  };
+
+  Interpreter.prototype.evalExpr = function(expr, env) {
+    if (!expr) return null;
+    var self = this;
+    switch(expr.type) {
+      case 'num': return expr.value;
+      case 'str': return expr.value;
+      case 'bool': return expr.value;
+      case 'none': return null;
+      case 'name': {
+        var n = expr.name;
+        if (n in env) return env[n];
+        if (n in this.globals) return this.globals[n];
+        // Search call stack
+        for (var ci=this.callStack.length-1; ci>=0; ci--) {
+          if (n in this.callStack[ci]) return this.callStack[ci][n];
+        }
+        throw new PythonError('NameError', "name '" + n + "' is not defined");
+      }
+      case 'fstr': {
+        return expr.value.replace(/\{([^}]+)\}/g, function(_, inner) {
+          var parts = inner.split(':');
+          var varExpr = parts[0].trim();
+          var fmt = parts[1];
+          // Parse the inner expression using ExprParser
+          try {
+            var toks = tokenize(varExpr);
+            var ep = new ExprParser(toks, 0);
+            var e = ep.parse();
+            var val = self.evalExpr(e, env);
+            if (fmt) {
+              if (fmt.endsWith('d')) val = Math.round(val);
+              else if (fmt.includes('.') && fmt.endsWith('f')) val = parseFloat(val).toFixed(parseInt(fmt.slice(fmt.indexOf('.')+1)));
+              else if (fmt.endsWith('s')) val = String(val);
+              else if (/^\d+$/.test(fmt)) val = String(val).padStart(parseInt(fmt));
+            }
+            return self.pyStr(val);
+          } catch(e) { return '{'+inner+'}'; }
+        });
+      }
+      case 'list': {
+        // Check for list comprehension
+        if (expr.comp) {
+          var result = [];
+          var iter = this.toList(this.evalExpr(expr.comp.iter, env));
+          iter.forEach(function(item) {
+            var innerEnv = Object.create(env);
+            self.assign(expr.comp.target, item, innerEnv);
+            if (!expr.comp.cond || self.pyBool(self.evalExpr(expr.comp.cond, innerEnv))) {
+              result.push(self.evalExpr(expr.element, innerEnv));
+            }
+          });
+          return result;
+        }
+        return expr.elements.map(function(e){ return self.evalExpr(e, env); });
+      }
+      case 'tuple': return {__type:'tuple', __data: expr.elements.map(function(e){ return self.evalExpr(e, env); })};
+      case 'dict': {
+        // Check for dict comprehension
+        if (expr.comp) {
+          var result = {__type:'dict',__data:{},__keymap:{}};
+          var iter = this.toList(this.evalExpr(expr.comp.iter, env));
+          iter.forEach(function(item) {
+            var innerEnv = Object.create(env);
+            self.assign(expr.comp.target, item, innerEnv);
+            if (!expr.comp.cond || self.pyBool(self.evalExpr(expr.comp.cond, innerEnv))) {
+              var k = self.evalExpr(expr.keys[0], innerEnv);
+              var v = self.evalExpr(expr.values[0], innerEnv);
+              result.__data[k] = v;
+              result.__keymap[String(k)] = k;
+            }
+          });
+          return result;
+        }
+        var d = {__type:'dict',__data:{},__keymap:{}};
+        expr.keys.forEach(function(k,i){ var kv=self.evalExpr(k,env); d.__data[kv]=self.evalExpr(expr.values[i],env); d.__keymap[String(kv)]=kv; });
+        return d;
+      }
+      case 'set': {
+        var s = {__type:'set',__data:[]};
+        expr.elements.forEach(function(e){ var v=self.evalExpr(e,env); if(!s.__data.some(function(u){return self.pyEq(u,v);}))s.__data.push(v); });
+        return s;
+      }
+      case 'binop': {
+        var op = expr.op;
+        // Short-circuit for and/or
+        if (op === 'and') { var lv=this.evalExpr(expr.left,env); return this.pyBool(lv)?this.evalExpr(expr.right,env):lv; }
+        if (op === 'or')  { var lv=this.evalExpr(expr.left,env); return this.pyBool(lv)?lv:this.evalExpr(expr.right,env); }
+        var left = this.evalExpr(expr.left, env);
+        var right = this.evalExpr(expr.right, env);
+        return this.applyOp(op, left, right);
+      }
+      case 'unop': {
+        var val = this.evalExpr(expr.operand, env);
+        if (expr.op==='-') return -val;
+        if (expr.op==='not') return !this.pyBool(val);
+        if (expr.op==='~') return ~val;
+        return val;
+      }
+      case 'compare': {
+        var left = this.evalExpr(expr.left, env);
+        for (var ci=0; ci<expr.ops.length; ci++) {
+          var right = this.evalExpr(expr.comparators[ci], env);
+          var res = this.applyCompare(expr.ops[ci], left, right);
+          if (!res) return false;
+          left = right;
+        }
+        return true;
+      }
+      case 'call': {
+        var fn = this.evalExpr(expr.func, env);
+        var args = expr.args.map(function(a){ return self.evalExpr(a,env); });
+        var kwargs = {};
+        if (expr.kwargs) {
+          expr.kwargs.forEach(function(kw){ kwargs[kw.key]=self.evalExpr(kw.value,env); });
+        }
+        return this.callFn(fn, args, Object.keys(kwargs).length?kwargs:null);
+      }
+      case 'attr': {
+        var obj = this.evalExpr(expr.obj, env);
+        return this.getAttr(obj, expr.attr);
+      }
+      case 'index': {
+        var obj = this.evalExpr(expr.obj, env);
+        var key = this.evalExpr(expr.key, env);
+        if (typeof obj==='string') { if(key<0)key+=obj.length; return obj[key]||''; }
+        if (Array.isArray(obj)) { if(key<0)key+=obj.length; return obj[key]; }
+        if (obj && obj.__type==='tuple') { if(key<0)key+=obj.__data.length; return obj.__data[key]; }
+        if (obj && obj.__type==='dict') {
+          if (!obj.__data.hasOwnProperty(key)) throw new PythonError('KeyError',self.pyRepr(key));
+          return obj.__data[key];
+        }
+        throw new PythonError('TypeError','not subscriptable');
+      }
+      case 'slice': {
+        var obj = this.evalExpr(expr.obj, env);
+        var start = expr.start?this.evalExpr(expr.start,env):null;
+        var stop  = expr.stop ?this.evalExpr(expr.stop,env) :null;
+        var step  = expr.step ?this.evalExpr(expr.step,env) :1;
+        if (typeof obj==='string') {
+          var arr=obj.split('');
+          return this.doSlice(arr,start,stop,step).join('');
+        }
+        if (Array.isArray(obj)) return this.doSlice(obj,start,stop,step);
+        if (obj&&obj.__type==='tuple') return {__type:'tuple',__data:this.doSlice(obj.__data,start,stop,step)};
+        return [];
+      }
+      case 'ternary': {
+        return this.pyBool(this.evalExpr(expr.cond,env)) ? this.evalExpr(expr.ifTrue,env) : this.evalExpr(expr.ifFalse,env);
+      }
+      case 'lambda': {
+        var params = expr.params;
+        var body = expr.body;
+        var closure = env;
+        return {__type:'func',name:'<lambda>',params:params,body:[{type:'return',value:body}],closure:closure};
+      }
+      default: return null;
+    }
+  };
+
+  Interpreter.prototype.doSlice = function(arr, start, stop, step) {
+    var n=arr.length;
+    if (step===null||step===undefined) step=1;
+    if (step>0) {
+      if (start===null||start===undefined) start=0; else if(start<0)start=Math.max(0,n+start);
+      if (stop===null||stop===undefined) stop=n; else if(stop<0)stop=Math.max(0,n+stop);
+      var r=[];
+      for(var i=start;i<Math.min(stop,n);i+=step) r.push(arr[i]);
+      return r;
+    } else {
+      if (start===null||start===undefined) start=n-1; else if(start<0)start=n+start;
+      if (stop===null||stop===undefined) stop=-n-1; else if(stop<0)stop=n+stop;
+      var r=[];
+      for(var i=Math.min(start,n-1);i>Math.max(stop,-1);i+=step) r.push(arr[i]);
+      return r;
+    }
+  };
+
+  Interpreter.prototype.applyOp = function(op, left, right) {
+    switch(op) {
+      case '+':
+        if (typeof left==='string'||typeof right==='string') return String(this.pyStr(left))+String(this.pyStr(right));
+        if (Array.isArray(left)&&Array.isArray(right)) return left.concat(right);
+        if (left&&left.__type==='tuple'&&right&&right.__type==='tuple') return {__type:'tuple',__data:left.__data.concat(right.__data)};
+        return left+right;
+      case '-': return left-right;
+      case '*':
+        if (typeof left==='string'&&typeof right==='number') return left.repeat(Math.max(0,right));
+        if (Array.isArray(left)&&typeof right==='number') { var r=[]; for(var i=0;i<right;i++)r=r.concat(left); return r; }
+        return left*right;
+      case '/': if(right===0)throw new PythonError('ZeroDivisionError','division by zero'); return left/right;
+      case '//': if(right===0)throw new PythonError('ZeroDivisionError','division by zero'); return Math.floor(left/right);
+      case '%':
+        if (typeof left==='string') return left; // simplified % formatting
+        if(right===0)throw new PythonError('ZeroDivisionError','modulo by zero');
+        return ((left%right)+right)%right;
+      case '**': return Math.pow(left,right);
+      case '&': {
+        if (left&&left.__type==='set'&&right&&right.__type==='set') {
+          var self=this;
+          return {__type:'set',__data:left.__data.filter(function(v){return right.__data.some(function(u){return self.pyEq(u,v);});})};
+        }
+        return left&right;
+      }
+      case '|': {
+        if (left&&left.__type==='set'&&right&&right.__type==='set') {
+          var self=this,r=left.__data.slice();
+          right.__data.forEach(function(v){if(!r.some(function(u){return self.pyEq(u,v);}))r.push(v);});
+          return {__type:'set',__data:r};
+        }
+        return left|right;
+      }
+      case '^': {
+        if (left&&left.__type==='set'&&right&&right.__type==='set') {
+          var self=this;
+          var a=left.__data.filter(function(v){return !right.__data.some(function(u){return self.pyEq(u,v);});});
+          var b=right.__data.filter(function(v){return !left.__data.some(function(u){return self.pyEq(u,v);});});
+          return {__type:'set',__data:a.concat(b)};
+        }
+        return left^right;
+      }
+      case '<<': return left<<right;
+      case '>>': return left>>right;
+    }
+    return null;
+  };
+
+  Interpreter.prototype.applyCompare = function(op, left, right) {
+    var self = this;
+    switch(op) {
+      case '==': return this.pyEq(left,right) || left===right;
+      case '!=': return !this.pyEq(left,right) && left!==right;
+      case '<':  return left<right;
+      case '>':  return left>right;
+      case '<=': return left<=right;
+      case '>=': return left>=right;
+      case 'in': {
+        if (typeof right==='string') return right.includes(self.pyStr(left));
+        if (Array.isArray(right)) return right.some(function(v){return self.pyEq(v,left);});
+        if (right&&right.__type==='dict') return right.__data.hasOwnProperty(left);
+        if (right&&right.__type==='set') return right.__data.some(function(v){return self.pyEq(v,left);});
+        if (right&&right.__type==='tuple') return right.__data.some(function(v){return self.pyEq(v,left);});
+        return false;
+      }
+      case 'not in': { return !this.applyCompare('in', left, right); }
+      case 'is': return left===right || (left===null&&right===null);
+      case 'is not': return left!==right;
+    }
+    return false;
+  };
+
+  /* ── STATEMENT PARSER ── */
+  function parseProgram(src) {
+    var tokens = tokenize(src);
+    var p = new StmtParser(tokens);
+    return p.parseBlock(0);
+  }
+
+  function StmtParser(tokens) {
+    this.tokens = tokens;
+    this.pos = 0;
+  }
+
+  StmtParser.prototype.peek = function() {
+    var p = this.pos;
+    while (p<this.tokens.length && this.tokens[p].type==='NEWLINE') p++;
+    return this.tokens[p] || {type:'EOF'};
+  };
+
+  StmtParser.prototype.peekRaw = function() {
+    return this.tokens[this.pos] || {type:'EOF'};
+  };
+
+  StmtParser.prototype.skipNewlines = function() {
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type==='NEWLINE') this.pos++;
+  };
+
+  StmtParser.prototype.consume = function() {
+    this.skipNewlines();
+    return this.tokens[this.pos++] || {type:'EOF'};
+  };
+
+  StmtParser.prototype.match = function(type, value) {
+    this.skipNewlines();
+    var t = this.tokens[this.pos];
+    if (!t) return false;
+    if (t.type===type && (value===undefined||t.value===value)) { this.pos++; return true; }
+    return false;
+  };
+
+  StmtParser.prototype.parseBlock = function(minIndent) {
+    var stmts = [];
+    while (true) {
+      this.skipNewlines();
+      var t = this.tokens[this.pos];
+      if (!t || t.type==='EOF') break;
+      if (t.type==='DEDENT') { this.pos++; break; }
+      if (t.type==='INDENT') { this.pos++; continue; }
+      var stmt = this.parseStmt();
+      if (stmt) stmts.push(stmt);
+    }
+    return stmts;
+  };
+
+  StmtParser.prototype.parseStmt = function() {
+    this.skipNewlines();
+    var t = this.peek();
+    if (!t || t.type==='EOF' || t.type==='DEDENT') return null;
+
+    if (t.type==='KW') {
+      switch(t.value) {
+        case 'if':     return this.parseIf();
+        case 'for':    return this.parseFor();
+        case 'while':  return this.parseWhile();
+        case 'def':    return this.parseDef();
+        case 'return': return this.parseReturn();
+        case 'break':  this.consume(); return {type:'break'};
+        case 'continue':this.consume();return {type:'continue'};
+        case 'pass':   this.consume(); return {type:'pass'};
+        case 'import': return this.parseImport();
+        case 'from':   return this.parseFrom();
+        case 'match':  return this.parseMatch();
+        case 'global': return this.parseGlobal();
+        case 'del':    return this.parseDel();
+        case 'elif':   return null;
+        case 'else':   return null;
+        case 'class':  return this.parseClass();
+        case 'try':    return this.parseTry();
+        case 'raise':  this.consume(); this.parseExprLine(); return {type:'pass'};
+        case 'assert': this.consume(); this.parseExprLine(); return {type:'pass'};
+        case 'with':   this.consume(); this.parseExprLine(); if(this.match('KW','as')) this.parseExprLine(); return this.parseColon();
+        default: this.consume(); return {type:'pass'};
+      }
+    }
+
+    // Expression statement or assignment
+    return this.parseExprStmt();
+  };
+
+  StmtParser.prototype.parseColon = function() {
+    if (this.match('OP',':')) {
+      if (this.match('INDENT')) {
+        return {type:'pass', body: this.parseBlock()};
+      }
+    }
+    return {type:'pass'};
+  };
+
+  StmtParser.prototype.parseIf = function() {
+    this.consume(); // 'if'
+    var cond = this.parseExprLine();
+    this.match('OP',':');
+    this.match('INDENT');
+    var body = this.parseBlock();
+    var clauses = [{cond:cond, body:body}];
+    while (true) {
+      this.skipNewlines();
+      var t = this.peek();
+      if (!t) break;
+      if (t.type==='KW' && t.value==='elif') {
+        this.consume();
+        var ec = this.parseExprLine();
+        this.match('OP',':');
+        this.match('INDENT');
+        clauses.push({cond:ec, body:this.parseBlock()});
+      } else if (t.type==='KW' && t.value==='else') {
+        this.consume();
+        this.match('OP',':');
+        this.match('INDENT');
+        clauses.push({cond:null, body:this.parseBlock()});
+        break;
+      } else break;
+    }
+    return {type:'if', clauses:clauses};
+  };
+
+  StmtParser.prototype.parseFor = function() {
+    this.consume(); // 'for'
+    var target = this.parseExprLine(true, true); // stop at 'in' and comma
+    // Handle multiple targets: for i, v in ...
+    this.skipNewlines();
+    if (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value===',') {
+      var targets = [target];
+      while (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value===',') {
+        this.pos++;
+        this.skipNewlines();
+        var nt = this.tokens[this.pos];
+        if (nt && nt.type==='KW' && nt.value==='in') break;
+        targets.push(this.parseExprLine(true, true));
+        this.skipNewlines();
+      }
+      target = {type:'tuple', elements:targets};
+    }
+    this.match('KW','in');
+    var iter = this.parseExprLine();
+    this.match('OP',':');
+    this.match('INDENT');
+    var body = this.parseBlock();
+    return {type:'for', target:target, iter:iter, body:body};
+  };
+
+  StmtParser.prototype.parseWhile = function() {
+    this.consume(); // 'while'
+    var cond = this.parseExprLine();
+    this.match('OP',':');
+    this.match('INDENT');
+    var body = this.parseBlock();
+    var elsebody = null;
+    this.skipNewlines();
+    var t = this.peek();
+    if (t && t.type==='KW' && t.value==='else') {
+      this.consume();
+      this.match('OP',':');
+      this.match('INDENT');
+      elsebody = this.parseBlock();
+    }
+    return {type:'while', cond:cond, body:body, elsebody:elsebody};
+  };
+
+  StmtParser.prototype.parseDef = function() {
+    this.consume(); // 'def'
+    var name = this.consume().value;
+    this.match('OP','(');
+    var params = [];
+    while (!this.peekAfterNewline_is('OP',')')) {
+      this.skipNewlines();
+      var t = this.tokens[this.pos];
+      if (!t||t.type==='EOF'||(t.type==='OP'&&t.value===')')) break;
+      if (t.type==='OP'&&t.value==='*') { this.pos++; this.pos++; continue; } // *args
+      if (t.type==='OP'&&t.value==='**') { this.pos+=2; continue; } // **kwargs
+      var pname = this.consume().value;
+      var pdefault = undefined;
+      this.skipNewlines();
+      if (this.tokens[this.pos]&&this.tokens[this.pos].type==='OP'&&this.tokens[this.pos].value===':') {
+        // type annotation — skip
+        this.pos++;
+        this.parseExprLine(false, true);
+      }
+      if (this.tokens[this.pos]&&this.tokens[this.pos].type==='OP'&&this.tokens[this.pos].value==='=') {
+        this.pos++;
+        pdefault = this.parseExprLine(false, true);
+      }
+      params.push({name:pname, default:pdefault});
+      this.skipNewlines();
+      if (this.tokens[this.pos]&&this.tokens[this.pos].type==='OP'&&this.tokens[this.pos].value===',') this.pos++;
+    }
+    this.match('OP',')');
+    // return type annotation
+    if (this.tokens[this.pos]&&this.tokens[this.pos].type==='OP'&&this.tokens[this.pos].value==='->') {
+      this.pos++;
+      this.parseExprLine();
+    }
+    this.match('OP',':');
+    // Docstring check
+    this.skipNewlines();
+    this.match('INDENT');
+    var body = this.parseBlock();
+    return {type:'def', name:name, params:params, body:body};
+  };
+
+  StmtParser.prototype.peekAfterNewline_is = function(type, value) {
+    var p = this.pos;
+    while (p<this.tokens.length && this.tokens[p].type==='NEWLINE') p++;
+    var t = this.tokens[p];
+    return t && t.type===type && t.value===value;
+  };
+
+  StmtParser.prototype.parseReturn = function() {
+    this.consume(); // 'return'
+    this.skipNewlines();
+    var t = this.tokens[this.pos];
+    if (!t || t.type==='NEWLINE' || t.type==='EOF' || t.type==='DEDENT') return {type:'return', value:null};
+    return {type:'return', value:this.parseExprLine()};
+  };
+
+  StmtParser.prototype.parseImport = function() {
+    this.consume();
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type!=='NEWLINE' && this.tokens[this.pos].type!=='EOF') this.pos++;
+    return {type:'import'};
+  };
+
+  StmtParser.prototype.parseFrom = function() {
+    this.consume();
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type!=='NEWLINE' && this.tokens[this.pos].type!=='EOF') this.pos++;
+    return {type:'import'};
+  };
+
+  StmtParser.prototype.parseGlobal = function() {
+    this.consume();
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type!=='NEWLINE') this.pos++;
+    return {type:'global'};
+  };
+
+  StmtParser.prototype.parseDel = function() {
+    this.consume();
+    var target = this.parseExprLine();
+    return {type:'delete', target:target};
+  };
+
+  StmtParser.prototype.parseClass = function() {
+    this.consume();
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type!=='OP'||this.tokens[this.pos].value!==':') {
+      if(this.tokens[this.pos].type==='NEWLINE'||this.tokens[this.pos].type==='EOF') break;
+      this.pos++;
+    }
+    this.match('OP',':');
+    this.match('INDENT');
+    this.parseBlock();
+    return {type:'pass'};
+  };
+
+  StmtParser.prototype.parseTry = function() {
+    this.consume();
+    this.match('OP',':');
+    this.match('INDENT');
+    var body = this.parseBlock();
+    var result = {type:'if', clauses:[{cond:{type:'bool',value:true}, body:body}]};
+    // skip except/finally
+    while (true) {
+      this.skipNewlines();
+      var t = this.peek();
+      if (!t) break;
+      if (t.type==='KW' && (t.value==='except'||t.value==='finally'||t.value==='else')) {
+        this.consume();
+        while (this.pos<this.tokens.length && this.tokens[this.pos].type!=='OP' && this.tokens[this.pos].value!==':' && this.tokens[this.pos].type!=='NEWLINE') this.pos++;
+        this.match('OP',':');
+        this.match('INDENT');
+        this.parseBlock();
+      } else break;
+    }
+    return result;
+  };
+
+  StmtParser.prototype.parseMatch = function() {
+    this.consume(); // 'match'
+    var subject = this.parseExprLine();
+    this.match('OP',':');
+    this.match('INDENT');
+    var cases = [];
+    while (true) {
+      this.skipNewlines();
+      var t = this.peek();
+      if (!t || t.type==='DEDENT' || t.type==='EOF') break;
+      if (t.type==='KW' && t.value==='case') {
+        this.consume();
+        var pattern = '_';
+        var patterns = null;
+        this.skipNewlines();
+        var pt = this.tokens[this.pos];
+        if (pt && pt.type==='NAME' && pt.value==='_') {
+          this.pos++;
+          pattern = '_';
+        } else {
+          var patExpr = this.parseExprLine(false, false, true); // stop at | and :
+          pattern = patExpr;
+          // Check for | patterns
+          this.skipNewlines();
+          if (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value==='|') {
+            patterns = [patExpr];
+            while (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value==='|') {
+              this.pos++;
+              patterns.push(this.parseExprLine(false, false, true));
+            }
+          }
+        }
+        this.match('OP',':');
+        this.match('INDENT');
+        var cbody = this.parseBlock();
+        cases.push({pattern: pattern, patterns: patterns, body: cbody});
+      } else {
+        this.pos++;
+      }
+    }
+    this.match('DEDENT');
+    return {type:'match', subject:subject, cases:cases};
+  };
+
+  StmtParser.prototype.parseExprStmt = function() {
+    var expr = this.parseExprLine();
+    if (!expr) return null;
+    this.skipNewlines();
+    var t = this.tokens[this.pos];
+
+    // Check for comma → tuple unpacking target: a, b = ...
+    if (t && t.type==='OP' && t.value===',') {
+      var targets = [expr];
+      while (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value===',') {
+        this.pos++;
+        this.skipNewlines();
+        var nt = this.tokens[this.pos];
+        if (nt && nt.type==='OP' && nt.value==='=') break;
+        targets.push(this.parseExprLine(false, true)); // stop at comma
+      }
+      expr = {type:'tuple', elements:targets};
+      this.skipNewlines();
+      t = this.tokens[this.pos];
+    }
+
+    if (!t) return {type:'expr',expr:expr};
+
+    var augOps = ['+=','-=','*=','/=','//=','%=','**=','&=','|=','^='];
+    if (t.type==='OP' && augOps.includes(t.value)) {
+      var op = t.value; this.pos++;
+      var rhs = this.parseRHS();
+      return {type:'augassign', target:expr, op:op, value:rhs};
+    }
+
+    if (t.type==='OP' && t.value==='=') {
+      this.pos++;
+      // Chained assignment: a = b = c = value
+      var targets = [expr];
+      var rhs = this.parseRHS();
+      this.skipNewlines();
+      while (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value==='=') {
+        this.pos++;
+        targets.push(rhs);
+        rhs = this.parseRHS();
+        this.skipNewlines();
+      }
+      if (targets.length > 1) {
+        return {type:'multiassign', targets:targets, value:rhs};
+      }
+      return {type:'assign', target:expr, value:rhs};
+    }
+
+    return {type:'expr', expr:expr};
+  };
+
+  // Parse right-hand side — handles comma-separated values as tuple: = 17, 5
+  StmtParser.prototype.parseRHS = function() {
+    var first = this.parseExprLine(false, true); // stop at comma
+    this.skipNewlines();
+    var t = this.tokens[this.pos];
+    if (t && t.type==='OP' && t.value===',') {
+      var elements = [first];
+      while (this.tokens[this.pos] && this.tokens[this.pos].type==='OP' && this.tokens[this.pos].value===',') {
+        this.pos++;
+        this.skipNewlines();
+        var nt = this.tokens[this.pos];
+        if (!nt || nt.type==='NEWLINE' || nt.type==='EOF' || nt.type==='DEDENT') break;
+        elements.push(this.parseExprLine(false, true));
+      }
+      return {type:'tuple', elements:elements};
+    }
+    return first;
+  };
+
+  // parseExprLine: parse a full expression, stopping at newline/colon(for for-in)/etc.
+  StmtParser.prototype.parseExprLine = function(stopAtIn, stopAtComma, stopAtPipe) {
+    var ep = new ExprParser(this.tokens, this.pos, stopAtIn, stopAtComma, stopAtPipe);
+    var expr = ep.parse();
+    this.pos = ep.pos;
+    return expr;
+  };
+
+  /* ── EXPRESSION PARSER ── */
+  function ExprParser(tokens, pos, stopAtIn, stopAtComma, stopAtPipe) {
+    this.tokens = tokens;
+    this.pos = pos || 0;
+    this.stopAtIn = stopAtIn;
+    this.stopAtComma = stopAtComma;
+    this.stopAtPipe = stopAtPipe;
+  }
+
+  ExprParser.prototype.peek = function() {
+    var p = this.pos;
+    while (p<this.tokens.length && this.tokens[p].type==='NEWLINE') p++;
+    return this.tokens[p] || {type:'EOF'};
+  };
+
+  ExprParser.prototype.consume = function() {
+    while (this.pos<this.tokens.length && this.tokens[this.pos].type==='NEWLINE') this.pos++;
+    return this.tokens[this.pos++] || {type:'EOF'};
+  };
+
+  ExprParser.prototype.match = function(type, value) {
+    var t = this.peek();
+    if (t.type===type && (value===undefined||t.value===value)) { this.consume(); return true; }
+    return false;
+  };
+
+  ExprParser.prototype.parse = function() { return this.parseTernary(); };
+
+  ExprParser.prototype.parseTernary = function() {
+    var expr = this.parseOr();
+    var t = this.peek();
+    if (t.type==='KW' && t.value==='if') {
+      this.consume();
+      var cond = this.parseOr();
+      var t2 = this.peek();
+      if (t2.type==='KW' && t2.value==='else') {
+        this.consume();
+        var ifFalse = this.parseTernary();
+        return {type:'ternary', cond:cond, ifTrue:expr, ifFalse:ifFalse};
+      }
+    }
+    return expr;
+  };
+
+  ExprParser.prototype.parseOr = function() {
+    var left = this.parseAnd();
+    while (this.peek().type==='KW' && this.peek().value==='or') {
+      this.consume();
+      var right = this.parseAnd();
+      left = {type:'binop', op:'or', left:left, right:right};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseAnd = function() {
+    var left = this.parseNot();
+    while (this.peek().type==='KW' && this.peek().value==='and') {
+      this.consume();
+      var right = this.parseNot();
+      left = {type:'binop', op:'and', left:left, right:right};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseNot = function() {
+    if (this.peek().type==='KW' && this.peek().value==='not') {
+      this.consume();
+      // check for "not in"
+      if (this.peek().type==='KW' && this.peek().value==='in') {
+        // This is handled at compare level — back up
+        this.pos--;
+        return this.parseCompare();
+      }
+      return {type:'unop', op:'not', operand:this.parseNot()};
+    }
+    return this.parseCompare();
+  };
+
+  ExprParser.prototype.parseCompare = function() {
+    var left = this.parseBitor();
+    var ops = [], comparators = [];
+    var CMP_OPS = ['==','!=','<','>','<=','>='];
+    var CMP_KW  = ['in','is'];
+    while (true) {
+      var t = this.peek();
+      var op = null;
+      if (t.type==='OP' && CMP_OPS.includes(t.value)) { op=t.value; this.consume(); }
+      else if (t.type==='KW' && t.value==='not') {
+        // 'not in'
+        var saved = this.pos;
+        this.consume();
+        if (this.peek().type==='KW' && this.peek().value==='in') { this.consume(); op='not in'; }
+        else { this.pos=saved; break; }
+      }
+      else if (t.type==='KW' && t.value==='in' && !this.stopAtIn) { op='in'; this.consume(); }
+      else if (t.type==='KW' && t.value==='is') {
+        this.consume();
+        if (this.peek().type==='KW' && this.peek().value==='not') { this.consume(); op='is not'; }
+        else op='is';
+      }
+      else break;
+      if (!op) break;
+      ops.push(op);
+      comparators.push(this.parseBitor());
+    }
+    if (ops.length===0) return left;
+    return {type:'compare', left:left, ops:ops, comparators:comparators};
+  };
+
+  ExprParser.prototype.parseBitor = function() {
+    var left = this.parseBitxor();
+    while (!this.stopAtPipe && this.peek().type==='OP' && this.peek().value==='|') {
+      this.consume();
+      left = {type:'binop', op:'|', left:left, right:this.parseBitxor()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseBitxor = function() {
+    var left = this.parseBitand();
+    while (this.peek().type==='OP' && this.peek().value==='^') {
+      this.consume(); left = {type:'binop', op:'^', left:left, right:this.parseBitand()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseBitand = function() {
+    var left = this.parseShift();
+    while (this.peek().type==='OP' && this.peek().value==='&') {
+      this.consume(); left = {type:'binop', op:'&', left:left, right:this.parseShift()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseShift = function() {
+    var left = this.parseAdd();
+    while (this.peek().type==='OP' && (this.peek().value==='<<'||this.peek().value==='>>')) {
+      var op=this.consume().value; left={type:'binop',op:op,left:left,right:this.parseAdd()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseAdd = function() {
+    var left = this.parseMul();
+    while (this.peek().type==='OP' && (this.peek().value==='+'||this.peek().value==='-')) {
+      var op=this.consume().value; left={type:'binop',op:op,left:left,right:this.parseMul()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseMul = function() {
+    var left = this.parseUnary();
+    while (this.peek().type==='OP' && ['*','/','//','%'].includes(this.peek().value)) {
+      var op=this.consume().value; left={type:'binop',op:op,left:left,right:this.parseUnary()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parseUnary = function() {
+    var t=this.peek();
+    if (t.type==='OP' && (t.value==='-'||t.value==='+')) {
+      var op=this.consume().value; return {type:'unop',op:op,operand:this.parsePower()};
+    }
+    if (t.type==='KW' && t.value==='not') {
+      this.consume(); return {type:'unop',op:'not',operand:this.parsePower()};
+    }
+    return this.parsePower();
+  };
+
+  ExprParser.prototype.parsePower = function() {
+    var left = this.parsePostfix();
+    if (this.peek().type==='OP' && this.peek().value==='**') {
+      this.consume(); return {type:'binop',op:'**',left:left,right:this.parseUnary()};
+    }
+    return left;
+  };
+
+  ExprParser.prototype.parsePostfix = function() {
+    var expr = this.parsePrimary();
+    while (true) {
+      var t = this.peek();
+      if (t.type==='OP' && t.value==='(') {
+        // function call
+        this.consume();
+        var args=[], kwargs=[];
+        while (this.peek().type!=='OP'||this.peek().value!==')') {
+          var t2=this.peek();
+          if (t2.type==='EOF') break;
+          // check for keyword arg: name=
+          if ((t2.type==='NAME'||t2.type==='KW') && this.tokens[this.pos+1] && this.tokens[this.pos+1].type==='OP' && this.tokens[this.pos+1].value==='=') {
+            var kname=this.consume().value; this.consume();
+            kwargs.push({key:kname, value:this.parseTernary()});
+          } else if (t2.type==='OP' && t2.value==='*') {
+            this.consume(); args.push(this.parseTernary()); // simplified *args
+          } else if (t2.type==='OP' && t2.value==='**') {
+            this.consume(); this.parseTernary(); // skip **kwargs
+          } else {
+            args.push(this.parseTernary());
+          }
+          if (this.peek().type==='OP'&&this.peek().value===',') this.consume();
+          else break;
+        }
+        this.match('OP',')');
+        expr = {type:'call', func:expr, args:args, kwargs:kwargs};
+      } else if (t.type==='OP' && t.value==='[') {
+        this.consume();
+        // slice or index
+        var hasColon = false;
+        var start=null, stop=null, step=null;
+        if (this.peek().type==='OP'&&this.peek().value===':') hasColon=true;
+        else { start=this.parseTernary(); if(this.peek().type==='OP'&&this.peek().value===':') hasColon=true; }
+        if (hasColon) {
+          this.consume(); // ':'
+          if (this.peek().type!=='OP'||(this.peek().value!==']'&&this.peek().value!==':')) stop=this.parseTernary();
+          if (this.peek().type==='OP'&&this.peek().value===':') { this.consume(); if(this.peek().type!=='OP'||this.peek().value!==']') step=this.parseTernary(); }
+          this.match('OP',']');
+          expr = {type:'slice', obj:expr, start:start, stop:stop, step:step};
+        } else {
+          this.match('OP',']');
+          expr = {type:'index', obj:expr, key:start};
+        }
+      } else if (t.type==='OP' && t.value==='.') {
+        this.consume();
+        var attr = this.consume().value;
+        // method call?
+        if (this.peek().type==='OP'&&this.peek().value==='(') {
+          this.consume();
+          var args=[], kwargs=[];
+          while (this.peek().type!=='OP'||this.peek().value!==')') {
+            var t2=this.peek(); if(t2.type==='EOF') break;
+            if ((t2.type==='NAME'||t2.type==='KW') && this.tokens[this.pos+1] && this.tokens[this.pos+1].type==='OP' && this.tokens[this.pos+1].value==='=') {
+              var kname=this.consume().value; this.consume(); kwargs.push({key:kname,value:this.parseTernary()});
+            } else { args.push(this.parseTernary()); }
+            if(this.peek().type==='OP'&&this.peek().value===',')this.consume(); else break;
+          }
+          this.match('OP',')');
+          expr = {type:'call', func:{type:'attr',obj:expr,attr:attr}, args:args, kwargs:kwargs};
+        } else {
+          expr = {type:'attr', obj:expr, attr:attr};
+        }
+      } else break;
+    }
+    return expr;
+  };
+
+  ExprParser.prototype.parsePrimary = function() {
+    var t = this.peek();
+    if (!t || t.type==='EOF') return {type:'none'};
+
+    if (t.type==='NUMBER') { this.consume(); return {type:'num', value:t.value}; }
+    if (t.type==='STRING') { this.consume(); return t.fstr ? {type:'fstr',value:t.value} : {type:'str',value:t.value}; }
+    if (t.type==='FSTRING') { this.consume(); return {type:'fstr', value:t.value}; }
+
+    if (t.type==='KW') {
+      if (t.value==='True') { this.consume(); return {type:'bool',value:true}; }
+      if (t.value==='False'){ this.consume(); return {type:'bool',value:false}; }
+      if (t.value==='None') { this.consume(); return {type:'none'}; }
+      if (t.value==='lambda') {
+        this.consume();
+        var params=[];
+        while (this.peek().type!=='OP'||this.peek().value!==':') {
+          var pn=this.consume().value; params.push({name:pn});
+          if(this.peek().type==='OP'&&this.peek().value===',') this.consume(); else break;
+        }
+        this.match('OP',':');
+        var body=this.parseTernary();
+        return {type:'lambda',params:params,body:body};
+      }
+      if (t.value==='not') { this.consume(); return {type:'unop',op:'not',operand:this.parsePrimary()}; }
+      return {type:'name', name:t.value, isKw:true}; // fallback
+    }
+
+    if (t.type==='NAME') {
+      this.consume();
+      return {type:'name', name:t.value};
+    }
+
+    if (t.type==='OP') {
+      // Parenthesized expression or tuple
+      if (t.value==='(') {
+        this.consume();
+        if (this.peek().type==='OP'&&this.peek().value===')') { this.consume(); return {type:'tuple',elements:[]}; }
+        var first = this.parseTernary();
+        if (this.peek().type==='OP'&&this.peek().value===',') {
+          var elements=[first];
+          while (this.peek().type==='OP'&&this.peek().value===',') {
+            this.consume();
+            if(this.peek().type==='OP'&&this.peek().value===')') break;
+            elements.push(this.parseTernary());
+          }
+          this.match('OP',')');
+          return {type:'tuple',elements:elements};
+        }
+        // generator expression check
+        if (this.peek().type==='KW'&&this.peek().value==='for') {
+          // treat as list comprehension
+          this.consume();
+          var _savedIn=this.stopAtIn; this.stopAtIn=true;
+          var target=this.parseOr();
+          this.stopAtIn=_savedIn;
+          this.match('KW','in');
+          var iter=this.parseOr();
+          var cond=null;
+          if(this.peek().type==='KW'&&this.peek().value==='if'){this.consume();cond=this.parseOr();}
+          this.match('OP',')');
+          return {type:'list',element:first,elements:[],comp:{target:target,iter:iter,cond:cond}};
+        }
+        this.match('OP',')');
+        return first;
+      }
+
+      // List literal or comprehension
+      if (t.value==='[') {
+        this.consume();
+        if (this.peek().type==='OP'&&this.peek().value===']') { this.consume(); return {type:'list',elements:[]}; }
+        var first=this.parseTernary();
+        // list comprehension
+        if (this.peek().type==='KW'&&this.peek().value==='for') {
+          this.consume();
+          var _savedIn=this.stopAtIn; this.stopAtIn=true;
+          var target=this.parseOr();
+          this.stopAtIn=_savedIn;
+          this.match('KW','in');
+          var iter=this.parseOr();
+          var cond=null;
+          if(this.peek().type==='KW'&&this.peek().value==='if'){this.consume();cond=this.parseOr();}
+          this.match('OP',']');
+          return {type:'list',element:first,elements:[],comp:{target:target,iter:iter,cond:cond}};
+        }
+        var elements=[first];
+        while (this.peek().type==='OP'&&this.peek().value===',') {
+          this.consume();
+          if(this.peek().type==='OP'&&this.peek().value===']') break;
+          elements.push(this.parseTernary());
+        }
+        this.match('OP',']');
+        return {type:'list',elements:elements};
+      }
+
+      // Dict or set literal or comprehension
+      if (t.value==='{') {
+        this.consume();
+        if (this.peek().type==='OP'&&this.peek().value==='}') { this.consume(); return {type:'dict',keys:[],values:[]}; }
+        var firstKey=this.parseTernary();
+        if (this.peek().type==='OP'&&this.peek().value===':') {
+          // dict
+          this.consume();
+          var firstVal=this.parseTernary();
+          // dict comprehension
+          if(this.peek().type==='KW'&&this.peek().value==='for'){
+            this.consume();
+            var _si=this.stopAtIn; this.stopAtIn=true;
+            var target=this.parseOr();
+            this.stopAtIn=_si;
+            this.match('KW','in');
+            var iter=this.parseOr();
+            var cond=null;
+            if(this.peek().type==='KW'&&this.peek().value==='if'){this.consume();cond=this.parseOr();}
+            this.match('OP','}');
+            return {type:'dict',keys:[firstKey],values:[firstVal],comp:{target:target,iter:iter,cond:cond}};
+          }
+          var keys=[firstKey],values=[firstVal];
+          while(this.peek().type==='OP'&&this.peek().value===','){
+            this.consume();
+            if(this.peek().type==='OP'&&this.peek().value==='}') break;
+            keys.push(this.parseTernary());
+            this.match('OP',':');
+            values.push(this.parseTernary());
+          }
+          this.match('OP','}');
+          return {type:'dict',keys:keys,values:values};
+        } else {
+          // set
+          var elements=[firstKey];
+          while(this.peek().type==='OP'&&this.peek().value===','){
+            this.consume();
+            if(this.peek().type==='OP'&&this.peek().value==='}') break;
+            elements.push(this.parseTernary());
+          }
+          this.match('OP','}');
+          return {type:'set',elements:elements};
+        }
+      }
+
+      if (t.value==='-'||t.value==='+') { this.consume(); return {type:'unop',op:t.value,operand:this.parsePrimary()}; }
+      if (t.value==='~') { this.consume(); return {type:'unop',op:'~',operand:this.parsePrimary()}; }
+    }
+
+    this.consume(); // skip unknown token
+    return {type:'none'};
+  };
+
+  /* ── PUBLIC API ── */
+  return {
+    run: function(src, outputFn, inputFn) {
+      try {
+        var stmts = parseProgram(src);
+        var interp = new Interpreter(outputFn, inputFn);
+        interp.execBlock(stmts, interp.globals);
+        return null;
+      } catch(e) {
+        if (e && e.etype) return e.etype + ': ' + e.msg;
+        return 'Error: ' + String(e.message||e);
+      }
+    }
+  };
+})();
+
+
+function refreshLN(id) {
+  var ta = document.getElementById('ta-' + id);
+  var ln = document.getElementById('ln-' + id);
+  if (!ta || !ln) return;
+  var n = ta.value.split('\n').length;
+  var h = ''; for (var i = 1; i <= n; i++) h += i + '<br>';
+  ln.innerHTML = h;
+}
+
+/* ─── RUNNER WRAPPER ─── */
+var pyReady = true; // Always ready — no loading needed
+
+function initPy() {
+  document.querySelectorAll('.py-dot').forEach(function(d){ d.classList.add('ready'); });
+  document.querySelectorAll('.py-status-txt').forEach(function(el){ el.textContent = 'พร้อม'; });
+  document.querySelectorAll('.btn-run').forEach(function(b){ b.disabled = false; });
+}
+
+function runCode(id) {
+  var ta  = document.getElementById('ta-' + id);
+  var out = document.getElementById('out-' + id);
+  if (!ta || !out) return;
+  var code = ta.value;
+  if (!code.trim()) { out.textContent = '(ไม่มีโค้ด)'; out.className = 'run-out idle'; return; }
+
+  var buf = '';
+
+  // input() prompts the user ON DEMAND — exactly when Python calls it.
+  // This avoids miscounting 'input' text inside comments or strings.
+  var error = MiniPython.run(
+    code,
+    function(text) { buf += text; },
+    function(prompt) {
+      var label = String(prompt || '').trim() || 'ใส่ค่า';
+      var v = window.prompt(label);
+      if (v === null) v = '';
+      buf += String(prompt || '') + v + '\n';
+      return v;
+    }
+  );
+
+  if (error) {
+    out.textContent = '❌ ' + error;
+    out.className = 'run-out err';
+  } else if (!buf.trim()) {
+    out.textContent = '(รันเสร็จ — ไม่มี output)';
+    out.className = 'run-out idle';
+  } else {
+    out.textContent = buf;
+    out.className = 'run-out ok';
+  }
+}
+
+/* ─── EDITOR INJECTOR ─── */
+function injectEditor(container, chapterId) {
+  var def = (editorDefaults || {})[chapterId];
+  if (!def) return;
+  var code = def.code, label = def.label;
+  var id = 'e' + chapterId;
+
+  window._edDefaults = window._edDefaults || {};
+  window._edDefaults[id] = code;
+
+  // Count lines for height
+  var lineCount = code.split('\n').length;
+  var minH = Math.max(120, lineCount * 22 + 28);
+
+  // Build DOM elements directly
+  var wrap = document.createElement('div');
+  wrap.className = 'editor-wrap';
+
+  // Top bar
+  var topbar = document.createElement('div');
+  topbar.className = 'editor-topbar';
+
+  var lbl = document.createElement('span');
+  lbl.className = 'editor-label';
+  lbl.textContent = '✎ ' + label;
+
+  var acts = document.createElement('div');
+  acts.className = 'editor-actions';
+
+  var statusWrap = document.createElement('div');
+  statusWrap.className = 'pyodide-status';
+  var dot = document.createElement('span');
+  dot.className = 'py-dot ready';
+  var stxt = document.createElement('span');
+  stxt.className = 'py-status-txt';
+  stxt.textContent = 'พร้อม';
+  statusWrap.appendChild(dot);
+  statusWrap.appendChild(stxt);
+
+  var btnReset = document.createElement('button');
+  btnReset.className = 'btn-reset';
+  btnReset.textContent = '↺ รีเซ็ต';
+  btnReset.onclick = function() { resetCode(id); };
+
+  var btnRun = document.createElement('button');
+  btnRun.className = 'btn-run';
+  btnRun.textContent = '▶ Run';
+  btnRun.disabled = false;
+  btnRun.onclick = function() { runCode(id); };
+
+  acts.appendChild(statusWrap);
+  acts.appendChild(btnReset);
+  acts.appendChild(btnRun);
+  topbar.appendChild(lbl);
+  topbar.appendChild(acts);
+
+  // Editor body
+  var body = document.createElement('div');
+  body.className = 'editor-body';
+
+  var ln = document.createElement('div');
+  ln.className = 'line-nums';
+  ln.id = 'ln-' + id;
+  var lnHtml = ''; for (var i = 1; i <= lineCount; i++) lnHtml += i + '<br>';
+  ln.innerHTML = lnHtml;
+
+  var ta = document.createElement('textarea');
+  ta.className = 'code-ta';
+  ta.id = 'ta-' + id;
+  ta.value = code;
+  ta.spellcheck = false;
+  ta.setAttribute('autocomplete', 'off');
+  ta.setAttribute('autocorrect', 'off');
+  ta.setAttribute('autocapitalize', 'off');
+  ta.style.minHeight = minH + 'px';
+
+  ta.addEventListener('input', function() { refreshLN(id); });
+  ta.addEventListener('scroll', function() { ln.scrollTop = ta.scrollTop; });
+  ta.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd;
+      ta.value = ta.value.substring(0, s) + '    ' + ta.value.substring(en);
+      ta.selectionStart = ta.selectionEnd = s + 4;
+      refreshLN(id);
+    }
+  });
+
+  body.appendChild(ln);
+  body.appendChild(ta);
+
+  // Output
+  var outArea = document.createElement('div');
+  outArea.className = 'out-area';
+
+  var outBar = document.createElement('div');
+  outBar.className = 'out-bar';
+  var outLbl = document.createElement('span');
+  outLbl.textContent = 'Output';
+  var clearB = document.createElement('button');
+  clearB.className = 'clear-btn';
+  clearB.textContent = 'ล้าง';
+  clearB.onclick = function() { clearOut(id); };
+  outBar.appendChild(outLbl);
+  outBar.appendChild(clearB);
+
+  var outDiv = document.createElement('div');
+  outDiv.className = 'run-out idle';
+  outDiv.id = 'out-' + id;
+  outDiv.textContent = 'กด ▶ Run เพื่อรันโค้ด';
+
+  outArea.appendChild(outBar);
+  outArea.appendChild(outDiv);
+
+  wrap.appendChild(topbar);
+  wrap.appendChild(body);
+  wrap.appendChild(outArea);
+
+  container.appendChild(wrap);
+}
+
+/* ─── SIDEBAR ─── */
+function buildSidebar() {
+  var sb = document.getElementById('sidebar');
+  var cats = {};
+  chapters.forEach(function(c) {
+    if (!cats[c.cat]) cats[c.cat] = [];
+    cats[c.cat].push(c);
+  });
+  var html = '';
+  Object.keys(cats).forEach(function(cat) {
+    html += '<div class="cat-label">' + cat + '</div>';
+    cats[cat].forEach(function(c) {
+      html += '<button class="nav-item" id="ni' + c.id + '" onclick="goTo(' + c.id + ')">'
+        + '<span class="nav-dot"></span>'
+        + '<span class="nav-num">' + (c.id === 0 ? '🏠' : c.id) + '</span>'
+        + (c.id === 0 ? 'ภาพรวม' : c.title)
+        + '</button>';
+    });
+  });
+  sb.innerHTML = html;
+}
+
+/* ─── INDEX PAGE ─── */
+function buildIndex() {
+  var g = '<div class="idx-grid">';
+  chapters.forEach(function(c) {
+    if (c.id === 0) return;
+    g += '<div class="idx-card' + (done.has(c.id) ? ' done-card' : '') + '" id="ic' + c.id + '" onclick="goTo(' + c.id + ')">'
+      + '<div class="idx-num">บทที่ ' + c.id + '</div>'
+      + '<div class="idx-name">' + c.icon + ' ' + c.title + '</div>'
+      + '<div class="idx-tag">✓ เรียนแล้ว</div>'
+      + '</div>';
+  });
+  return g + '</div>';
+}
+
+/* ─── RENDER ─── */
+function renderPage(id) {
+  var mc = document.getElementById('mainContent');
+  if (id === 0) {
+    mc.innerHTML = '<div>'
+      + '<div class="ch-header"><div class="ch-num" style="padding:0;overflow:hidden"><img src="data:image/png;base64,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" alt="โลโก้" style="width:100%;height:100%;object-fit:contain"></div><div>'
+      + '<div class="ch-title" style="font-size:30px">บทเรียน Python แบบโต้ตอบ</div>'
+      + '<div class="ch-sub">35 หัวข้อ · เริ่มต้นจากศูนย์</div>'
+      + '</div></div>'
+      + '<p>เลือกหัวข้อจาก sidebar ด้านซ้าย หรือคลิกจากรายการด้านล่าง</p>'
+      + buildIndex()
+      + '</div>';
+  } else {
+    var html = content[id] || '<p>เนื้อหากำลังมา...</p>';
+    var doneLbl = done.has(id) ? '✓ เรียนแล้ว' : 'ทำเครื่องหมายว่าเรียนแล้ว';
+    mc.innerHTML = '<div>'
+      + html
+      + '<div id="editor-slot-' + id + '"></div>'
+      + '<div class="done-wrap"><button class="btn-done' + (done.has(id) ? ' marked' : '') + '" id="bd' + id + '" onclick="markDone(' + id + ')">' + doneLbl + '</button></div>'
+      + '<div class="bn">'
+      + (id > 1 ? '<button class="btn" onclick="goTo(' + (id-1) + ')">← บทก่อน</button>' : '<button class="btn inv">←</button>')
+      + '<span style="font-size:12px;color:var(--txt3)">' + id + ' / 34</span>'
+      + (id < 34 ? '<button class="btn pri" onclick="goTo(' + (id+1) + ')">บทถัดไป →</button>' : '<button class="btn pri" onclick="goTo(0)">↩ กลับหน้าแรก</button>')
+      + '</div></div>';
+    // Inject editor into its slot (before the done button)
+    if (editorDefaults[id]) {
+      var slot = document.getElementById('editor-slot-' + id);
+      injectEditor(slot || mc.firstChild, id);
+    }
+  }
+  // Attach copy buttons
+  mc.querySelectorAll('.cb-copy').forEach(function(btn) {
+    btn.onclick = function() {
+      var pre = btn.closest('.cb').querySelector('pre');
+      navigator.clipboard.writeText(pre.innerText).then(function() {
+        btn.textContent = 'คัดลอกแล้ว ✓'; btn.classList.add('ok');
+        setTimeout(function() { btn.textContent = 'คัดลอก'; btn.classList.remove('ok'); }, 2000);
+      });
+    };
+  });
+  // Attach quiz buttons
+  mc.querySelectorAll('.quiz-opt').forEach(function(btn) {
+    if (!btn.dataset.bound) {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function() {
+        var correct = btn.dataset.correct === 'true';
+        var opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+        opts.forEach(function(o) { o.disabled = true; });
+        var fb = btn.closest('.quiz-body').querySelector('.quiz-fb');
+        if (correct) {
+          btn.classList.add('correct');
+          fb.textContent = '✓ ถูกต้อง! เยี่ยมมาก';
+          fb.className = 'quiz-fb show ok';
+        } else {
+          btn.classList.add('wrong');
+          opts.forEach(function(o) { if (o.dataset.correct === 'true') o.classList.add('correct'); });
+          fb.textContent = '✗ ยังไม่ถูก ลองดูโค้ดตัวอย่างอีกครั้ง';
+          fb.className = 'quiz-fb show bad';
+        }
+      });
+    }
+  });
+}
+
+function goTo(id) {
+  cur = id;
+  renderPage(id);
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+  var ni = document.getElementById('ni' + id);
+  if (ni) ni.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function markDone(id) {
+  done.add(id);
+  var bd = document.getElementById('bd' + id);
+  if (bd) { bd.textContent = '✓ เรียนแล้ว'; bd.classList.add('marked'); }
+  var ni = document.getElementById('ni' + id);
+  if (ni) ni.classList.add('done');
+  var ic = document.getElementById('ic' + id);
+  if (ic) ic.classList.add('done-card');
+  updateProgress();
+}
+
+function updateProgress() {
+  var d = done.size;
+  document.getElementById('doneCount').textContent = d;
+  document.getElementById('progFill').style.width = Math.round(d / 34 * 100) + '%';
+}
+
+function doSearch(q) {
+  q = q.trim().toLowerCase();
+  document.querySelectorAll('.nav-item').forEach(function(b) {
+    b.style.display = (!q || b.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-label').forEach(function(l) {
+    var next = l.nextElementSibling, any = false;
+    while (next && next.classList.contains('nav-item')) {
+      if (next.style.display !== 'none') any = true;
+      next = next.nextElementSibling;
+    }
+    l.style.display = any ? '' : 'none';
+  });
+}
+
+// Fix quiz: store correct flag in data attribute during HTML generation
+// (already handled in Python generator below)
+
+buildSidebar();
+renderPage(0);
+initPy();
+</script>
+</body>
+</html>
