@@ -2238,6 +2238,25 @@ function buildIndex() {
 }
 
 /* ─── RENDER ─── */
+
+function ans(btn, correct) {
+  var opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach(function(o) { o.disabled = true; o.style.cursor = 'default'; });
+  var fb = btn.closest('.quiz-body').querySelector('.quiz-fb');
+  if (correct) {
+    btn.classList.add('correct');
+    if (fb) { fb.textContent = '✓ ถูกต้อง! เยี่ยมมาก'; fb.className = 'quiz-fb show ok'; }
+  } else {
+    btn.classList.add('wrong');
+    // Highlight the correct answer (the one whose onclick passes true)
+    opts.forEach(function(o) {
+      var oc = o.getAttribute('onclick') || '';
+      if (oc.indexOf('true') !== -1) o.classList.add('correct');
+    });
+    if (fb) { fb.textContent = '✗ ยังไม่ถูก ลองดูโค้ดตัวอย่างอีกครั้ง'; fb.className = 'quiz-fb show bad'; }
+  }
+}
+
 function renderPage(id) {
   var mc = document.getElementById('mainContent');
   if (id === 0) {
@@ -2277,28 +2296,7 @@ function renderPage(id) {
       });
     };
   });
-  // Attach quiz buttons
-  mc.querySelectorAll('.quiz-opt').forEach(function(btn) {
-    if (!btn.dataset.bound) {
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function() {
-        var correct = btn.dataset.correct === 'true';
-        var opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
-        opts.forEach(function(o) { o.disabled = true; });
-        var fb = btn.closest('.quiz-body').querySelector('.quiz-fb');
-        if (correct) {
-          btn.classList.add('correct');
-          fb.textContent = '✓ ถูกต้อง! เยี่ยมมาก';
-          fb.className = 'quiz-fb show ok';
-        } else {
-          btn.classList.add('wrong');
-          opts.forEach(function(o) { if (o.dataset.correct === 'true') o.classList.add('correct'); });
-          fb.textContent = '✗ ยังไม่ถูก ลองดูโค้ดตัวอย่างอีกครั้ง';
-          fb.className = 'quiz-fb show bad';
-        }
-      });
-    }
-  });
+  // Quiz buttons use inline onclick="ans(this, true/false)" — handled by ans()
 }
 
 function goTo(id) {
