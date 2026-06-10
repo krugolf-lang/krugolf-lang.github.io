@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>บทเรียนออนไลน์ · วิทยาการคำนวณ ม.6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14253b;
+    --ink-soft:#3a516b;
+    --paper:#f6f3ec;
+    --card:#ffffff;
+    --teal:#0e8a78;
+    --teal-deep:#0a6557;
+    --coral:#ff6a45;
+    --gold:#f0a52e;
+    --line:#e4ddcf;
+    --good:#119469;
+    --bad:#d8492f;
+    --shadow:0 14px 40px -22px rgba(20,37,59,.55);
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Sarabun',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 12% 8%, rgba(14,138,120,.07), transparent 40%),
+                     radial-gradient(circle at 90% 0%, rgba(255,106,69,.06), transparent 35%);
+  }
+  h1,h2,h3,h4,.kanit{font-family:'Kanit',sans-serif;font-weight:600;line-height:1.3}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{display:flex;min-height:100vh}
+  .sidebar{
+    width:296px;flex-shrink:0;background:var(--ink);color:#dfe7ef;
+    padding:26px 18px 40px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .brand{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+  .logo{width:46px;height:46px;border-radius:13px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--teal),var(--gold));
+    display:grid;place-items:center;font-family:'Kanit';font-weight:700;color:#fff;font-size:21px;
+    box-shadow:0 8px 20px -8px rgba(14,138,120,.8)}
+  .brand .t1{font-family:'Kanit';font-weight:600;font-size:17px;color:#fff;line-height:1.15}
+  .brand .t2{font-size:12.5px;color:#8fa3b8;letter-spacing:.3px}
+  .progwrap{margin:20px 2px 22px}
+  .progwrap .lbl{display:flex;justify-content:space-between;font-size:12.5px;color:#8fa3b8;margin-bottom:7px}
+  .progbar{height:8px;background:#22364d;border-radius:99px;overflow:hidden}
+  .progbar i{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .5s ease}
+  .navgroup{margin-top:18px}
+  .navgroup>.gh{font-family:'Kanit';font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+    color:#73879d;padding:0 12px;margin-bottom:8px}
+  .navitem{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:0;cursor:pointer;
+    background:transparent;color:#c6d2df;font-family:'Sarabun';font-size:14.5px;
+    padding:9px 12px;border-radius:11px;transition:.18s;line-height:1.35}
+  .navitem:hover{background:#1f3349;color:#fff}
+  .navitem .nx{font-size:12px;width:22px;height:22px;border-radius:7px;background:#28405a;
+    display:grid;place-items:center;flex-shrink:0;color:#9fb3c8;font-family:'Kanit';margin-top:1px}
+  .navitem.active{background:linear-gradient(100deg,var(--teal-deep),#0e7d6e);color:#fff;box-shadow:0 8px 18px -10px rgba(0,0,0,.6)}
+  .navitem.active .nx{background:rgba(255,255,255,.22);color:#fff}
+  .navitem.done .nx::after{content:"✓"}
+  .navitem.done .nx{font-size:0}
+  .navitem.done .nx{color:#fff}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1;min-width:0}
+  .topbar{display:none;align-items:center;gap:12px;background:var(--ink);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:30}
+  .topbar .logo{width:38px;height:38px;font-size:17px;border-radius:11px}
+  .topbar .tt{font-family:'Kanit';font-size:15px}
+  .hamb{margin-left:auto;background:#28405a;border:0;color:#fff;width:42px;height:42px;border-radius:11px;font-size:20px;cursor:pointer}
+  .content{max-width:880px;margin:0 auto;padding:46px 30px 90px}
+  section.lesson{display:none;animation:fade .45s ease}
+  section.lesson.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .eyebrow{display:inline-flex;gap:8px;align-items:center;font-family:'Kanit';font-size:12.5px;letter-spacing:1px;
+    text-transform:uppercase;color:var(--teal-deep);background:rgba(14,138,120,.12);
+    padding:6px 13px;border-radius:99px;margin-bottom:14px}
+  h1.title{font-size:clamp(28px,4.4vw,42px);font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+  .lead{font-size:17.5px;color:var(--ink-soft);max-width:62ch;margin-bottom:8px}
+
+  h2.sec{font-size:clamp(22px,3vw,28px);font-weight:700;margin:42px 0 4px;display:flex;gap:13px;align-items:center}
+  h2.sec .num{font-family:'Kanit';font-weight:700;color:#fff;background:var(--coral);font-size:16px;
+    width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;
+    box-shadow:0 8px 16px -8px rgba(255,106,69,.8)}
+  h3.sub{font-size:19.5px;font-weight:600;margin:30px 0 6px;color:var(--ink);
+    padding-left:14px;border-left:5px solid var(--gold);line-height:1.35}
+  p{margin:10px 0;color:#243a52}
+  strong{color:var(--ink);font-weight:700}
+  .hl{background:linear-gradient(transparent 62%, rgba(240,165,46,.4) 62%);padding:0 1px}
+
+  /* cards / boxes */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow)}
+  .grid{display:grid;gap:14px;margin:18px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .tile h4{font-size:16px;color:var(--teal-deep);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .tile .ic{font-size:18px}
+  .tile p{font-size:14.5px;margin:2px 0;color:#3a516b;line-height:1.55}
+
+  .note{border-left:5px solid var(--teal);background:rgba(14,138,120,.07);
+    border-radius:0 14px 14px 0;padding:16px 20px;margin:18px 0}
+  .note .nt{font-family:'Kanit';font-weight:600;color:var(--teal-deep);font-size:14px;letter-spacing:.5px;margin-bottom:3px}
+  .warn{border-left-color:var(--coral);background:rgba(255,106,69,.08)}
+  .warn .nt{color:#c1442a}
+
+  ul.clean,ol.clean{margin:12px 0 12px 4px;padding-left:0;list-style:none}
+  ul.clean li,ol.clean li{position:relative;padding:6px 0 6px 30px;color:#243a52}
+  ul.clean li::before{content:"";position:absolute;left:6px;top:15px;width:9px;height:9px;border-radius:3px;
+    background:var(--gold);transform:rotate(45deg)}
+  ol.clean{counter-reset:c}
+  ol.clean li{counter-increment:c}
+  ol.clean li::before{content:counter(c);position:absolute;left:0;top:8px;width:23px;height:23px;border-radius:7px;
+    background:var(--teal);color:#fff;font-family:'Kanit';font-size:12.5px;display:grid;place-items:center}
+
+  table.cmp{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px;background:var(--card);
+    border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  table.cmp th{background:var(--ink);color:#fff;font-family:'Kanit';font-weight:600;padding:12px 14px;text-align:left;font-size:14px}
+  table.cmp td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:top;color:#2c4258}
+  table.cmp tr td:first-child{font-weight:600;color:var(--teal-deep);width:30%}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .chip{background:#eef4f3;border:1px solid #d3e3df;color:var(--teal-deep);font-size:13.5px;
+    padding:5px 13px;border-radius:99px;font-weight:600}
+
+  /* ---------- QUIZ ---------- */
+  .quiz{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;margin:16px 0;box-shadow:var(--shadow)}
+  .quiz .qhead{display:flex;gap:11px;align-items:flex-start;margin-bottom:12px}
+  .quiz .qno{font-family:'Kanit';font-weight:700;color:#fff;background:var(--ink);min-width:30px;height:30px;
+    border-radius:9px;display:grid;place-items:center;font-size:14px}
+  .quiz .qtext{font-size:16px;color:var(--ink);font-weight:500;line-height:1.5}
+  .opts{display:flex;gap:10px;flex-wrap:wrap}
+  .opt{flex:1;min-width:130px;border:2px solid var(--line);background:#fbfaf6;border-radius:12px;
+    padding:11px 14px;font-family:'Kanit';font-size:15px;font-weight:600;cursor:pointer;transition:.16s;color:var(--ink-soft)}
+  .opt:hover{border-color:var(--teal);color:var(--teal-deep)}
+  .opt.sel-correct{border-color:var(--good);background:rgba(17,148,105,.12);color:var(--good)}
+  .opt.sel-wrong{border-color:var(--bad);background:rgba(216,73,47,.1);color:var(--bad)}
+  .opt.reveal{border-color:var(--good);color:var(--good)}
+  .opt:disabled{cursor:default}
+  .opts.opts-col{flex-direction:column;gap:8px}
+  .opts-col .opt{flex:none;width:100%;text-align:left;font-family:'Sarabun';font-weight:600;font-size:15px}
+  .explain{margin-top:12px;font-size:14.5px;border-radius:11px;padding:11px 15px;display:none;line-height:1.55}
+  .explain.show{display:block}
+  .explain.ok{background:rgba(17,148,105,.1);color:#0c6b4c;border-left:4px solid var(--good)}
+  .explain.no{background:rgba(216,73,47,.08);color:#a8341f;border-left:4px solid var(--bad)}
+  .explain b{font-family:'Kanit'}
+
+  .scorebox{background:linear-gradient(120deg,var(--ink),#1d3a52);color:#fff;border-radius:var(--r);
+    padding:24px 26px;margin:20px 0;display:none;align-items:center;gap:20px;box-shadow:var(--shadow)}
+  .scorebox.show{display:flex}
+  .scorebox .big{font-family:'Kanit';font-size:42px;font-weight:700;line-height:1}
+  .scorebox .big span{font-size:20px;color:#9fb3c8}
+  .scorebox p{color:#cdd9e6;margin:4px 0 0}
+  .scorebox .reset{margin-left:auto;background:var(--coral);border:0;color:#fff;font-family:'Kanit';font-weight:600;
+    padding:10px 18px;border-radius:11px;cursor:pointer;font-size:14px}
+
+  /* footer nav */
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:50px;border-top:1px solid var(--line);padding-top:24px}
+  .pager button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px;cursor:pointer;
+    font-family:'Sarabun';color:var(--ink);font-size:14.5px;transition:.16s;max-width:48%;text-align:left}
+  .pager button:hover{border-color:var(--teal);box-shadow:var(--shadow)}
+  .pager button .pk{font-family:'Kanit';font-size:12px;color:var(--ink-soft);display:block}
+  .pager button.next{margin-left:auto;text-align:right;background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pager button.next .pk{color:#9fb3c8}
+  .pager button:disabled{opacity:.4;cursor:default}
+
+  .objs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+  .obj{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+    border-radius:13px;padding:14px 16px}
+  .obj .d{width:9px;height:9px;border-radius:99px;background:var(--coral);margin-top:9px;flex-shrink:0}
+  .obj span{font-size:14.5px;color:#2c4258}
+
+  .unitcard{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);
+    border-radius:var(--r);padding:18px 20px;margin:14px 0;cursor:pointer;transition:.18s;box-shadow:var(--shadow)}
+  .unitcard:hover{transform:translateY(-2px);border-color:var(--teal)}
+  .unitcard .un{font-family:'Kanit';font-weight:700;font-size:24px;color:#fff;width:58px;height:58px;border-radius:16px;
+    display:grid;place-items:center;flex-shrink:0}
+  .unitcard h3{font-size:18px;margin-bottom:2px}
+  .unitcard p{font-size:14px;margin:0;color:var(--ink-soft)}
+
+  .tag{display:inline-block;font-family:'Kanit';font-size:11.5px;letter-spacing:.5px;color:#fff;
+    background:var(--teal);padding:3px 10px;border-radius:7px;margin-bottom:8px}
+
+  /* registration + reporting */
+  .reg-overlay{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#14253b,#0c1b2c);
+    display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+  .reg-card{background:var(--card);border-radius:22px;max-width:440px;width:100%;padding:34px 30px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6)}
+  .reg-card .rlogo{width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,var(--teal),var(--gold));
+    display:grid;place-items:center;font-family:'Kanit';font-weight:700;color:#fff;font-size:25px;margin-bottom:16px}
+  .reg-card h2{font-size:24px;margin-bottom:4px}
+  .reg-card p.sub{color:var(--ink-soft);font-size:15px;margin-bottom:20px}
+  .reg-field{margin-bottom:14px}
+  .reg-field label{display:block;font-family:'Kanit';font-size:13.5px;color:var(--ink-soft);margin-bottom:5px}
+  .reg-field input{width:100%;border:2px solid var(--line);border-radius:12px;padding:11px 14px;font-family:'Sarabun';
+    font-size:15.5px;color:var(--ink);background:#fbfaf6;transition:.15s}
+  .reg-field input:focus{outline:none;border-color:var(--teal);background:#fff}
+  .reg-btn{width:100%;border:0;border-radius:12px;padding:13px;font-family:'Kanit';font-weight:600;font-size:16px;
+    color:#fff;background:linear-gradient(100deg,var(--teal-deep),var(--teal));cursor:pointer;margin-top:6px}
+  .reg-btn:hover{filter:brightness(1.06)}
+  .reg-err{color:var(--bad);font-size:13.5px;margin-top:8px;display:none}
+  .reg-err.show{display:block}
+  .who{background:#1b2f45;border-radius:13px;padding:12px 13px;margin:14px 2px 0;display:none}
+  .who.show{display:block}
+  .who .nm{font-family:'Kanit';font-weight:600;color:#fff;font-size:14.5px;line-height:1.25}
+  .who .id{font-size:12.5px;color:#8fa3b8;margin-top:2px}
+  .send-btn{width:100%;margin-top:11px;border:0;border-radius:11px;padding:10px;font-family:'Kanit';font-weight:600;
+    font-size:13.5px;color:#fff;background:var(--coral);cursor:pointer}
+  .send-btn:hover{filter:brightness(1.05)}
+  .send-btn:disabled{opacity:.6;cursor:default}
+  .logout-btn{width:100%;margin-top:7px;border:1px solid #3a516b;border-radius:11px;padding:8px;
+    font-family:'Kanit';font-weight:600;font-size:13px;color:#c6d2df;background:transparent;cursor:pointer}
+  .logout-btn:hover{background:#22364d;color:#fff}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140px);z-index:120;
+    background:var(--ink);color:#fff;padding:13px 22px;border-radius:13px;font-size:14.5px;box-shadow:var(--shadow);
+    transition:.35s;font-family:'Sarabun';max-width:90vw;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .toast.ok{background:#0c6b4c}
+  .toast.no{background:#a8341f}
+
+  .brandlogo{background:transparent url('data:image/png;base64,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') center/contain no-repeat !important;font-size:0 !important;color:transparent !important}
+  @media(max-width:860px){
+    .sidebar{position:fixed;z-index:40;left:0;top:0;transform:translateX(-100%);transition:.3s;box-shadow:0 0 60px rgba(0,0,0,.5)}
+    .sidebar.open{transform:none}
+    .topbar{display:flex}
+    .content{padding:30px 18px 80px}
+    .g2,.g3,.objs{grid-template-columns:1fr}
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:35;display:none}
+    .backdrop.show{display:block}
+  }
+
+  /* ============================================================
+     ชั้นปรับแต่งดีไซน์ (Design polish) — ใช้คลาสเดิมทั้งหมด
+     ============================================================ */
+  :root{
+    --ink:#13243a;
+    --shadow:0 1px 2px rgba(20,37,59,.06), 0 18px 40px -26px rgba(20,37,59,.5);
+    --shadow-lift:0 2px 4px rgba(20,37,59,.08), 0 26px 56px -28px rgba(20,37,59,.6);
+    --ring:0 0 0 3px rgba(14,138,120,.35);
+    --r:18px;
+  }
+  body{
+    color:#1b2e45;
+    text-rendering:optimizeLegibility;
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(14,138,120,.08), transparent 42%),
+      radial-gradient(circle at 92% -2%, rgba(255,106,69,.07), transparent 38%),
+      radial-gradient(circle at 50% 120%, rgba(240,165,46,.06), transparent 45%);
+    background-attachment:fixed;
+  }
+  ::selection{background:rgba(14,138,120,.22)}
+  .content::-webkit-scrollbar,.sidebar::-webkit-scrollbar{width:10px}
+  .sidebar::-webkit-scrollbar-thumb{background:#2a425c;border-radius:99px}
+  .sidebar::-webkit-scrollbar-track{background:transparent}
+
+  /* hero / titles — เพิ่มเส้นเน้นใต้หัวข้อเป็นเอกลักษณ์ */
+  h1.title{letter-spacing:-.6px;line-height:1.18}
+  h1.title::after{content:"";display:block;width:58px;height:5px;margin-top:14px;border-radius:99px;
+    background:linear-gradient(90deg,var(--teal),var(--gold))}
+  .lead{line-height:1.72;font-size:18px}
+  .eyebrow{box-shadow:inset 0 0 0 1px rgba(14,138,120,.16)}
+
+  /* cards — เงาเป็นชั้น + ยกตัวเล็กน้อยเมื่อชี้ */
+  .card{box-shadow:var(--shadow);transition:box-shadow .2s ease, transform .2s ease}
+  .card:hover{box-shadow:var(--shadow-lift)}
+  .tile{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+  .tile:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#cfe3de}
+
+  /* unit cards — interaction ชัดขึ้น + แถบสีซ้าย */
+  .unitcard{position:relative;overflow:hidden;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
+  .unitcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+    background:linear-gradient(180deg,var(--teal),var(--gold));opacity:0;transition:opacity .2s ease}
+  .unitcard:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
+  .unitcard:hover::before{opacity:1}
+  .unitcard .un{box-shadow:0 10px 22px -10px rgba(20,37,59,.55);transition:transform .2s ease}
+  .unitcard:hover .un{transform:scale(1.05) rotate(-2deg)}
+
+  /* sidebar — ผิวไล่เฉด + แถบความคืบหน้ามีประกาย */
+  .sidebar{background:linear-gradient(185deg,#16293f 0%, #102032 60%, #0f1d2e 100%)}
+  .navitem{position:relative}
+  .navitem.active::before{content:"";position:absolute;left:-4px;top:8px;bottom:8px;width:4px;border-radius:99px;background:var(--gold)}
+  .progbar i{position:relative;overflow:hidden}
+  .progbar i::after{content:"";position:absolute;inset:0;border-radius:99px;
+    background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.55) 50%,transparent 80%);
+    transform:translateX(-120%);animation:sheen 2.6s ease-in-out infinite}
+  @keyframes sheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(220%)}}
+
+  /* section heading badge + sub */
+  h2.sec .num{box-shadow:0 10px 18px -9px rgba(255,106,69,.85)}
+  h3.sub{border-left-width:5px}
+
+  /* quiz — ปุ่มตัวเลือกประณีตขึ้น + เฉลยสไลด์ลง */
+  .opt{box-shadow:0 1px 2px rgba(20,37,59,.05);transition:transform .14s ease, border-color .14s ease, background .14s ease, color .14s ease, box-shadow .14s ease}
+  .opt:not(:disabled):hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .opt.sel-correct,.opt.sel-wrong{transform:none}
+  .explain.show{animation:slideDown .28s ease}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  /* scorebox — ตัวเลขคะแนนเด่นด้วยไล่เฉด */
+  .scorebox{position:relative;overflow:hidden}
+  .scorebox::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle,rgba(240,165,46,.22),transparent 70%);pointer-events:none}
+  .scorebox .big{background:linear-gradient(120deg,#ffd98a,#ff9f6b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .scorebox .big span{-webkit-text-fill-color:#9fb3c8;color:#9fb3c8}
+  .scorebox .reset{transition:transform .15s ease, filter .15s ease}
+  .scorebox .reset:hover{transform:translateY(-1px);filter:brightness(1.06)}
+
+  /* pager + login polish */
+  .pager button{transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease}
+  .pager button:not(:disabled):hover{transform:translateY(-2px)}
+  .reg-card{animation:popIn .35s cubic-bezier(.2,.8,.25,1)}
+  @keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+  .reg-btn{transition:filter .15s ease, transform .15s ease}
+  .reg-btn:hover{transform:translateY(-1px)}
+
+  /* การเข้าถึง — โฟกัสชัดด้วยคีย์บอร์ด */
+  a:focus-visible, button:focus-visible, input:focus-visible,
+  .navitem:focus-visible, .opt:focus-visible, .unitcard:focus-visible{
+    outline:none;box-shadow:var(--ring);border-radius:11px}
+
+  @media(max-width:860px){
+    h1.title{font-size:clamp(25px,7vw,34px)}
+    .unitcard:hover{transform:none}
+    .tile:hover{transform:none}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-card">
+    <div class="rlogo brandlogo"></div>
+    <div style="font-family:'Kanit';font-weight:600;color:var(--teal-deep);font-size:13.5px;margin-bottom:3px">โรงเรียนกาญจนาภิเษกวิทยาลัย ชัยภูมิ</div>
+    <h2>เข้าสู่ระบบ</h2>
+    <p class="sub">เข้าสู่บทเรียน วิทยาการคำนวณ ม.6 ด้วยบัญชีที่คุณครูกำหนด</p>
+    <div class="reg-field"><label>รหัสนักเรียน</label><input id="login-id" placeholder="เช่น 60123" autocomplete="off"></div>
+    <div class="reg-field"><label>รหัสผ่าน</label><input id="login-pw" type="password" placeholder="รหัสผ่าน" autocomplete="off"></div>
+    <button class="reg-btn" id="login-go">เข้าสู่ระบบ →</button>
+    <div class="reg-err" id="reg-err">รหัสนักเรียนหรือรหัสผ่านไม่ถูกต้อง</div>
+    <div id="guest-wrap" style="display:none;text-align:center;margin-top:14px">
+      <a href="#" id="guest-link" style="color:var(--teal-deep);font-size:13.5px;font-weight:600">เข้าชมตัวอย่าง (ยังไม่ได้ตั้งค่าระบบล็อกอิน)</a>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo brandlogo"></div>
+      <div>
+        <div class="t1">วิทยาการคำนวณ</div>
+        <div class="t2">ชั้นมัธยมศึกษาปีที่ 6</div>
+        <div class="t2" style="font-size:10.5px;letter-spacing:0;white-space:nowrap">โรงเรียนกาญจนาภิเษกวิทยาลัย ชัยภูมิ</div>
+        <div class="t2" style="margin-top:3px;color:#a9c7e0">ครูผู้สอน : ราชศักดิ์  ฐานมั่น</div>
+      </div>
+    </div>
+    <div class="progwrap">
+      <div class="lbl"><span>ความคืบหน้า</span><span id="progtxt">0%</span></div>
+      <div class="progbar"><i id="progbar"></i></div>
+    </div>
+    <div class="who" id="who">
+      <div class="nm" id="who-name"></div>
+      <div class="id" id="who-id"></div>
+      <button class="send-btn" id="sendBtn">ส่งผลการเรียนให้คุณครู</button>
+      <button class="logout-btn" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="logo brandlogo"></div>
+      <div class="tt">วิทยาการคำนวณ ม.6 · ราชศักดิ์ ฐานมั่น</div>
+      <button class="hamb" id="hamb">☰</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   เนื้อหาบทเรียน — เรียบเรียงใหม่จากหนังสือเรียนรายวิชาพื้นฐาน
+   วิทยาศาสตร์และเทคโนโลยี (วิทยาการคำนวณ) ม.6
+   ========================================================= */
+
+const LESSONS = [
+  /* ---------- 0. หน้าแรก ---------- */
+  {
+    id:'home', nx:'⌂', group:'เริ่มต้น', title:'ภาพรวมบทเรียน',
+    html:`
+      <span class="eyebrow">● บทเรียนออนไลน์</span>
+      <h1 class="title">เทคโนโลยี (วิทยาการคำนวณ) ม.6</h1>
+      <p class="lead">เรียนรู้การสื่อสารและแบ่งปันข้อมูลอย่าง <strong>ปลอดภัยและมีจริยธรรม</strong> รู้จักเทคโนโลยีสมัยใหม่ที่เปลี่ยนโลก เป็น <strong>พลเมืองดิจิทัล</strong> ที่รับผิดชอบ และเข้าใจว่าเทคโนโลยีส่งผลต่อ <strong>อาชีพ</strong> ในอนาคตอย่างไร</p>
+
+      <div class="note"><div class="nt">วิธีใช้บทเรียน</div>
+        เลือกหัวข้อจากเมนูด้านซ้าย อ่านเนื้อหาแต่ละหน่วย แล้วลองทำ <strong>แบบทดสอบ Self Check</strong> ท้ายหน่วยเพื่อตรวจสอบความเข้าใจ ระบบจะนับความคืบหน้าให้อัตโนมัติ</div>
+
+      <div class="unitcard" onclick="go('u1-1')">
+        <div class="un" style="background:linear-gradient(135deg,var(--teal),var(--teal-deep))">1</div>
+        <div><h3>การแบ่งปันข้อมูล</h3>
+        <p>องค์ประกอบการสื่อสาร · บล็อก วิดีโอ อินโฟกราฟิก · ความเป็นส่วนตัว · จริยธรรมและกฎหมาย</p></div>
+      </div>
+      <div class="unitcard" onclick="go('u2-1')">
+        <div class="un" style="background:linear-gradient(135deg,var(--coral),#e0492a)">2</div>
+        <div><h3>นวัตกรรมและเทคโนโลยีสมัยใหม่</h3>
+        <p>วิวัฒนาการ IT · ปัญญาประดิษฐ์ (AI) · หุ่นยนต์ · คลาวด์ · IoT · VR/AR · ผลกระทบ</p></div>
+      </div>
+      <div class="unitcard" onclick="go('u3-1')">
+        <div class="un" style="background:linear-gradient(135deg,#3f7bd6,#2456a6)">3</div>
+        <div><h3>พลเมืองดิจิทัล</h3>
+        <p>คุณลักษณะ SAVY/SAFE/SOCIAL · ป้องกันตนเองและผู้อื่น · DQ · กฎหมายและมารยาทออนไลน์</p></div>
+      </div>
+      <div class="unitcard" onclick="go('u4-1')">
+        <div class="un" style="background:linear-gradient(135deg,var(--gold),#cf8410)">4</div>
+        <div><h3>อาชีพในยุคดิจิทัล</h3>
+        <p>อาชีพด้าน ICT · กฎของมัวร์ · งานที่เสี่ยงถูกแทนที่ · การทำงานร่วมกับเครื่องจักร</p></div>
+      </div>
+
+      <h3 class="sub">ตัวชี้วัดที่เกี่ยวข้อง</h3>
+      <div class="card">
+        <p><span class="tag">ว 4.2 ม.6/1</span> ใช้เทคโนโลยีสารสนเทศในการนำเสนอและแบ่งปันข้อมูลอย่างปลอดภัย มีจริยธรรม และวิเคราะห์การเปลี่ยนแปลงของเทคโนโลยีสารสนเทศที่มีผลต่อการดำเนินชีวิต อาชีพ สังคม และวัฒนธรรม</p>
+      </div>
+    `
+  },
+
+  /* ====================== หน่วยที่ 1 ====================== */
+  {
+    id:'u1-1', nx:'1.1', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'การสื่อสารและการแบ่งปันข้อมูล',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 1</span>
+      <h1 class="title">การสื่อสารและการแบ่งปันข้อมูลสารสนเทศ</h1>
+      <p class="lead">ทุกการแบ่งปันข้อมูลคือ “การสื่อสาร” เราจึงเริ่มจากองค์ประกอบพื้นฐาน ก่อนจะเรียนรู้วิธีนำเสนอข้อมูลให้ผู้อื่นเข้าใจได้ถูกต้อง รวดเร็ว และปลอดภัย</p>
+
+      <h3 class="sub">วิดีโอประกอบ</h3>
+      <div style="position:relative;width:100%;max-width:760px;aspect-ratio:16/9;margin:6px 0 4px;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6)">
+        <iframe src="https://www.youtube-nocookie.com/embed/Q5_8x-l71t8?rel=0" title="วิดีโอประกอบ การสื่อสารและการแบ่งปันข้อมูล"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p style="font-size:13px;color:#6b7a8d;margin-top:2px">ดูวิดีโอไม่ขึ้น? <a href="https://www.youtube.com/watch?v=Q5_8x-l71t8" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">เปิดดูบน YouTube โดยตรง ▶</a></p>
+
+      <h2 class="sec"><span class="num">1</span> องค์ประกอบของการสื่อสาร 4 ส่วน</h2>
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">🗣️</span>ผู้ส่งสาร (Sender)</h4><p>บุคคลผู้ส่งสาร ขึ้นอยู่กับทักษะ ทัศนคติ ความรู้ และวัฒนธรรม</p></div>
+        <div class="tile"><h4><span class="ic">💬</span>สาร (Message)</h4><p>สื่อที่ต้องการส่ง เช่น เสียง ข้อความ ภาพ เพื่อให้ผู้รับเข้าใจ</p></div>
+        <div class="tile"><h4><span class="ic">📡</span>ช่องทาง (Channel)</h4><p>วิธีส่งสารไปยังผู้รับ เช่น พูดคุยโดยตรง โทรศัพท์ อินเทอร์เน็ต</p></div>
+        <div class="tile"><h4><span class="ic">👂</span>ผู้รับสาร (Receiver)</h4><p>ผู้แปลความหมายของสาร ขึ้นอยู่กับประสบการณ์และความสามารถ</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> ช่องทางการแบ่งปันข้อมูล 3 แบบ</h2>
+      <table class="cmp">
+        <tr><th>ช่องทาง</th><th>ลักษณะ</th><th>ตัวอย่าง</th></tr>
+        <tr><td>การสื่อสารโดยตรง</td><td>ผู้ส่ง-ผู้รับมีปฏิสัมพันธ์กันโดยตรง</td><td>พูดคุยต่อหน้า, รายงานหน้าชั้น</td></tr>
+        <tr><td>สื่อมวลชน</td><td>สื่อสารทางเดียว กระจายสู่คนหมู่มาก</td><td>วิทยุ โทรทัศน์ หนังสือพิมพ์</td></tr>
+        <tr><td>สื่อสังคม</td><td>โต้ตอบกันได้ ปรับปรุงสารได้</td><td>Facebook, X, เว็บบอร์ด</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">3</span> การนำเสนอข้อมูล</h2>
+      <p>การนำเสนอข้อมูล (Presentation of Data) คือการนำข้อเท็จจริงที่เก็บรวบรวมไว้มา<strong>จัดให้เป็นระเบียบ</strong> เพื่อให้อ่าน เปรียบเทียบ และนำไปใช้ตัดสินใจได้ง่าย แบ่งเป็น 2 ลักษณะ</p>
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">📝</span>แบบไม่เป็นแบบแผน</h4><p>ไม่มีกฎเกณฑ์ตายตัว เช่น สอดแทรกข้อมูลในบทความ</p></div>
+        <div class="tile"><h4><span class="ic">📊</span>แบบเป็นแบบแผน</h4><p>ทำตามมาตรฐาน เช่น ตาราง กราฟ แผนภูมิ</p></div>
+      </div>
+      <h3 class="sub">เทคนิคนำเสนอให้มีประสิทธิภาพ</h3>
+      <ol class="clean">
+        <li><strong>ตัดข้อมูลที่ไม่จำเป็นออก</strong> เหลือเฉพาะสาระสำคัญ</li>
+        <li><strong>จัดวางให้เหมาะสม</strong> ตัวเลขใช้ตาราง/กราฟ สรุปใช้ร้อยละ</li>
+        <li><strong>ใช้สีเน้นจุดสำคัญ</strong> แต่ไม่มากจนสับสน</li>
+        <li><strong>ใช้กราฟิก</strong> ช่วยอธิบายแทนข้อความ ลดเวลาอ่าน</li>
+      </ol>
+
+      <h2 class="sec"><span class="num">4</span> ลักษณะของข้อมูล 4 ประเภท</h2>
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">🔢</span>ตัวเลข (Numerical)</h4><p>ใช้คำนวณ พยากรณ์ ดัชนีหุ้น</p></div>
+        <div class="tile"><h4><span class="ic">🔤</span>ตัวอักขระ (Alphabetic)</h4><p>ตัวอักษร สัญลักษณ์ ใช้ได้ทุกวงการ</p></div>
+        <div class="tile"><h4><span class="ic">🖼️</span>กราฟิก (Graphical)</h4><p>ภาพ ตาราง กราฟ แผนภูมิ</p></div>
+        <div class="tile"><h4><span class="ic">🔊</span>เสียง (Voice)</h4><p>ภาษาพูด สนทนา สั่งงาน</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">5</span> สื่อสังคมออนไลน์ 6 ประเภท</h2>
+      <div class="grid g2">
+        <div class="tile"><h4>1 · เผยแพร่ตัวตน</h4><p>เช่น Facebook</p></div>
+        <div class="tile"><h4>2 · เผยแพร่ผลงาน</h4><p>เช่น YouTube</p></div>
+        <div class="tile"><h4>3 · ความสนใจตรงกัน</h4><p>เช่น Digg</p></div>
+        <div class="tile"><h4>4 · ร่วมกันทำงาน</h4><p>เช่น Wikipedia, Google Maps</p></div>
+        <div class="tile"><h4>5 · ประสบการณ์เสมือนจริง</h4><p>เกมออนไลน์ 3 มิติ</p></div>
+        <div class="tile"><h4>6 · เครือข่ายอาชีพ</h4><p>เช่น LinkedIn</p></div>
+      </div>
+      <table class="cmp">
+        <tr><th>ข้อดี</th><th>ข้อเสีย</th></tr>
+        <tr><td>แลกเปลี่ยนความรู้ ประหยัดค่าสื่อสาร</td><td>อาจเปิดเผยข้อมูลส่วนตัวมากเกินไป</td></tr>
+        <tr><td>สร้างผลงาน/รายได้ นำเสนอตนเอง</td><td>เสี่ยงถูกล่อลวงหากขาดวิจารณญาณ</td></tr>
+        <tr><td>โฆษณา/ประชาสัมพันธ์ เป็นคลังความรู้</td><td>เป็นช่องทางละเมิดลิขสิทธิ์/ขโมยผลงาน</td></tr>
+      </table>
+
+      <div class="note"><div class="nt">การแบ่งปันข้อมูล (Sharing)</div>
+        การนำความรู้/ข้อมูลจากประสบการณ์หรือการค้นคว้ามาบอกต่อผู้อื่น สิ่งสำคัญคือ <strong>ต้องอ้างอิงแหล่งที่มาเสมอ</strong> เพื่อไม่ลอกเลียนหรือนำความคิดผู้อื่นมาเป็นของตน</div>
+
+      <h2 class="sec"><span class="num">6</span> แบบฝึก/แบบสำรวจออนไลน์</h2>
+      <p>ทำแบบฟอร์มออนไลน์ของหัวข้อนี้ผ่าน Google Form ให้ครบทุกข้อ แล้วกด “ส่ง” ในฟอร์ม</p>
+      <div style="margin-top:6px">
+        <a href="https://forms.gle/U67ezskuxHVCQvzQ8" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:9px;background:#e03131;color:#fff;font-family:'Kanit';font-weight:600;font-size:15px;text-decoration:none;padding:13px 24px;border-radius:13px;box-shadow:0 12px 24px -12px rgba(224,49,49,.6)">
+          📝 เปิดแบบฟอร์ม Google Form
+        </a>
+      </div>
+    `
+  },
+  {
+    id:'u1-2', nx:'1.2', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'บล็อก แฟ้มผลงาน วิดีโอ อินโฟกราฟิก',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 1</span>
+      <h1 class="title">เครื่องมือนำเสนอบนโลกออนไลน์</h1>
+      <p class="lead">3 เครื่องมือยอดนิยมที่ช่วยเผยแพร่เนื้อหาสู่สาธารณะ — บล็อก วิดีโอ และอินโฟกราฟิก</p>
+
+      <h2 class="sec"><span class="num">1</span> การเขียนบล็อก (Blog)</h2>
+      <p>บล็อก (Blog) มาจาก Web-log คือการเขียนบทความให้ข้อมูลเพื่อเผยแพร่บนเว็บไซต์ ผู้เขียนเรียกว่า <strong>บล็อกเกอร์</strong> และถ้ามีผู้ติดตามจำนวนมากจนมีอิทธิพลก็จะกลายเป็น <strong>อินฟลูเอนเซอร์</strong></p>
+      <div class="chips"><span class="chip">Medium</span><span class="chip">Blognone</span><span class="chip">Dek-D</span><span class="chip">WordPress</span><span class="chip">Blogger</span></div>
+      <h3 class="sub">วิดีโอประกอบ</h3>
+      <div style="position:relative;width:100%;max-width:760px;aspect-ratio:16/9;margin:6px 0 4px;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6)">
+        <iframe src="https://www.youtube-nocookie.com/embed/jAtl5bjKxSI?rel=0" title="วิดีโอประกอบ การเขียนบล็อก"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p style="font-size:13px;color:#6b7a8d;margin-top:2px">ดูวิดีโอไม่ขึ้น? <a href="https://www.youtube.com/watch?v=jAtl5bjKxSI" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">เปิดดูบน YouTube โดยตรง ▶</a></p>
+
+      <h3 class="sub">ขั้นตอนการเขียนบล็อก 7 ขั้น</h3>
+      <ol class="clean">
+        <li>วางแผน — กำหนดเป้าหมายและหัวข้อ</li>
+        <li>ค้นคว้าข้อมูลจากหลายแหล่ง</li>
+        <li>ตรวจสอบความถูกต้องของข้อมูล</li>
+        <li>เขียนคำโปรย (ดึงดูดให้อยากอ่านต่อ)</li>
+        <li>ลงมือเขียนเนื้อหา</li>
+        <li>ใช้ภาพประกอบให้สอดคล้องกับเนื้อหา</li>
+        <li>ตรวจทานแก้ไขก่อนเผยแพร่</li>
+      </ol>
+      <div class="note"><div class="nt">SEO คืออะไร</div>
+        Search Engine Optimization — การปรับแต่งโครงสร้าง โค้ด ความเร็ว และเนื้อหาเว็บ ให้ตรงกับโปรแกรมค้นหา เพื่อให้เว็บติดอันดับต้น ๆ ของผลการค้นหา</div>
+
+      <h3 class="sub">แบบฝึก/แบบสำรวจ — การเขียนบล็อก</h3>
+      <p>ทำแบบฟอร์มออนไลน์ของหัวข้อการเขียนบล็อกให้ครบทุกข้อ แล้วกด “ส่ง” ในฟอร์ม</p>
+      <div style="margin-top:6px">
+        <a href="https://forms.gle/4xBjukzJQWE33ebN6" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:9px;background:#e03131;color:#fff;font-family:'Kanit';font-weight:600;font-size:15px;text-decoration:none;padding:13px 24px;border-radius:13px;box-shadow:0 12px 24px -12px rgba(224,49,49,.6)">
+          📝 เปิดแบบฟอร์ม Google Form
+        </a>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> การทำแฟ้มผลงาน (Portfolio)</h2>
+      <p>แฟ้มผลงาน (Portfolio) คือเอกสารที่<strong>รวบรวมหลักฐานแสดงความสามารถและผลงาน</strong>ของบุคคล ใช้นำเสนอประกอบการประเมินการทำงาน การสมัครเรียน หรือสมัครงาน จึงต้องคำนึงถึง “ผู้รับสาร” เพื่อนำเสนอได้ตรงและมีประสิทธิภาพ</p>
+      <h3 class="sub">วิดีโอประกอบ</h3>
+      <div style="position:relative;width:100%;max-width:760px;aspect-ratio:16/9;margin:6px 0 4px;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6)">
+        <iframe src="https://www.youtube-nocookie.com/embed/-KL3P3wEGK4?rel=0" title="วิดีโอประกอบ การทำแฟ้มผลงาน"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p style="font-size:13px;color:#6b7a8d;margin-top:2px">ดูวิดีโอไม่ขึ้น? <a href="https://www.youtube.com/watch?v=-KL3P3wEGK4" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">เปิดดูบน YouTube โดยตรง ▶</a></p>
+
+      <h3 class="sub">ทำไมต้องมีแฟ้มผลงาน</h3>
+      <div class="grid g2">
+        <div class="tile"><h4>จุดประสงค์</h4><p>นำเสนอ “ตัวตน” และความสามารถของเราให้ผู้ประเมิน เช่น มหาวิทยาลัยหรือสถานประกอบการ ได้ใช้พิจารณาคัดเลือก</p></div>
+        <div class="tile"><h4>ปัญหาที่พบบ่อย</h4><p>แฟ้มผลงาน<strong>ไม่มีรูปแบบมาตรฐานตายตัว</strong> จึงต้องออกแบบให้ตรงกับสาขา/งานที่สมัคร และเล่า “เรื่องราว” ของเราให้ชัด</p></div>
+      </div>
+      <h3 class="sub">โครงสร้าง 3 ส่วน</h3>
+      <div class="grid g3">
+        <div class="tile"><h4>ส่วนนำ</h4><p>ปก สารบัญ ประวัติ และจุดมุ่งหมาย</p></div>
+        <div class="tile"><h4>ผลงานหลัก</h4><p>จัดผลงานเด่นเป็นกลุ่ม (กลุ่มผลงาน 1, 2, 3 …) ตามประเภท</p></div>
+        <div class="tile"><h4>ส่วนเพิ่มเติม</h4><p>ผลงานหรือความสนใจอื่น ๆ</p></div>
+      </div>
+      <h3 class="sub">ขั้นตอนการทำ 6 ขั้น</h3>
+      <ol class="clean">
+        <li><strong>รวบรวม</strong> — นำผลงานทั้งหมดที่เคยทำมารวมกัน เช่น งานประกวด งานอดิเรก โครงงาน หรือการบ้าน</li>
+        <li><strong>จัดหมวดหมู่</strong> — แบ่งตามแง่มุมที่อยากแสดงตัวตน เช่น การเรียน กีฬา ดนตรี กิจกรรม งานการกุศล งานที่ซ้ำซ้อนให้เลือกหมวดที่ช่วยสร้างภาพลักษณ์ที่ต้องการ</li>
+        <li><strong>คัดเลือก</strong> — เลือกผลงานเด่นจากแต่ละหมวด <strong>ไม่ควรเกิน 3 ชิ้นต่อหมวด</strong> ที่เหลือเก็บไว้เป็นส่วนประกอบ</li>
+        <li><strong>จัดลำดับและประเมินตนเอง</strong> — เรียงตามความน่าสนใจ/ระดับของผลงาน (เช่น ระดับโรงเรียน เขตพื้นที่ ระดับชาติ) และดูว่าตนเองเด่นหรือยังขาดด้านใด</li>
+        <li><strong>สร้างเรื่องราว</strong> — ร้อยเรียงให้เป็นเรื่องเดียวกัน เพราะผู้อ่านรับสารได้ดีขึ้นเมื่อมีเรื่องราว และควรตอบโจทย์สาขาที่อยากเข้า</li>
+        <li><strong>ตรวจทาน</strong> — ตรวจความถูกต้องและความเหมาะสมก่อนนำเสนอจริง (ดูเช็กลิสต์ด้านล่าง)</li>
+      </ol>
+      <div class="note"><div class="nt">เคล็ดลับ</div>
+        จัดลำดับผลงานให้สอดคล้องกับเป้าหมาย เช่น ถ้าจะสมัครเรียนสาขาวิทยาการคอมพิวเตอร์ ควรวางผลงานที่เกี่ยวข้องไว้ส่วนแรก เพื่อแสดงความมุ่งมั่น</div>
+
+      <h3 class="sub">เช็กลิสต์ก่อนส่ง — ตรวจทาน 4 ด้าน</h3>
+      <div class="grid g2">
+        <div class="tile"><h4>1. ความถูกต้อง</h4><p>ข้อมูลตรงความจริง ไวยากรณ์และตัวสะกดเรียบร้อย</p></div>
+        <div class="tile"><h4>2. ตรงกับตัวตนเรา</h4><p>สะท้อนจุดเด่นหลัก–จุดเด่นรอง และลักษณะนิสัยของเจ้าของแฟ้ม</p></div>
+        <div class="tile"><h4>3. ตรงกับผู้อ่าน</h4><p>สอดคล้องกับสิ่งที่ผู้ประเมินต้องการ เช่น สมัครคณะอักษรฯ ควรเน้นความโดดเด่นด้านภาษา</p></div>
+        <div class="tile"><h4>4. ความน่าสนใจ</h4><p>นำเสนอแบบมีเรื่องราวประกอบ จะน่าติดตามและน่าจดจำมากขึ้น</p></div>
+      </div>
+      <div class="note"><div class="nt">ข้อคิดในการสร้างแฟ้มผลงาน</div>
+        ตรงประเด็น กระชับ ชัดเจน · แสดงสิ่งที่เราอยากแสดงและตรงกับสิ่งที่ผู้อ่านต้องการ (การเรียน ความสามารถพิเศษ ลักษณะนิสัย) · และต้องมี<strong>เรื่องราวที่น่าสนใจและน่าจดจำ</strong></div>
+      <p style="font-size:12.5px;color:#6b7a8d;margin-top:14px">ที่มาเนื้อหาเพิ่มเติม: สื่อการสอน “แฟ้มสะสมงานโดนใจ” โดย ผศ.ดร.ธีระ ศิริธีรากุล — ภาควิชาวิทยาการคอมพิวเตอร์ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง (สจล.)</p>
+
+      <h3 class="sub">แบบฝึก/แบบสำรวจ — แฟ้มผลงาน</h3>
+      <p>ทำแบบฟอร์มออนไลน์ของหัวข้อการทำแฟ้มผลงานให้ครบทุกข้อ แล้วกด “ส่ง” ในฟอร์ม</p>
+      <div style="margin-top:6px">
+        <a href="https://forms.gle/JCVygGMHyb9yJeH78" target="_blank" rel="noopener"
+           style="display:inline-flex;align-items:center;gap:9px;background:#e03131;color:#fff;font-family:'Kanit';font-weight:600;font-size:15px;text-decoration:none;padding:13px 24px;border-radius:13px;box-shadow:0 12px 24px -12px rgba(224,49,49,.6)">
+          📝 เปิดแบบฟอร์ม Google Form
+        </a>
+      </div>
+
+      <h2 class="sec"><span class="num">3</span> การอัปโหลดวิดีโอและสตรีมมิง</h2>
+      <p><strong>การสตรีมมิง (Streaming)</strong> คือการรับ-ส่งข้อมูลต่อเนื่องผ่านเครือข่าย ผู้รับดูวิดีโอไปพร้อมกับดาวน์โหลด โดยไม่ต้องรอให้โหลดเสร็จทั้งไฟล์</p>
+      <div class="note warn"><div class="nt">จำให้แม่น</div>
+        “วิธีการส่งสื่อออกจากตัวสื่อ” ที่ใช้กับเครือข่ายโทรคมนาคม เรียกว่า <strong>การสตรีมมิง</strong> เหมาะกับไฟล์มัลติมีเดียขนาดใหญ่</div>
+
+      <h2 class="sec"><span class="num">4</span> การใช้ภาพอินโฟกราฟิก</h2>
+      <p>อินโฟกราฟิก (Infographic) คือการแสดงข้อมูลด้วยภาพ ทำให้เรื่องซับซ้อนเข้าใจง่ายและจดจำได้ดีในเวลาสั้น</p>
+      <div class="grid g2">
+        <div class="tile"><p><strong>1–3</strong> รวบรวม + อ่านวิเคราะห์ + หาวิธีเล่าเรื่อง</p></div>
+        <div class="tile"><p><strong>4–6</strong> ระบุปัญหา + จัดลำดับ + ออกแบบโครงสร้าง</p></div>
+        <div class="tile"><p><strong>7–8</strong> เลือกรูปแบบกราฟ + กำหนดภาพให้ตรงหัวข้อ</p></div>
+        <div class="tile"><p><strong>9–10</strong> ตรวจสอบ/ทดลองใช้ + แบ่งปันรับคำติชม</p></div>
+      </div>
+      <div class="chips"><span class="chip">Canva</span><span class="chip">Piktochart</span><span class="chip">Visme</span><span class="chip">Flaticon (ไอคอน)</span></div>
+    `
+  },
+  {
+    id:'u1-3', nx:'1.3', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'นำเสนอ/แบ่งปันอย่างปลอดภัย',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 1</span>
+      <h1 class="title">การนำเสนอและแบ่งปันข้อมูลอย่างปลอดภัย</h1>
+      <p class="lead">ก่อนเผยแพร่อะไรสู่อินเทอร์เน็ต ต้องเข้าใจ “ความเป็นส่วนตัว” และรู้จัก “ตรวจสอบข้อมูล” ก่อนเสมอ</p>
+
+      <h2 class="sec"><span class="num">1</span> ความเป็นส่วนตัว (Privacy) 4 ด้าน</h2>
+      <div class="grid g2">
+        <div class="tile"><h4>ข้อมูล (Data)</h4><p>คุ้มครองข้อมูลส่วนบุคคล</p></div>
+        <div class="tile"><h4>ชีวิตร่างกาย (Bodily)</h4><p>คุ้มครองร่างกายจากการถูกละเมิด</p></div>
+        <div class="tile"><h4>การสื่อสาร (Communication)</h4><p>คุ้มครองจดหมาย โทรศัพท์ อีเมล</p></div>
+        <div class="tile"><h4>เคหสถาน (Territorial)</h4><p>ไม่ให้ผู้อื่นบุกรุกพื้นที่ส่วนตัว</p></div>
+      </div>
+      <div class="note warn"><div class="nt">ระวังสับสน</div>
+        Data Privacy = คุ้มครอง<strong>ข้อมูล</strong>ส่วนบุคคล ส่วนการคุ้มครอง<strong>ชีวิตร่างกาย</strong> คือ Bodily Privacy</div>
+
+      <h2 class="sec"><span class="num">2</span> กรอบ OECD 8 ประการ</h2>
+      <ol class="clean">
+        <li>ข้อจำกัดในการเก็บรวบรวม — ชอบด้วยกฎหมายและได้รับความยินยอม</li>
+        <li>คุณภาพของข้อมูล — เกี่ยวข้องกับวัตถุประสงค์ ถูกต้อง ทันสมัย</li>
+        <li>กำหนดวัตถุประสงค์ — ระบุชัดว่าเก็บเพื่ออะไร นานเท่าใด</li>
+        <li>ข้อจำกัดในการนำไปใช้ — ห้ามเปิดเผยนอกวัตถุประสงค์</li>
+        <li>รักษาความมั่นคงปลอดภัย — ป้องกันข้อมูลสูญหาย</li>
+        <li>การเปิดเผยข้อมูล — ประกาศนโยบายให้ทราบทั่วกัน</li>
+        <li>การมีส่วนร่วมของบุคคล — เจ้าของมีสิทธิรับรู้/ตรวจสอบ</li>
+        <li>ความรับผิดชอบ — ผู้ควบคุมข้อมูลต้องปฏิบัติตามนโยบาย</li>
+      </ol>
+
+      <h2 class="sec"><span class="num">3</span> ตรวจสอบข้อมูลก่อนเผยแพร่</h2>
+      <p>ใคร ๆ ก็แบ่งปันข้อมูลบนอินเทอร์เน็ตได้ โดยไม่ผ่านการตรวจสอบจากภาครัฐ จึงเป็น<strong>ความรับผิดชอบของผู้ใช้เอง</strong> ต้องใช้วิจารณญาณสูงและไม่เชื่อทันที</p>
+      <div class="note"><div class="nt">หลักง่าย ๆ ก่อนแชร์</div>
+        ตรวจว่าข้อมูลมาจากแหล่งที่ตรวจสอบข้อเท็จจริงแล้วหรือไม่ → ค้นด้วยคำสำคัญ → เทียบหลายแหล่ง → ถ้ายังไม่ชัวร์ อย่าเพิ่งแชร์</div>
+    `
+  },
+  {
+    id:'u1-4', nx:'1.4', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'จริยธรรม จรรยาบรรณ และกฎหมาย',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 1</span>
+      <h1 class="title">จริยธรรม จรรยาบรรณ และกฎหมาย IT</h1>
+      <p class="lead">พลังจากเทคโนโลยีต้องมาคู่กับความรับผิดชอบ ทั้งระดับจิตสำนึก (จริยธรรม) และระดับกฎหมาย</p>
+
+      <h2 class="sec"><span class="num">1</span> จริยธรรม 4 ประเด็น: PAPA</h2>
+      <div class="grid g2">
+        <div class="tile"><h4>P · Privacy</h4><p>สิทธิที่จะอยู่ตามลำพังและควบคุมการเปิดเผยข้อมูลของตน</p></div>
+        <div class="tile"><h4>A · Accuracy</h4><p>ความถูกต้องน่าเชื่อถือของข้อมูล ตรวจสอบก่อนนำเข้าระบบ</p></div>
+        <div class="tile"><h4>P · Property</h4><p>กรรมสิทธิ์ในทรัพย์สิน รวมถึงทรัพย์สินทางปัญญา</p></div>
+        <div class="tile"><h4>A · Accessibility</h4><p>กำหนดสิทธิตามระดับผู้ใช้ เพื่อรักษาความลับ</p></div>
+      </div>
+      <div class="note warn"><div class="nt">จำให้ครบ</div>
+        PAPA มี <strong>4 ประเด็น</strong> ไม่ใช่แค่ 2 (ความเป็นส่วนตัวกับความถูกต้อง)</div>
+
+      <h2 class="sec"><span class="num">2</span> กฎหมายเทคโนโลยีสารสนเทศ 6 ฉบับ</h2>
+      <ol class="clean">
+        <li>กฎหมายธุรกรรมทางอิเล็กทรอนิกส์</li>
+        <li>กฎหมายลายมือชื่ออิเล็กทรอนิกส์</li>
+        <li>กฎหมายพัฒนาโครงสร้างพื้นฐานสารสนเทศให้ทั่วถึงและเท่าเทียม</li>
+        <li>กฎหมายคุ้มครองข้อมูลส่วนบุคคล</li>
+        <li>กฎหมายการกระทำความผิดเกี่ยวกับคอมพิวเตอร์</li>
+        <li>กฎหมายการโอนเงินทางอิเล็กทรอนิกส์</li>
+      </ol>
+
+      <h2 class="sec"><span class="num">3</span> ลิขสิทธิ์ซอฟต์แวร์</h2>
+      <p>ลิขสิทธิ์เกิดขึ้น<strong>ทันที</strong>ที่สร้างสรรค์ผลงาน โดยไม่ต้องจดทะเบียน คุ้มครองตลอดอายุผู้สร้างสรรค์ + อีก <strong>50 ปี</strong> หลังเสียชีวิต</p>
+      <table class="cmp">
+        <tr><th>ละเมิดโดยตรง</th><th>ละเมิดโดยอ้อม</th></tr>
+        <tr><td>ทำซ้ำ ดัดแปลง เผยแพร่ ให้เช่า โดยไม่ได้รับอนุญาต</td><td>กระทำทางการค้าที่สนับสนุนการละเมิด เช่น ขาย/ให้เช่างานที่รู้ว่าละเมิดเพื่อหากำไร</td></tr>
+      </table>
+
+      <h2 class="sec"><span class="num">4</span> เสรีภาพในการแสดงความคิดเห็น</h2>
+      <p>เป็นสิทธิขั้นพื้นฐานตามรัฐธรรมนูญ แต่ต้องใช้โดยชอบ งดคำหยาบคาย ส่อเสียด ใส่ร้าย หรือสร้างความแตกแยก และตระหนักถึง <strong>พ.ร.บ. ว่าด้วยการกระทำผิดเกี่ยวกับคอมพิวเตอร์</strong></p>
+      <div class="note warn"><div class="nt">ตัวอย่างความผิด (มาตรา 14)</div>
+        นำเข้า/เผยแพร่ข้อมูลปลอมหรือเป็นเท็จที่ก่อความเสียหายต่อผู้อื่น กระทบความมั่นคงของประเทศ เกี่ยวกับการก่อการร้าย หรือมีลักษณะลามก</div>
+    `
+  },
+  {
+    id:'q1', nx:'✎', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'แบบทดสอบ Self Check หน่วย 1', quiz:'q1',
+    intro:`<span class="eyebrow">ตรวจสอบความเข้าใจ</span>
+      <h1 class="title">Self Check — หน่วยที่ 1</h1>
+      <p class="lead">พิจารณาว่าข้อความต่อไปนี้ “ถูก” หรือ “ผิด” แล้วกดเลือกคำตอบเพื่อดูเฉลยทันที</p>`,
+    items:[
+      {q:'องค์ประกอบของการสื่อสารประกอบด้วย ผู้ส่งสาร สาร ช่องทาง และผู้รับสาร',ans:true,
+       why:'ถูกต้อง — เป็นองค์ประกอบพื้นฐาน 4 ส่วนของการสื่อสาร (ทบทวนหัวข้อ 1.1)'},
+      {q:'การนำเสนอข้อมูล คือการนำข้อเท็จจริงที่เก็บรวบรวมไว้มาจัดให้เป็นระเบียบ',ans:true,
+       why:'ถูกต้อง — เพื่อให้อ่าน เปรียบเทียบ และนำไปใช้ตัดสินใจได้ง่าย (ทบทวนหัวข้อ 1.1)'},
+      {q:'วิธีการส่งสื่อออกจากตัวสื่อที่ใช้กับเครือข่ายโทรคมนาคม เรียกว่า การสตรีมมิง',ans:true,
+       why:'ถูกต้อง — Streaming คือการส่งข้อมูลต่อเนื่อง ดูได้ระหว่างที่ดาวน์โหลด (ทบทวนหัวข้อ 1.2)'},
+      {q:'ความเป็นส่วนตัวเกี่ยวกับข้อมูล (Data Privacy) คือการคุ้มครองชีวิตร่างกายของบุคคล',ans:false,
+       why:'ผิด — การคุ้มครองชีวิตร่างกายคือ Bodily Privacy ส่วน Data Privacy คือการคุ้มครองข้อมูลส่วนบุคคล (ทบทวนหัวข้อ 1.3)'},
+      {q:'การใช้เทคโนโลยีตามหลัก PAPA แบ่งได้เพียง 2 ด้าน คือ ความเป็นส่วนตัว และความถูกต้อง',ans:false,
+       why:'ผิด — PAPA มี 4 ประเด็น คือ ความเป็นส่วนตัว ความถูกต้อง ความเป็นเจ้าของ และการเข้าถึงข้อมูล (ทบทวนหัวข้อ 1.4)'},
+      {q:'ลิขสิทธิ์ของผลงานเกิดขึ้นทันทีที่สร้างสรรค์ โดยไม่ต้องจดทะเบียน',ans:true,
+       why:'ถูกต้อง — และคุ้มครองตลอดอายุผู้สร้างสรรค์บวกอีก 50 ปีหลังเสียชีวิต (ทบทวนหัวข้อ 1.4)'},
+      {q:'แฟ้มผลงาน (Portfolio) ประกอบด้วย 3 ส่วน คือ ส่วนนำ ผลงานหลัก และส่วนเพิ่มเติม',ans:true,
+       why:'ถูกต้อง — ส่วนนำ (ปก/สารบัญ/ประวัติ/จุดมุ่งหมาย) ผลงานหลัก และส่วนเพิ่มเติม (ทบทวนหัวข้อ 1.2)'}
+    ]
+  },
+
+  {
+    id:'ex1', nx:'★', group:'หน่วยที่ 1 · การแบ่งปันข้อมูล',
+    title:'แบบฝึกหัดท้ายบท บทที่ 1', quiz:'ex1',
+    intro:`<span class="eyebrow">แบบฝึกหัดท้ายบท</span>
+      <h1 class="title">แบบฝึกหัดท้ายบท — บทที่ 1</h1>
+      <p class="lead">เลือกคำตอบที่ถูกต้องที่สุด แล้วกดเพื่อดูเฉลยและคำอธิบายทันที (ปรนัย 6 ข้อ)</p>`,
+    items:[
+      {q:'นายเอเขียนบทความแล้วโพสต์ลงเว็บบอร์ด นายเอทำหน้าที่เป็นองค์ประกอบใดของการสื่อสาร',
+       opts:['สาร','ช่องทาง','ผู้ส่งสาร','ผู้รับสาร'],correct:2,
+       why:'ผู้เขียนและส่งเนื้อหาออกไปคือ “ผู้ส่งสาร” (ทบทวนหัวข้อ 1.1)'},
+      {q:'ช่องทางการสื่อสารแบบใดเป็นการสื่อสารทางเดียวที่กระจายสู่คนหมู่มากได้',
+       opts:['การพูดคุยต่อหน้า','โทรศัพท์','สื่อมวลชน เช่น วิทยุ โทรทัศน์','การแชต'],correct:2,
+       why:'สื่อมวลชนสื่อสารทางเดียว กระจายสู่คนจำนวนมาก (ทบทวนหัวข้อ 1.1)'},
+      {q:'ข้อใดไม่ใช่สิ่งที่บล็อกเกอร์จำเป็นต้องคำนึงถึงเสมอ',
+       opts:['ความถูกต้องของข้อมูล','คำโปรยที่เหมาะกับเนื้อหา','เขียนให้ยาวที่สุดทุกครั้ง','ประเด็นที่กำลังเป็นที่สนใจ'],correct:2,
+       why:'ความยาวไม่ใช่สิ่งจำเป็น คุณค่าของเนื้อหาสำคัญกว่าความยาว (ทบทวนหัวข้อ 1.2)'},
+      {q:'โครงสร้างของแฟ้มผลงาน (Portfolio) ที่ถูกต้องคือข้อใด',
+       opts:['ส่วนนำ / ผลงานหลัก / ส่วนเพิ่มเติม','บทนำ / เนื้อเรื่อง / บรรณานุกรม','ผู้ส่ง / สาร / ผู้รับ','ปก / คำนำ / กิตติกรรมประกาศ'],correct:0,
+       why:'แฟ้มผลงานแบ่งเป็น 3 ส่วน คือ ส่วนนำ ผลงานหลัก และส่วนเพิ่มเติม (ทบทวนหัวข้อ 1.2)'},
+      {q:'ในการคัดเลือกผลงานเข้าแฟ้มผลงาน ควรเลือกผลงานที่ดีที่สุดประมาณกี่ชิ้นต่อหนึ่งหมวดหมู่',
+       opts:['ใส่ทุกชิ้นที่มี','ไม่เกิน 3 ชิ้น','อย่างน้อย 10 ชิ้น','เพียง 1 ชิ้นเท่านั้น'],correct:1,
+       why:'คัดผลงานที่ดีที่สุดไม่เกิน 3 ชิ้นต่อหมวด ที่เหลือนำไปไว้ส่วนเสริม (ทบทวนหัวข้อ 1.2)'},
+      {q:'ข้อใดเป็นข้อควรระวังที่ถูกต้องในการแบ่งปันข้อมูลส่วนตัว',
+       opts:['แชร์เลขบัตรประชาชนได้ถ้าเป็นเพื่อนสนิท','ข้อมูลสุขภาพและการเงินเป็นข้อมูลที่ไม่ควรเปิดเผย','ข้อมูลที่แชร์ในกลุ่มจะไม่ถูกนำไปเผยแพร่ต่อ','โพสต์อะไรก็ได้เพราะลบทีหลังได้'],correct:1,
+       why:'ข้อมูลอ่อนไหวอย่างสุขภาพและการเงินไม่ควรเปิดเผย ส่วนข้ออื่นเป็นความเข้าใจผิด (ทบทวนหัวข้อ 1.3)'}
+    ]
+  },
+
+  /* ====================== หน่วยที่ 2 ====================== */
+  {
+    id:'u2-1', nx:'2.1', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'ภาพรวมและวิวัฒนาการของ IT',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 2</span>
+      <h1 class="title">เทคโนโลยีสารสนเทศที่เปลี่ยนแปลงตลอดเวลา</h1>
+      <p class="lead">การรู้เท่าทันความเปลี่ยนแปลงคือทักษะสำคัญของยุคนี้ เริ่มจากเข้าใจว่า “เทคโนโลยีสารสนเทศ” คืออะไร</p>
+
+      <h2 class="sec"><span class="num">1</span> เทคโนโลยีสารสนเทศคืออะไร</h2>
+      <div class="grid g2">
+        <div class="tile"><h4>เทคโนโลยี</h4><p>การนำความรู้ทางวิทยาศาสตร์มาใช้ให้เกิดประโยชน์จริง</p></div>
+        <div class="tile"><h4>สารสนเทศ</h4><p>ข้อมูลที่ผ่านกระบวนการจนเป็นประโยชน์ต่อการตัดสินใจ</p></div>
+      </div>
+      <div class="note"><div class="nt">สรุป</div>
+        เทคโนโลยีสารสนเทศ = การนำความรู้ทางวิทยาศาสตร์มาประยุกต์กับระบบสารสนเทศ ตั้งแต่ <strong>จัดเก็บ → ประมวลผล → เผยแพร่</strong> ให้ได้สารสนเทศที่มีประสิทธิภาพและตรงความต้องการ</div>
+
+      <h2 class="sec"><span class="num">2</span> เทคโนโลยีพัฒนาอย่างต่อเนื่อง</h2>
+      <ul class="clean">
+        <li>อุปกรณ์สื่อสารเปลี่ยนจาก<strong>ปุ่มกด → หน้าจอสัมผัส</strong></li>
+        <li>การส่งจดหมายเปลี่ยนจาก<strong>ไปรษณีย์ → อีเมล</strong></li>
+        <li>มนุษย์เข้าถึงข้อมูลข่าวสารได้รวดเร็ว รับรู้สิ่งสำคัญได้ทันท่วงที</li>
+      </ul>
+      <p>เพราะข่าวสารเคลื่อนที่ไร้พรมแดน เทคโนโลยีจึงส่งผลต่อชีวิต อาชีพ สังคม และวัฒนธรรมไปพร้อมกัน — ในหน่วยนี้เราจะรู้จัก 5 เทคโนโลยีสมัยใหม่ที่กำลังเปลี่ยนโลก</p>
+      <div class="chips"><span class="chip">AI</span><span class="chip">หุ่นยนต์</span><span class="chip">Cloud</span><span class="chip">IoT</span><span class="chip">VR/AR</span></div>
+    `
+  },
+  {
+    id:'u2-2', nx:'2.2', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'ปัญญาประดิษฐ์ (AI)',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 2</span>
+      <h1 class="title">ปัญญาประดิษฐ์ — Artificial Intelligence</h1>
+      <p class="lead">AI คือวิทยาการหลายแขนงที่พัฒนาให้คอมพิวเตอร์ “คิด คำนวณ และวิเคราะห์” ได้คล้ายมนุษย์</p>
+
+      <div class="note"><div class="nt">เกร็ดความรู้</div>
+        คำว่า Artificial Intelligence ได้รับการนิยามโดยศาสตราจารย์ <strong>จอห์น แม็กคาร์ที (John McCarthy)</strong> ในความหมายของศาสตร์ด้านวิทยาศาสตร์และวิศวกรรมในการสร้างความฉลาดให้กับเครื่องจักร</div>
+
+      <h3 class="sub">วิดีโอประกอบ</h3>
+      <div style="position:relative;width:100%;max-width:760px;aspect-ratio:16/9;margin:6px 0 4px;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6)">
+        <iframe src="https://www.youtube-nocookie.com/embed/51tPtrR9ioo?rel=0" title="วิดีโอประกอบ แนวคิดด้านปัญญาประดิษฐ์"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p style="font-size:13px;color:#6b7a8d;margin-top:2px">ดูวิดีโอไม่ขึ้น? <a href="https://www.youtube.com/watch?v=51tPtrR9ioo" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">เปิดดูบน YouTube โดยตรง ▶</a></p>
+
+      <h2 class="sec"><span class="num">1</span> จากยุคกฎ สู่การเรียนรู้</h2>
+      <p>ในยุคแรก AI ตัดสินใจด้วยการ<strong>สร้างกฎ (Rule-based)</strong> เช่นเดียวกับการเล่นเกม Tic-Tac-Toe ตามเงื่อนไข “ถ้า…แล้ว…” ต่อมา AI พัฒนาให้ <strong>เรียนรู้จากข้อมูล</strong> ได้เอง</p>
+      <div class="card">
+        <p><strong>ตัวอย่างการให้เหตุผลตามกฎ</strong></p>
+        <ul class="clean">
+          <li>กฎ 1: ถ้ามีอาการไอ หายใจหอบ และติดเชื้อไวรัส → ปอดอักเสบ</li>
+          <li>กฎ 2: ถ้าอุณหภูมิ &gt; 37.5°C → มีไข้</li>
+          <li>กฎ 3: ถ้ามีไข้ และอาการนานกว่า 14 วัน → ติดเชื้อไวรัส</li>
+        </ul>
+        <p>AI จะ “อนุมาน” ทีละขั้นจากกฎเหล่านี้เพื่อหาข้อสรุป</p>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> แนวคิดสำคัญ 5 ประการสำหรับ AI (Five Big Ideas in AI)</h2>
+      <p>ทุกวันนี้ชีวิตประจำวันของเราเกี่ยวข้องกับปัญญาประดิษฐ์ในหลายด้าน ทั้งช่วยในการทำงานและอำนวยความสะดวกในชีวิตประจำวัน การเรียนรู้ “แนวคิด” ของปัญญาประดิษฐ์จึงมีความสำคัญ องค์กร <strong>AI for K-12</strong> (www.AI4K12.org) ได้นำเสนอแนวคิดการจัดการเรียนรู้ปัญญาประดิษฐ์ในระดับการศึกษาขั้นพื้นฐาน ที่เรียกว่า <strong>แนวคิดสำคัญ 5 ประการสำหรับปัญญาประดิษฐ์ (Five Big Ideas in AI)</strong> ในงานประชุมวิชาการของสมาคมครูด้านวิทยาการคอมพิวเตอร์ (Computer Science Teachers Association: CSTA) ประเทศสหรัฐอเมริกา เมื่อ พ.ศ. 2562 ไว้ดังนี้</p>
+
+      <div style="max-width:560px;margin:10px auto 4px">
+      <svg viewBox="0 0 600 580" role="img" aria-label="ไดอะแกรมแนวคิดสำคัญ 5 ประการสำหรับปัญญาประดิษฐ์" style="width:100%;height:auto;font-family:'Kanit','Sarabun',sans-serif">
+        <defs>
+          <linearGradient id="bi1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5cc4"/><stop offset="1" stop-color="#5e3a8c"/></linearGradient>
+          <linearGradient id="bi2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#25a3bd"/><stop offset="1" stop-color="#0f7e94"/></linearGradient>
+          <linearGradient id="bi3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#62bd5f"/><stop offset="1" stop-color="#3f9a3f"/></linearGradient>
+          <linearGradient id="bi4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4ad3c"/><stop offset="1" stop-color="#e08e1c"/></linearGradient>
+          <linearGradient id="bi5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0773a"/><stop offset="1" stop-color="#d9531f"/></linearGradient>
+        </defs>
+        <!-- center label -->
+        <text x="300" y="278" text-anchor="middle" font-size="17" font-weight="700" fill="#14253b">แนวคิด 5 ประการ</text>
+        <text x="300" y="300" text-anchor="middle" font-size="15" fill="#14253b">สำหรับปัญญาประดิษฐ์</text>
+        <text x="300" y="319" text-anchor="middle" font-size="11.5" fill="#6b7a8d">(Five Big Ideas in AI)</text>
+        <!-- 1 perception (top) -->
+        <g><circle cx="300" cy="115" r="82" fill="url(#bi1)"/>
+          <text x="300" y="100" text-anchor="middle" font-size="36" font-weight="800" fill="#fff">1</text>
+          <text x="300" y="132" text-anchor="middle" font-size="13.5" font-weight="600" fill="#fff">การรับรู้</text>
+          <text x="300" y="149" text-anchor="middle" font-size="11" fill="#ffffffcc">(perception)</text></g>
+        <!-- 2 representation & reasoning (right) -->
+        <g><circle cx="466" cy="240" r="82" fill="url(#bi2)"/>
+          <text x="466" y="213" text-anchor="middle" font-size="34" font-weight="800" fill="#fff">2</text>
+          <text x="466" y="236" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">การแทนความรู้</text>
+          <text x="466" y="252" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">และการให้เหตุผล</text>
+          <text x="466" y="268" text-anchor="middle" font-size="9.5" fill="#ffffffcc">(representation</text>
+          <text x="466" y="280" text-anchor="middle" font-size="9.5" fill="#ffffffcc">and reasoning)</text></g>
+        <!-- 3 learning (lower right) -->
+        <g><circle cx="403" cy="440" r="82" fill="url(#bi3)"/>
+          <text x="403" y="425" text-anchor="middle" font-size="36" font-weight="800" fill="#fff">3</text>
+          <text x="403" y="457" text-anchor="middle" font-size="13.5" font-weight="600" fill="#fff">การเรียนรู้</text>
+          <text x="403" y="474" text-anchor="middle" font-size="11" fill="#ffffffcc">(learning)</text></g>
+        <!-- 4 natural interaction (lower left) -->
+        <g><circle cx="197" cy="440" r="82" fill="url(#bi4)"/>
+          <text x="197" y="418" text-anchor="middle" font-size="34" font-weight="800" fill="#fff">4</text>
+          <text x="197" y="440" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">การปฏิสัมพันธ์</text>
+          <text x="197" y="456" text-anchor="middle" font-size="12.5" font-weight="600" fill="#fff">อย่างเป็นธรรมชาติ</text>
+          <text x="197" y="472" text-anchor="middle" font-size="9.5" fill="#ffffffcc">(natural interaction)</text></g>
+        <!-- 5 social impact (left) -->
+        <g><circle cx="134" cy="240" r="82" fill="url(#bi5)"/>
+          <text x="134" y="220" text-anchor="middle" font-size="34" font-weight="800" fill="#fff">5</text>
+          <text x="134" y="243" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">ผลกระทบ</text>
+          <text x="134" y="259" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">ทางสังคม</text>
+          <text x="134" y="275" text-anchor="middle" font-size="9.5" fill="#ffffffcc">(social impact)</text></g>
+      </svg>
+      <p style="font-size:12px;color:#6b7a8d;text-align:center;margin-top:0">ที่มา: AI for K-12 (AI4K12.org) — Five Big Ideas in AI</p>
+      </div>
+
+      <div class="grid g2">
+        <div class="tile"><h4>1 · การรับรู้ (Perception)</h4><p>รับข้อมูลจากสิ่งแวดล้อมผ่านเซนเซอร์ เช่น ภาพ เสียง</p></div>
+        <div class="tile"><h4>2 · การแทนความรู้และการให้เหตุผล</h4><p>Representation &amp; Reasoning — จัดเก็บความรู้และใช้เหตุผลเพื่อหาข้อสรุป</p></div>
+        <div class="tile"><h4>3 · การเรียนรู้ (Learning)</h4><p>เรียนรู้และพัฒนาจากข้อมูล</p></div>
+        <div class="tile"><h4>4 · การปฏิสัมพันธ์อย่างเป็นธรรมชาติ</h4><p>Natural Interaction — สื่อสารกับมนุษย์ได้อย่างเป็นธรรมชาติ</p></div>
+        <div class="tile"><h4>5 · ผลกระทบทางสังคม</h4><p>Social Impact ที่ต้องคำนึงถึง</p></div>
+      </div>
+
+      <h3 class="sub">วิดีโอประกอบ</h3>
+      <div style="position:relative;width:100%;max-width:760px;aspect-ratio:16/9;margin:6px 0 4px;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6)">
+        <iframe src="https://www.youtube-nocookie.com/embed/G-PIt8GBqDk?rel=0" title="วิดีโอประกอบ ก่อนใบกิจกรรมตรรกะพารวย"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p style="font-size:13px;color:#6b7a8d;margin-top:2px">ดูวิดีโอไม่ขึ้น? <a href="https://www.youtube.com/watch?v=G-PIt8GBqDk" target="_blank" rel="noopener" style="color:var(--teal);font-weight:600">เปิดดูบน YouTube โดยตรง ▶</a></p>
+
+      <h3 class="sub">ใบกิจกรรม: ตรรกะพารวย</h3>
+      <p>กิจกรรมฝึก “การให้เหตุผลด้วยกฎ” (rule-based reasoning) ซึ่งโยงกับแนวคิดที่ 2 การแทนความรู้และการให้เหตุผล ลองจัดลำดับการอนุมานให้ได้ข้อสรุป</p>
+      <div style="position:relative;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 14px 30px -16px rgba(20,37,59,.6);border:1px solid #e2e8f0">
+        <iframe src="data:text/html;charset=utf-8;base64,PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9InRoIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+4LmD4Lia4LiB4Li04LiI4LiB4Lij4Lij4Lih4LiX4Li14LmIIDMuMSDguJXguKPguKPguIHguLDguJ7guLLguKPguKfguKI8L3RpdGxlPgo8bGluayByZWw9InByZWNvbm5lY3QiIGhyZWY9Imh0dHBzOi8vZm9udHMuZ29vZ2xlYXBpcy5jb20iPgo8bGluayByZWw9InByZWNvbm5lY3QiIGhyZWY9Imh0dHBzOi8vZm9udHMuZ3N0YXRpYy5jb20iIGNyb3Nzb3JpZ2luPgo8bGluayBocmVmPSJodHRwczovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2NzczI/ZmFtaWx5PUthbml0OndnaHRANDAwOzUwMDs2MDA7NzAwJmZhbWlseT1TYXJhYnVuOndnaHRANDAwOzUwMDs2MDA7NzAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPHN0eWxlPgogIDpyb290ewogICAgLS1pbms6IzE2MjQzZjsgLS1wYXBlcjojZWFmMWZiOyAtLXN1cmZhY2U6I2ZmZjsKICAgIC0tYmx1ZTojMWY3YWUwOyAtLWJsdWUtZGVlcDojMTE1MTllOyAtLWJsdWUtc29mdDojZTNlZWZjOwogICAgLS1nb2xkOiNlODkzMGM7IC0tZ29sZC1zb2Z0OiNmZGYwZGI7CiAgICAtLWdyZWVuOiMxZjlkNmI7IC0tZ3JlZW4tc29mdDojZTNmNWVlOwogICAgLS1yZWQ6I2Q2NDU0NTsgLS1yZWQtc29mdDojZmJlNmU2OwogICAgLS1tdXRlZDojNmI3NDg4OyAtLWxpbmU6I2Q0ZGRlZTsgLS1yYWRpdXM6MTZweDsKICB9CiAgKntib3gtc2l6aW5nOmJvcmRlci1ib3g7bWFyZ2luOjA7cGFkZGluZzowfQogIGJvZHl7CiAgICBmb250LWZhbWlseTonU2FyYWJ1bicsc3lzdGVtLXVpLHNhbnMtc2VyaWY7CiAgICBiYWNrZ3JvdW5kOnJhZGlhbC1ncmFkaWVudCgxMTAwcHggNDgwcHggYXQgNTAlIC0xNjBweCwjY2ZlMmZiIDAlLHRyYW5zcGFyZW50IDcwJSksdmFyKC0tcGFwZXIpOwogICAgY29sb3I6dmFyKC0taW5rKTtsaW5lLWhlaWdodDoxLjY1O3BhZGRpbmc6MjRweCAxNnB4IDgwcHg7bWluLWhlaWdodDoxMDB2aDsKICB9CiAgLndyYXB7bWF4LXdpZHRoOjg4MHB4O21hcmdpbjowIGF1dG99CgogIC8qIOC4q+C4seC4p+C5gOC4o+C4t+C5iOC4reC4h+C5geC4muC4muC5g+C4muC4geC4tOC4iOC4geC4o+C4o+C4oSDguKrguKrguKfguJcuICovCiAgLnJpYmJvbntmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6NjAwO2ZvbnQtc2l6ZTouNzhyZW07bGV0dGVyLXNwYWNpbmc6MnB4OwogICAgY29sb3I6dmFyKC0tYmx1ZS1kZWVwKTt0ZXh0LXRyYW5zZm9ybTp1cHBlcmNhc2U7bWFyZ2luLWJvdHRvbTo4cHh9CiAgLmhlYWR7YmFja2dyb3VuZDpsaW5lYXItZ3JhZGllbnQoMTIwZGVnLHZhcigtLWJsdWUtZGVlcCksdmFyKC0tYmx1ZSkpO2NvbG9yOiNmZmY7CiAgICBib3JkZXItcmFkaXVzOnZhcigtLXJhZGl1cyk7cGFkZGluZzoyNHB4IDI4cHg7Ym94LXNoYWRvdzowIDE4cHggMzhweCAtMThweCByZ2JhKDE3LDgxLDE1OCwuNil9CiAgLmhlYWQgLnRhZ3tkaXNwbGF5OmlubGluZS1ibG9jaztiYWNrZ3JvdW5kOnJnYmEoMjU1LDI1NSwyNTUsLjE4KTtwYWRkaW5nOjNweCAxMnB4O2JvcmRlci1yYWRpdXM6OTk5cHg7CiAgICBmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC1zaXplOi44MnJlbTttYXJnaW4tYm90dG9tOjhweH0KICAuaGVhZCBoMXtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6NzAwO2ZvbnQtc2l6ZToxLjdyZW19CiAgLmhlYWQgaDEgc3BhbntvcGFjaXR5Oi44NTtmb250LXdlaWdodDo1MDB9CgogIC5zZWMtdGl0bGV7Zm9udC1mYW1pbHk6J0thbml0JyxzYW5zLXNlcmlmO2ZvbnQtd2VpZ2h0OjYwMDtmb250LXNpemU6MS4xM3JlbTttYXJnaW46MzBweCAwIDE0cHg7CiAgICBkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxMHB4fQogIC5zZWMtdGl0bGUgLm57ZGlzcGxheTppbmxpbmUtZmxleDthbGlnbi1pdGVtczpjZW50ZXI7anVzdGlmeS1jb250ZW50OmNlbnRlcjt3aWR0aDoyOHB4O2hlaWdodDoyOHB4OwogICAgYm9yZGVyLXJhZGl1czo4cHg7YmFja2dyb3VuZDp2YXIoLS1ibHVlKTtjb2xvcjojZmZmO2ZvbnQtc2l6ZTouODVyZW07Zm9udC13ZWlnaHQ6NjAwO2ZvbnQtZmFtaWx5OidLYW5pdCcsc2Fucy1zZXJpZn0KCiAgLmNhcmR7YmFja2dyb3VuZDp2YXIoLS1zdXJmYWNlKTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWxpbmUpO2JvcmRlci1yYWRpdXM6dmFyKC0tcmFkaXVzKTtwYWRkaW5nOjIwcHggMjJweH0KCiAgLyog4LiE4Liz4LiK4Li14LmJ4LmB4LiI4LiHICovCiAgLmJyaWVme2JhY2tncm91bmQ6dmFyKC0tZ29sZC1zb2Z0KTtib3JkZXI6MXB4IHNvbGlkICNmM2RjYjA7Ym9yZGVyLXJhZGl1czoxNHB4O3BhZGRpbmc6MTRweCAxOHB4OwogICAgbWFyZ2luLWJvdHRvbTo2cHh9CiAgLmJyaWVmIGJ7Y29sb3I6IzlhNjIwNztmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWZ9CiAgLmJyaWVmIC5xdW90ZXtkaXNwbGF5OmJsb2NrO21hcmdpbi10b3A6NHB4O2ZvbnQtd2VpZ2h0OjYwMDtjb2xvcjp2YXIoLS1pbmspfQoKICAvKiDguIHguI4gKi8KICAucnVsZXtkaXNwbGF5OmZsZXg7Z2FwOjEycHg7YWxpZ24taXRlbXM6ZmxleC1zdGFydDtwYWRkaW5nOjlweCAwO2JvcmRlci1ib3R0b206MXB4IGRhc2hlZCB2YXIoLS1saW5lKX0KICAucnVsZTpsYXN0LWNoaWxke2JvcmRlci1ib3R0b206bm9uZX0KICAucnVsZSAuYmFkZ2V7ZmxleDpub25lO3dpZHRoOjI2cHg7aGVpZ2h0OjI2cHg7Ym9yZGVyLXJhZGl1czo1MCU7YmFja2dyb3VuZDp2YXIoLS1ibHVlLXNvZnQpOwogICAgY29sb3I6dmFyKC0tYmx1ZS1kZWVwKTtkaXNwbGF5OmZsZXg7YWxpZ24taXRlbXM6Y2VudGVyO2p1c3RpZnktY29udGVudDpjZW50ZXI7Zm9udC13ZWlnaHQ6NjAwOwogICAgZm9udC1zaXplOi44NXJlbTtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWZ9CiAgLnJ1bGUgYntjb2xvcjp2YXIoLS1ibHVlLWRlZXApO2ZvbnQtd2VpZ2h0OjYwMH0KICAucnVsZSAudGhlbntjb2xvcjp2YXIoLS1nb2xkKTtmb250LXdlaWdodDo2MDB9CgogIC8qIOC4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4h+C4l+C4teC5iOC5g+C4q+C5ieC4oeC4siAqLwogIC5mYWN0cy1naXZlbntkaXNwbGF5OmZsZXg7ZmxleC13cmFwOndyYXA7Z2FwOjEwcHh9CiAgLmNoaXB7ZGlzcGxheTppbmxpbmUtZmxleDthbGlnbi1pdGVtczpjZW50ZXI7Z2FwOjhweDtwYWRkaW5nOjhweCAxNnB4O2JvcmRlci1yYWRpdXM6OTk5cHg7CiAgICBmb250LXdlaWdodDo2MDA7Zm9udC1zaXplOi45NXJlbTtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7YmFja2dyb3VuZDp2YXIoLS1ibHVlLWRlZXApO2NvbG9yOiNmZmZ9CiAgLmNoaXAgLmRvdHt3aWR0aDo3cHg7aGVpZ2h0OjdweDtib3JkZXItcmFkaXVzOjUwJTtiYWNrZ3JvdW5kOnJnYmEoMjU1LDI1NSwyNTUsLjcpfQoKICAvKiDguKPguK3guJrguIHguLLguKPguK3guJnguLjguKHguLLguJkgKi8KICAucm91bmR7YmFja2dyb3VuZDp2YXIoLS1zdXJmYWNlKTtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWxpbmUpO2JvcmRlci1yYWRpdXM6dmFyKC0tcmFkaXVzKTsKICAgIHBhZGRpbmc6MjBweCAyMnB4O21hcmdpbi1ib3R0b206MThweDtwb3NpdGlvbjpyZWxhdGl2ZX0KICAucm91bmQtaGVhZHtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6NjAwO2NvbG9yOnZhcigtLWJsdWUtZGVlcCk7CiAgICBmb250LXNpemU6MS4wNXJlbTttYXJnaW4tYm90dG9tOjRweH0KICAucm91bmQtc3Vie2ZvbnQtc2l6ZTouOXJlbTtjb2xvcjp2YXIoLS1tdXRlZCk7bWFyZ2luLWJvdHRvbToxNHB4fQogIC5hcm93e2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyIGF1dG8gMWZyIDM0cHg7Z2FwOjEwcHg7YWxpZ24taXRlbXM6Y2VudGVyO21hcmdpbi1ib3R0b206MTBweH0KICAuYXJvdyAubWlke2ZvbnQtZmFtaWx5OidLYW5pdCcsc2Fucy1zZXJpZjtmb250LXdlaWdodDo2MDA7Y29sb3I6dmFyKC0tZ29sZCk7Zm9udC1zaXplOi44NXJlbTsKICAgIHdoaXRlLXNwYWNlOm5vd3JhcDt0ZXh0LWFsaWduOmNlbnRlcn0KICAuYXJvdy5jb25jbCAubWlke2NvbG9yOnZhcigtLWJsdWUtZGVlcCl9CiAgc2VsZWN0e2ZvbnQtZmFtaWx5OidTYXJhYnVuJyxzYW5zLXNlcmlmO2ZvbnQtc2l6ZTouOThyZW07Y29sb3I6dmFyKC0taW5rKTtwYWRkaW5nOjExcHggMTJweDsKICAgIGJvcmRlcjoxLjVweCBzb2xpZCB2YXIoLS1saW5lKTtib3JkZXItcmFkaXVzOjEwcHg7YmFja2dyb3VuZDojZmZmO2N1cnNvcjpwb2ludGVyO3dpZHRoOjEwMCU7dHJhbnNpdGlvbjpib3JkZXItY29sb3IgLjE1c30KICBzZWxlY3Q6Zm9jdXN7b3V0bGluZTpub25lO2JvcmRlci1jb2xvcjp2YXIoLS1ibHVlKX0KICAuc3RhdHVze3RleHQtYWxpZ246Y2VudGVyO2ZvbnQtc2l6ZToxLjE1cmVtO2ZvbnQtd2VpZ2h0OjcwMH0KICAuc3RhdHVzLmdvb2R7Y29sb3I6dmFyKC0tZ3JlZW4pfSAuc3RhdHVzLmJhZHtjb2xvcjp2YXIoLS1yZWQpfQogIC5hcm93LnJvdy1vayBzZWxlY3R7Ym9yZGVyLWNvbG9yOnZhcigtLWdyZWVuKTtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuLXNvZnQpfQogIC5hcm93LnJvdy1lcnIgc2VsZWN0e2JvcmRlci1jb2xvcjp2YXIoLS1yZWQpO2JhY2tncm91bmQ6dmFyKC0tcmVkLXNvZnQpfQogIC5yb3dtc2d7Zm9udC1zaXplOi44NXJlbTtjb2xvcjp2YXIoLS1yZWQpO21hcmdpbjotNHB4IDAgMTBweCAycHg7ZGlzcGxheTpub25lfQogIC5yb3dtc2cuc2hvd3tkaXNwbGF5OmJsb2NrfQoKICAubmV3ZmFjdHttYXJnaW4tdG9wOjhweDtwYWRkaW5nOjEycHggMTZweDtib3JkZXItcmFkaXVzOjEycHg7YmFja2dyb3VuZDp2YXIoLS1ibHVlLXNvZnQpOwogICAgZm9udC1mYW1pbHk6J0thbml0JyxzYW5zLXNlcmlmO2ZvbnQtd2VpZ2h0OjUwMDtjb2xvcjp2YXIoLS1ibHVlLWRlZXApO2Rpc3BsYXk6ZmxleDtnYXA6OHB4OwogICAgZmxleC13cmFwOndyYXA7YWxpZ24taXRlbXM6Y2VudGVyfQogIC5uZXdmYWN0IC5sYmx7Y29sb3I6dmFyKC0tbXV0ZWQpfQogIC5uZXdmYWN0IC52YWx7Y29sb3I6dmFyKC0tYmx1ZS1kZWVwKTtmb250LXdlaWdodDo2MDB9CgogIC8qIOC4guC5ieC4reC4quC4o+C4uOC4m+C4quC4uOC4lOC4l+C5ieC4suC4oiAqLwogIC5jb25jbC1maW5hbHtkaXNwbGF5OmZsZXg7ZmxleC13cmFwOndyYXA7YWxpZ24taXRlbXM6Y2VudGVyO2dhcDoxMnB4fQogIC5jb25jbC1maW5hbCAucXtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6NjAwO2ZsZXg6MTttaW4td2lkdGg6MjAwcHh9CiAgLmNvbmNsLWZpbmFsIHNlbGVjdHttYXgtd2lkdGg6MjAwcHh9CgogIC8qIOC4m+C4uOC5iOC4oSAqLwogIC5idG5ze2Rpc3BsYXk6ZmxleDtmbGV4LXdyYXA6d3JhcDtnYXA6MTBweDttYXJnaW4tdG9wOjIycHh9CiAgYnV0dG9uLmFjdHtmb250LWZhbWlseTonS2FuaXQnLHNhbnMtc2VyaWY7Zm9udC13ZWlnaHQ6NjAwO2ZvbnQtc2l6ZTouOTdyZW07cGFkZGluZzoxM3B4IDI0cHg7CiAgICBib3JkZXItcmFkaXVzOjExcHg7Ym9yZGVyOm5vbmU7Y3Vyc29yOnBvaW50ZXI7dHJhbnNpdGlvbjp0cmFuc2Zvcm0gLjFzLGJhY2tncm91bmQgLjE1c30KICBidXR0b24uYWN0OmFjdGl2ZXt0cmFuc2Zvcm06dHJhbnNsYXRlWSgxcHgpfQogIC5iLWNoZWNre2JhY2tncm91bmQ6dmFyKC0tYmx1ZSk7Y29sb3I6I2ZmZn0uYi1jaGVjazpob3ZlcntiYWNrZ3JvdW5kOnZhcigtLWJsdWUtZGVlcCl9CiAgLmItZ2hvc3R7YmFja2dyb3VuZDojZmZmO2NvbG9yOnZhcigtLWluayk7Ym9yZGVyOjEuNXB4IHNvbGlkIHZhcigtLWxpbmUpIWltcG9ydGFudH0KICAuYi1naG9zdDpob3Zlcntib3JkZXItY29sb3I6dmFyKC0tYmx1ZSkhaW1wb3J0YW50O2NvbG9yOnZhcigtLWJsdWUpfQoKICAvKiDguJzguKXguITguLDguYHguJnguJkgKi8KICAjc2NvcmV7bWFyZ2luLXRvcDoxOHB4O3BhZGRpbmc6MThweCAyMHB4O2JvcmRlci1yYWRpdXM6dmFyKC0tcmFkaXVzKTtkaXNwbGF5Om5vbmV9CiAgI3Njb3JlLnNob3d7ZGlzcGxheTpibG9ja30KICAjc2NvcmUuZ29vZHtiYWNrZ3JvdW5kOnZhcigtLWdyZWVuLXNvZnQpO2JvcmRlcjoxcHggc29saWQgI2JjZTlkNn0KICAjc2NvcmUucGFydGlhbHtiYWNrZ3JvdW5kOnZhcigtLWdvbGQtc29mdCk7Ym9yZGVyOjFweCBzb2xpZCAjZjNkY2IwfQogIC5zY29yZS1udW17Zm9udC1mYW1pbHk6J0thbml0JyxzYW5zLXNlcmlmO2ZvbnQtd2VpZ2h0OjcwMDtmb250LXNpemU6MS40cmVtfQogICNzY29yZS5nb29kIC5zY29yZS1udW17Y29sb3I6IzE0N2E1MX0jc2NvcmUucGFydGlhbCAuc2NvcmUtbnVte2NvbG9yOiM5YTYyMDd9CiAgLmV4cGxhaW57bWFyZ2luLXRvcDoxNHB4O2ZvbnQtc2l6ZTouOTZyZW07bGluZS1oZWlnaHQ6MS43NTtkaXNwbGF5Om5vbmV9CiAgLmV4cGxhaW4uc2hvd3tkaXNwbGF5OmJsb2NrfQogIC5leHBsYWluIGg0e2ZvbnQtZmFtaWx5OidLYW5pdCcsc2Fucy1zZXJpZjttYXJnaW46MTRweCAwIDZweH0KICAuZXhwbGFpbiAuY2hhaW57ZGlzcGxheTpmbGV4O2ZsZXgtd3JhcDp3cmFwO2dhcDo2cHg7YWxpZ24taXRlbXM6Y2VudGVyO21hcmdpbjo4cHggMH0KICAuZXhwbGFpbiAubm9kZXtiYWNrZ3JvdW5kOiNmZmY7Ym9yZGVyOjEuNXB4IHNvbGlkIHZhcigtLWJsdWUpO2JvcmRlci1yYWRpdXM6MTBweDtwYWRkaW5nOjZweCAxMnB4OwogICAgZm9udC1mYW1pbHk6J0thbml0JyxzYW5zLXNlcmlmO2ZvbnQtd2VpZ2h0OjYwMDtjb2xvcjp2YXIoLS1ibHVlLWRlZXApO2ZvbnQtc2l6ZTouOTJyZW19CiAgLmV4cGxhaW4gLm5vZGUuZ29sZHtib3JkZXItY29sb3I6dmFyKC0tZ29sZCk7Y29sb3I6IzlhNjIwN30KICAuZXhwbGFpbiAuYXJ7Y29sb3I6dmFyKC0tbXV0ZWQpO2ZvbnQtd2VpZ2h0OjcwMH0KICAuZXhwbGFpbiAud2h5e21hcmdpbi10b3A6MTBweH0KICBmb290ZXJ7dGV4dC1hbGlnbjpjZW50ZXI7Y29sb3I6dmFyKC0tbXV0ZWQpO2ZvbnQtc2l6ZTouODVyZW07bWFyZ2luLXRvcDo0NnB4O2ZvbnQtZmFtaWx5OidLYW5pdCcsc2Fucy1zZXJpZn0KICBAbWVkaWEobWF4LXdpZHRoOjU2MHB4KXsuYXJvd3tncmlkLXRlbXBsYXRlLWNvbHVtbnM6MWZyO2dhcDo2cHh9LmFyb3cgLm1pZHt0ZXh0LWFsaWduOmxlZnR9fQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5Pgo8ZGl2IGNsYXNzPSJ3cmFwIj4KCiAgPGRpdiBjbGFzcz0icmliYm9uIj7guKfguLTguJfguKLguLLguIHguLLguKPguITguLPguJnguKfguJMg4LihLjYgwrcg4LiB4Li04LiI4LiB4Lij4Lij4Lih4LiX4Li14LmIIDMg4Lib4Lix4LiN4LiN4Liy4Lib4Lij4Liw4LiU4Li04Lip4LiQ4LmMPC9kaXY+CiAgPGRpdiBjbGFzcz0iaGVhZCI+CiAgICA8c3BhbiBjbGFzcz0idGFnIj7guYPguJrguIHguLTguIjguIHguKPguKPguKHguJfguLXguYggMy4xPC9zcGFuPgogICAgPGgxPuC4leC4o+C4o+C4geC4sOC4nuC4suC4o+C4p+C4oiA8c3Bhbj7CtyDguIHguLLguKPguK3guJnguLjguKHguLLguJk8L3NwYW4+PC9oMT4KICA8L2Rpdj4KCiAgPCEtLSDguITguLPguIrguLXguYnguYHguIjguIcgKyDguIHguI4gLS0+CiAgPGRpdiBjbGFzcz0ic2VjLXRpdGxlIj48c3BhbiBjbGFzcz0ibiI+MTwvc3Bhbj4g4Lio4Li24LiB4Lip4Liy4LiB4LiO4LmB4Lil4Liw4LiC4LmJ4Lit4LmA4LiX4LmH4LiI4LiI4Lij4Li04LiHPC9kaXY+CiAgPGRpdiBjbGFzcz0iYnJpZWYiPgogICAgPGI+4LiE4Liz4LiK4Li14LmJ4LmB4LiI4LiHOjwvYj4g4LmD4Lir4LmJ4LiZ4Lix4LiB4LmA4Lij4Li14Lii4LiZ4Lio4Li24LiB4Lip4Liy4LiB4LiO4LmB4LiV4LmI4Lil4Liw4LiC4LmJ4LitIOC5geC4peC4sOC4q+C4suC4guC5ieC4reC4quC4o+C4uOC4m+C5guC4lOC4ouC4geC4suC4o+C4reC4meC4uOC4oeC4suC4meC4p+C5iOC4sgogICAgPHNwYW4gY2xhc3M9InF1b3RlIiBpZD0iYnJpZWYtcSI+PC9zcGFuPgogIDwvZGl2PgogIDxkaXYgY2xhc3M9ImNhcmQiIHN0eWxlPSJtYXJnaW4tdG9wOjE0cHgiIGlkPSJydWxlcyI+PC9kaXY+CiAgPGRpdiBzdHlsZT0ibWFyZ2luLXRvcDoxNHB4Ij4KICAgIDxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5OidLYW5pdCcsc2Fucy1zZXJpZjtmb250LXdlaWdodDo2MDA7bWFyZ2luLWJvdHRvbTo4cHg7Y29sb3I6dmFyKC0tbXV0ZWQpIj7guILguYnguK3guYDguJfguYfguIjguIjguKPguLTguIfguJfguLXguYjguYPguKvguYnguKHguLI8L2Rpdj4KICAgIDxkaXYgY2xhc3M9ImZhY3RzLWdpdmVuIiBpZD0iZ2l2ZW4iPjwvZGl2PgogIDwvZGl2PgoKICA8IS0tIOC4o+C4reC4muC4geC4suC4o+C4reC4meC4uOC4oeC4suC4mSAtLT4KICA8ZGl2IGNsYXNzPSJzZWMtdGl0bGUiPjxzcGFuIGNsYXNzPSJuIj4yPC9zcGFuPiDguJfguLPguIHguLLguKPguK3guJnguLjguKHguLLguJnguJfguLXguKXguLDguKPguK3guJo8L2Rpdj4KICA8ZGl2IGlkPSJyb3VuZHMiPjwvZGl2PgoKICA8IS0tIOC4guC5ieC4reC4quC4o+C4uOC4myAtLT4KICA8ZGl2IGNsYXNzPSJzZWMtdGl0bGUiPjxzcGFuIGNsYXNzPSJuIj4zPC9zcGFuPiDguILguYnguK3guKrguKPguLjguJs8L2Rpdj4KICA8ZGl2IGNsYXNzPSJjYXJkIGNvbmNsLWZpbmFsIj4KICAgIDxkaXYgY2xhc3M9InEiIGlkPSJmaW5hbC1xIj48L2Rpdj4KICAgIDxzZWxlY3QgaWQ9ImZpbmFsLXNlbCI+PC9zZWxlY3Q+CiAgPC9kaXY+CgogIDxkaXYgY2xhc3M9ImJ0bnMiPgogICAgPGJ1dHRvbiBjbGFzcz0iYWN0IGItY2hlY2siIGlkPSJjaGVjayI+4LiV4Lij4Lin4LiI4LiE4Liz4LiV4Lit4LiaPC9idXR0b24+CiAgICA8YnV0dG9uIGNsYXNzPSJhY3QgYi1naG9zdCIgaWQ9InNvbCI+4LiU4Li54LmA4LiJ4Lil4LiiPC9idXR0b24+CiAgICA8YnV0dG9uIGNsYXNzPSJhY3QgYi1naG9zdCIgaWQ9InJlc2V0Ij7guYDguKPguLTguYjguKHguYPguKvguKHguYg8L2J1dHRvbj4KICA8L2Rpdj4KCiAgPGRpdiBpZD0ic2NvcmUiPgogICAgPHNwYW4gY2xhc3M9InNjb3JlLW51bSIgaWQ9InNjb3JlLW51bSI+PC9zcGFuPgogICAgPHNwYW4gaWQ9InNjb3JlLW1zZyI+PC9zcGFuPgogICAgPGRpdiBjbGFzcz0iZXhwbGFpbiIgaWQ9ImV4cGxhaW4iPjwvZGl2PgogIDwvZGl2PgoKICA8Zm9vdGVyPuC4quC4o+C5ieC4suC4h+C4lOC5ieC4p+C4ouC5g+C4iOC5guC4lOC4ouC4hOC4o+C4ueC4geC4reC4peC5jOC4nyDCtyDguJvguKPguLHguJrguIjguLLguIHguYPguJrguIHguLTguIjguIHguKPguKPguKHguJfguLXguYggMy4xIOKAnOC4leC4o+C4o+C4geC4sOC4nuC4suC4o+C4p+C4ouKAnSAo4Liq4Liq4Lin4LiXLik8L2Zvb3Rlcj4KPC9kaXY+Cgo8c2NyaXB0PgovKiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KICAg4qyH77iPICDguJvguKPguLHguJrguYLguIjguJfguKLguYzguYTguJTguYnguJfguLXguYjguJnguLXguYjguJfguLXguYjguYDguJTguLXguKLguKcKICAgLSBydWxlczogbmVlZHMgPSDguYDguIfguLfguYjguK3guJnguYTguIIsIGxvZ2ljID0gJ2FuZCcvJ29yJywgZ2l2ZXMgPSDguJzguKXguKXguLHguJ7guJjguYwKICAgLSDguIHguLLguKPguK3guJnguLjguKHguLLguJnguIjguLDguJbguLnguIHguJXguYnguK3guIfguYDguKHguLfguYjguK0gIuC5gOC4h+C4t+C5iOC4reC4meC5hOC4guC4guC4reC4h+C4geC4juC4leC4o+C4h+C4geC4seC4muC4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4h+C4l+C4teC5iOC4o+C4ueC5ieC5geC4peC5ieC4pyIKICAgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ICovCmNvbnN0IGNvbmZpZyA9IHsKICBxdWVzdGlvbjogJ+C4q+C4suC4geC4guC4ouC4seC4meC5gOC4o+C4teC4ouC4meC5geC4peC4sOC5guC4iuC4hOC5hOC4oeC5iOC4lOC4tSDguIjguLDguKHguLXguYDguIfguLTguJnguKvguKPguLfguK3guYTguKHguYg/JywKICBzdGFydEZhY3RzOiBbJ+C4guC4ouC4seC4meC5gOC4o+C4teC4ouC4mScsJ+C5guC4iuC4hOC5hOC4oeC5iOC4lOC4tSddLAoKICBydWxlczogWwogICAgeyBpZDoxLCBuZWVkczpbJ+C5guC4iuC4hOC4lOC4tSddLCAgICAgICAgICAgICAgICBsb2dpYzonYW5kJywgZ2l2ZXM6J+C4luC4ueC4geC4quC4peC4suC4geC4reC4reC4oeC4quC4tOC4mScsICAgdGV4dDpbJ+C5guC4iuC4hOC4lOC4tScsJ+C4luC4ueC4geC4quC4peC4suC4geC4reC4reC4oeC4quC4tOC4mSddIH0sCiAgICB7IGlkOjIsIG5lZWRzOlsn4LmC4LiK4LiE4LmE4Lih4LmI4LiU4Li1J10sICAgICAgICAgICAgIGxvZ2ljOidhbmQnLCBnaXZlczon4LmE4Lih4LmI4LiW4Li54LiB4Liq4Lil4Liy4LiB4Lit4Lit4Lih4Liq4Li04LiZJywgdGV4dDpbJ+C5guC4iuC4hOC5hOC4oeC5iOC4lOC4tScsJ+C5hOC4oeC5iOC4luC4ueC4geC4quC4peC4suC4geC4reC4reC4oeC4quC4tOC4mSddIH0sCiAgICB7IGlkOjMsIG5lZWRzOlsn4Lih4Li14LiE4Lin4Liy4Lih4Lij4Li54LmJJywn4LmC4LiK4LiE4LiU4Li1J10sICAgIGxvZ2ljOidvcicsICBnaXZlczon4Liq4Lit4Lia4Lic4LmI4Liy4LiZJywgICAgICAgICB0ZXh0Olsn4Lih4Li14LiE4Lin4Liy4Lih4Lij4Li54LmJIOC4q+C4o+C4t+C4rSDguYLguIrguITguJTguLUnLCfguKrguK3guJrguJzguYjguLLguJknXSB9LAogICAgeyBpZDo0LCBuZWVkczpbJ+C5hOC4oeC5iOC4oeC4teC4hOC4p+C4suC4oeC4o+C4ueC5iScsJ+C5guC4iuC4hOC4lOC4tSddLCBsb2dpYzonYW5kJywgZ2l2ZXM6J+C4quC4reC4muC4nOC5iOC4suC4mScsICAgICAgICAgdGV4dDpbJ+C5hOC4oeC5iOC4oeC4teC4hOC4p+C4suC4oeC4o+C4ueC5iSDguYHguJXguYgg4LmC4LiK4LiE4LiU4Li1Jywn4Liq4Lit4Lia4Lic4LmI4Liy4LiZJ10gfSwKICAgIHsgaWQ6NSwgbmVlZHM6WyfguILguKLguLHguJnguYDguKPguLXguKLguJknXSwgICAgICAgICAgICBsb2dpYzonYW5kJywgZ2l2ZXM6J+C4oeC4teC4hOC4p+C4suC4oeC4o+C4ueC5iScsICAgICAgIHRleHQ6WyfguILguKLguLHguJnguYDguKPguLXguKLguJknLCfguKHguLXguITguKfguLLguKHguKPguLnguYknXSB9LAogICAgeyBpZDo2LCBuZWVkczpbJ+C4oeC4teC4hOC4p+C4suC4oeC4o+C4ueC5iScsJ+C4quC4reC4muC4nOC5iOC4suC4mSddLCAgbG9naWM6J2FuZCcsIGdpdmVzOifguKHguLXguIfguLLguJnguJfguLMnLCAgICAgICAgIHRleHQ6WyfguKHguLXguITguKfguLLguKHguKPguLnguYkg4LmB4Lil4LiwIOC4quC4reC4muC4nOC5iOC4suC4mScsJ+C4oeC4teC4h+C4suC4meC4l+C4syddIH0sCiAgICB7IGlkOjcsIG5lZWRzOlsn4Lih4Li14LiH4Liy4LiZ4LiX4LizJywn4LiW4Li54LiB4Liq4Lil4Liy4LiB4Lit4Lit4Lih4Liq4Li04LiZJ10sIGxvZ2ljOidvcicsIGdpdmVzOifguKHguLXguYDguIfguLTguJknLCAgICAgICAgdGV4dDpbJ+C4oeC4teC4h+C4suC4meC4l+C4syDguKvguKPguLfguK0g4LiW4Li54LiB4Liq4Lil4Liy4LiB4Lit4Lit4Lih4Liq4Li04LiZJywn4Lih4Li14LmA4LiH4Li04LiZJ10gfSwKICBdLAoKICBmYWN0T3B0aW9uczogWyfguKHguLXguITguKfguLLguKHguKPguLnguYknLCfguJbguLnguIHguKrguKXguLLguIHguK3guK3guKHguKrguLTguJknLCfguYTguKHguYjguJbguLnguIHguKrguKXguLLguIHguK3guK3guKHguKrguLTguJknLCfguKrguK3guJrguJzguYjguLLguJknLCfguKHguLXguIfguLLguJnguJfguLMnLCfguKHguLXguYDguIfguLTguJknXSwKCiAgZ29hbEZhY3Q6ICfguKHguLXguYDguIfguLTguJknLAogIGFuc3dlck9wdGlvbnM6IFsn4oCUIOC5gOC4peC4t+C4reC4geC4hOC4s+C4leC4reC4miDigJQnLCfguKHguLXguYDguIfguLTguJknLCfguYTguKHguYjguKHguLXguYDguIfguLTguJknXSwKICBjb3JyZWN0QW5zd2VyOiAn4Lih4Li14LmA4LiH4Li04LiZJywKCiAgLy8g4LiI4Liz4LiZ4Lin4LiZ4LmB4LiW4Lin4LiV4LmI4Lit4Lij4Lit4LiaICjguJXguLLguKHguJXguYnguJnguInguJrguLHguJo6IOC4o+C4reC4muC4peC4sCA0IOC5geC4luC4pywg4LmB4LiW4Lin4Liq4Li44LiU4LiX4LmJ4Liy4Lii4LiE4Li34LitICLguJfguLPguYPguKvguYnguYTguJTguYnguILguYnguK3guKrguKPguLjguJsiKQogIHJvdW5kczogWwogICAgeyB0aXRsZTon4LiB4Liy4Lij4Lit4LiZ4Li44Lih4Liy4LiZ4Lij4Lit4Lia4LiX4Li14LmIIDEnLCByb3dzOjQgfSwKICAgIHsgdGl0bGU6J+C4geC4suC4o+C4reC4meC4uOC4oeC4suC4meC4o+C4reC4muC4l+C4teC5iCAyJywgcm93czo0IH0sCiAgXSwKCiAgLy8g4Lil4Liz4LiU4Lix4Lia4LiB4Liy4Lij4Lit4LiZ4Li44Lih4Liy4LiZ4LiX4Li14LmI4LiW4Li54LiB4LiV4LmJ4Lit4LiHICjguKPguK3guJogMTogNCDguYHguJbguKfguYHguKPguIEsIOC4o+C4reC4miAyOiDguYHguJbguKfguJbguLHguJTguYTguJspCiAgc29sdXRpb25DaGFpbjogWzIsNSwzLDYsN10sCn07Cgpjb25zdCAkID0gcyA9PiBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKHMpOwpjb25zdCAkJCA9IHMgPT4gQXJyYXkuZnJvbShkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKHMpKTsKY29uc3QgcnVsZUJ5SWQgPSBpZCA9PiBjb25maWcucnVsZXMuZmluZChyID0+IHIuaWQgPT0gaWQpOwoKLy8g4LmA4LiH4Li34LmI4Lit4LiZ4LmE4LiC4LiC4Lit4LiH4LiB4LiOICLguJXguKPguIfguIHguLHguJrguILguYnguK3guYDguJfguYfguIjguIjguKPguLTguIfguJfguLXguYjguKPguLnguYnguYHguKXguYnguKciIOC4q+C4o+C4t+C4reC4ouC4seC4hwpmdW5jdGlvbiBhcHBsaWNhYmxlKHJ1bGUsIGZhY3RzKXsKICByZXR1cm4gcnVsZS5sb2dpYyA9PT0gJ29yJwogICAgPyBydWxlLm5lZWRzLnNvbWUobiA9PiBmYWN0cy5pbmNsdWRlcyhuKSkKICAgIDogcnVsZS5uZWVkcy5ldmVyeShuID0+IGZhY3RzLmluY2x1ZGVzKG4pKTsKfQoKLy8gcmVuZGVyIOC4q+C4seC4p+C5gOC4o+C4t+C5iOC4reC4hwokKCcjYnJpZWYtcScpLnRleHRDb250ZW50ID0gJ+KAnCcgKyBjb25maWcucXVlc3Rpb24ucmVwbGFjZSgnPycsJycpICsgJ+KAnSc7CiQoJyNmaW5hbC1xJykudGV4dENvbnRlbnQgPSBjb25maWcucXVlc3Rpb247CiQoJyNnaXZlbicpLmlubmVySFRNTCA9IGNvbmZpZy5zdGFydEZhY3RzLm1hcChmID0+CiAgYDxzcGFuIGNsYXNzPSJjaGlwIj48c3BhbiBjbGFzcz0iZG90Ij48L3NwYW4+JHtmfTwvc3Bhbj5gKS5qb2luKCcnKTsKJCgnI3J1bGVzJykuaW5uZXJIVE1MID0gY29uZmlnLnJ1bGVzLm1hcChyID0+CiAgYDxkaXYgY2xhc3M9InJ1bGUiPjxzcGFuIGNsYXNzPSJiYWRnZSI+JHtyLmlkfTwvc3Bhbj4KICAgICA8c3Bhbj7guJbguYnguLIgPGI+JHtyLnRleHRbMF19PC9iPiDguYHguKXguYnguKcgPHNwYW4gY2xhc3M9InRoZW4iPiR7ci50ZXh0WzFdfTwvc3Bhbj48L3NwYW4+PC9kaXY+YCkuam9pbignJyk7CgovLyDguJXguLHguKfguYDguKXguLfguK3guIEgZHJvcGRvd24KY29uc3QgcnVsZU9wdHMgPSAnPG9wdGlvbiB2YWx1ZT0iLSI+4oCTIOC5gOC4peC4t+C4reC4geC4geC4jiDigJM8L29wdGlvbj4nICsKICBjb25maWcucnVsZXMubWFwKHIgPT4gYDxvcHRpb24gdmFsdWU9IiR7ci5pZH0iPuC4geC4juC4guC5ieC4reC4l+C4teC5iCAke3IuaWR9PC9vcHRpb24+YCkuam9pbignJyk7CmNvbnN0IGZhY3RPcHRzID0gJzxvcHRpb24gdmFsdWU9Ii0iPuKAkyDguYDguKXguLfguK3guIHguILguYnguK3guYDguJfguYfguIjguIjguKPguLTguIcg4oCTPC9vcHRpb24+JyArCiAgY29uZmlnLmZhY3RPcHRpb25zLm1hcChmID0+IGA8b3B0aW9uIHZhbHVlPSIke2Z9Ij4ke2Z9PC9vcHRpb24+YCkuam9pbignJyk7CgovLyDguKrguKPguYnguLLguIfguKPguK3guJoKZnVuY3Rpb24gYnVpbGRSb3VuZHMoKXsKICAkKCcjcm91bmRzJykuaW5uZXJIVE1MID0gY29uZmlnLnJvdW5kcy5tYXAoKHJkLCByaSkgPT4gewogICAgY29uc3Qgcm93cyA9IEFycmF5LmZyb20oe2xlbmd0aDpyZC5yb3dzfSkubWFwKChfLCBpKSA9PiB7CiAgICAgIGNvbnN0IGlzTGFzdCA9IGkgPT09IHJkLnJvd3MgLSAxOwogICAgICByZXR1cm4gYDxkaXYgY2xhc3M9ImFyb3cke2lzTGFzdD8nIGNvbmNsJzonJ30iIGRhdGEtcm91bmQ9IiR7cml9IiBkYXRhLXJvdz0iJHtpfSI+CiAgICAgICAgICA8c2VsZWN0IGNsYXNzPSJzZWwtcnVsZSI+JHtydWxlT3B0c308L3NlbGVjdD4KICAgICAgICAgIDxzcGFuIGNsYXNzPSJtaWQiPiR7aXNMYXN0PyfguJfguLPguYPguKvguYnguYTguJTguYnguILguYnguK3guKrguKPguLjguJsg4oaSJzon4LiX4Liz4LmD4Lir4LmJ4LmE4LiU4LmJ4LiC4LmJ4Lit4LmA4LiX4LmH4LiI4LiI4Lij4Li04LiH4LmD4Lir4Lih4LmIIOKGkid9PC9zcGFuPgogICAgICAgICAgPHNlbGVjdCBjbGFzcz0ic2VsLWZhY3QiPiR7ZmFjdE9wdHN9PC9zZWxlY3Q+CiAgICAgICAgICA8c3BhbiBjbGFzcz0ic3RhdHVzIj48L3NwYW4+CiAgICAgICAgPC9kaXY+CiAgICAgICAgPGRpdiBjbGFzcz0icm93bXNnIj48L2Rpdj5gOwogICAgfSkuam9pbignJyk7CiAgICBjb25zdCBzdW1tYXJ5TGFiZWwgPSByaSA9PT0gY29uZmlnLnJvdW5kcy5sZW5ndGgtMSA/ICfguILguYnguK3guKrguKPguLjguJvguITguLfguK0nIDogJ+C4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4h+C5g+C4q+C4oeC5iOC4hOC4t+C4rSc7CiAgICByZXR1cm4gYDxkaXYgY2xhc3M9InJvdW5kIj4KICAgICAgICA8ZGl2IGNsYXNzPSJyb3VuZC1oZWFkIj4ke3JkLnRpdGxlfTwvZGl2PgogICAgICAgIDxkaXYgY2xhc3M9InJvdW5kLXN1YiI+4LmA4Lil4Li34Lit4LiB4LiB4LiO4LiX4Li14LmIIDxiPuC5gOC4h+C4t+C5iOC4reC4meC5hOC4guC4leC4o+C4h+C4geC4seC4muC4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4h+C4l+C4teC5iOC4o+C4ueC5ieC5geC4peC5ieC4pzwvYj4gwrcg4LiK4LmI4Lit4LiH4LiX4Li14LmI4LmE4Lih4LmI4LmD4LiK4LmJ4LmA4Lil4Li34Lit4LiBIOKAnOKAk+KAnSDguJfguLHguYnguIfguITguLnguYg8L2Rpdj4KICAgICAgICAke3Jvd3N9CiAgICAgICAgPGRpdiBjbGFzcz0ibmV3ZmFjdCIgZGF0YS1yb3VuZD0iJHtyaX0iIHN0eWxlPSJkaXNwbGF5Om5vbmUiPgogICAgICAgICAgPHNwYW4gY2xhc3M9ImxibCI+JHtzdW1tYXJ5TGFiZWx9PC9zcGFuPjxzcGFuIGNsYXNzPSJ2YWwiPjwvc3Bhbj4KICAgICAgICA8L2Rpdj4KICAgICAgPC9kaXY+YDsKICB9KS5qb2luKCcnKTsKfQpidWlsZFJvdW5kcygpOwoKLy8g4LiC4LmJ4Lit4Liq4Lij4Li44Lib4Liq4Li44LiU4LiX4LmJ4Liy4LiiCiQoJyNmaW5hbC1zZWwnKS5pbm5lckhUTUwgPSBjb25maWcuYW5zd2VyT3B0aW9ucy5tYXAobyA9PgogIGA8b3B0aW9uIHZhbHVlPSIke299Ij4ke299PC9vcHRpb24+YCkuam9pbignJyk7CgovLyA9PT09PSDguJXguKPguKfguIjguITguLPguJXguK3guJogPT09PT0KJCgnI2NoZWNrJykuYWRkRXZlbnRMaXN0ZW5lcignY2xpY2snLCAoKSA9PiB7CiAgbGV0IGtub3duID0gWy4uLmNvbmZpZy5zdGFydEZhY3RzXTsKICBsZXQgY29ycmVjdCA9IDAsIGdyYWRlZCA9IDA7CiAgY29uc3Qgcm91bmROZXdGYWN0cyA9IHt9OwoKICAkJCgnLmFyb3cnKS5mb3JFYWNoKHJvdyA9PiB7CiAgICBjb25zdCByRWwgPSByb3cucXVlcnlTZWxlY3RvcignLnNlbC1ydWxlJyk7CiAgICBjb25zdCBmRWwgPSByb3cucXVlcnlTZWxlY3RvcignLnNlbC1mYWN0Jyk7CiAgICBjb25zdCBzdCAgPSByb3cucXVlcnlTZWxlY3RvcignLnN0YXR1cycpOwogICAgY29uc3QgbXNnID0gcm93Lm5leHRFbGVtZW50U2libGluZzsKICAgIGNvbnN0IHJpICA9IHJvdy5kYXRhc2V0LnJvdW5kOwogICAgcm93LmNsYXNzTGlzdC5yZW1vdmUoJ3Jvdy1vaycsJ3Jvdy1lcnInKTsgc3QuY2xhc3NOYW1lPSdzdGF0dXMnOwogICAgbXNnLmNsYXNzTmFtZT0ncm93bXNnJzsgbXNnLnRleHRDb250ZW50PScnOwoKICAgIGNvbnN0IHJ2ID0gckVsLnZhbHVlLCBmdiA9IGZFbC52YWx1ZTsKICAgIGlmKHJ2ID09PSAnLScgJiYgZnYgPT09ICctJykgcmV0dXJuOyAgICAgICAgLy8g4LmB4LiW4Lin4Lin4LmI4Liy4LiHIOC4guC5ieC4suC4oeC5hOC4lOC5iQoKICAgIGdyYWRlZCsrOwogICAgY29uc3QgcnVsZSA9IHJ1bGVCeUlkKHJ2KTsKICAgIGxldCBvaz1mYWxzZSwgcmVhc29uPScnOwogICAgaWYoIXJ1bGUpeyByZWFzb249J+C4ouC4seC4h+C5hOC4oeC5iOC5hOC4lOC5ieC5gOC4peC4t+C4reC4geC4geC4jic7IH0KICAgIGVsc2UgaWYoIWFwcGxpY2FibGUocnVsZSwga25vd24pKXsKICAgICAgY29uc3QgbWlzcyA9IHJ1bGUubmVlZHMuZmlsdGVyKG4gPT4gIWtub3duLmluY2x1ZGVzKG4pKTsKICAgICAgcmVhc29uID0gYOC4ouC4seC4h+C5g+C4iuC5ieC4geC4juC4guC5ieC4rSAke3J1bGUuaWR9IOC5hOC4oeC5iOC5hOC4lOC5iSDguYDguJ7guKPguLLguLDguKLguLHguIfguYTguKHguYjguKPguLnguYnguKfguYjguLIg4oCcJHttaXNzLmpvaW4oJyAvICcpfeKAnWA7CiAgICB9CiAgICBlbHNlIGlmKGZ2ICE9PSBydWxlLmdpdmVzKXsgcmVhc29uID0gYOC4geC4juC4guC5ieC4rSAke3J1bGUuaWR9IOC5g+C4q+C5ieC4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4hyDigJwke3J1bGUuZ2l2ZXN94oCdIOC5hOC4oeC5iOC5g+C4iuC5iCDigJwke2Z2PT09Jy0nPyco4Lin4LmI4Liy4LiHKSc6ZnZ94oCdYDsgfQogICAgZWxzZSBpZihrbm93bi5pbmNsdWRlcyhydWxlLmdpdmVzKSl7IHJlYXNvbiA9IGDguKPguLnguYnguKfguYjguLIg4oCcJHtydWxlLmdpdmVzfeKAnSDguK3guKLguLnguYjguYHguKXguYnguKcg4Lil4Lit4LiH4Lir4Liy4LiB4LiO4LiX4Li14LmI4LmD4Lir4LmJ4LiC4LmJ4Lit4LmA4LiX4LmH4LiI4LiI4Lij4Li04LiH4LmD4Lir4Lih4LmIYDsgfQogICAgZWxzZSBvaz10cnVlOwoKICAgIGlmKG9rKXsKICAgICAgcm93LmNsYXNzTGlzdC5hZGQoJ3Jvdy1vaycpOyBzdC50ZXh0Q29udGVudD0n4pyTJzsgc3QuY2xhc3NMaXN0LmFkZCgnZ29vZCcpOwogICAgICBrbm93bi5wdXNoKHJ1bGUuZ2l2ZXMpOyBjb3JyZWN0Kys7CiAgICAgIChyb3VuZE5ld0ZhY3RzW3JpXSA9IHJvdW5kTmV3RmFjdHNbcmldIHx8IFtdKS5wdXNoKHJ1bGUuZ2l2ZXMpOwogICAgfSBlbHNlIHsKICAgICAgcm93LmNsYXNzTGlzdC5hZGQoJ3Jvdy1lcnInKTsgc3QudGV4dENvbnRlbnQ9J+Kclyc7IHN0LmNsYXNzTGlzdC5hZGQoJ2JhZCcpOwogICAgICBtc2cudGV4dENvbnRlbnQgPSByZWFzb247IG1zZy5jbGFzc0xpc3QuYWRkKCdzaG93Jyk7CiAgICB9CiAgfSk7CgogIC8vIOC4quC4o+C4uOC4m+C4guC5ieC4reC5gOC4l+C5h+C4iOC4iOC4o+C4tOC4h+C5g+C4q+C4oeC5iOC4guC4reC4h+C5geC4leC5iOC4peC4sOC4o+C4reC4mgogICQkKCcubmV3ZmFjdCcpLmZvckVhY2gobmYgPT4gewogICAgY29uc3QgcmkgPSBuZi5kYXRhc2V0LnJvdW5kOwogICAgY29uc3QgZmFjdHMgPSByb3VuZE5ld0ZhY3RzW3JpXTsKICAgIGlmKGZhY3RzICYmIGZhY3RzLmxlbmd0aCl7IG5mLnN0eWxlLmRpc3BsYXk9J2ZsZXgnOyBuZi5xdWVyeVNlbGVjdG9yKCcudmFsJykudGV4dENvbnRlbnQgPSBmYWN0cy5qb2luKCcsICcpOyB9CiAgICBlbHNlIG5mLnN0eWxlLmRpc3BsYXk9J25vbmUnOwogIH0pOwoKICAvLyDguILguYnguK3guKrguKPguLjguJvguKrguLjguJTguJfguYnguLLguKIKICBjb25zdCByZWFjaGVkR29hbCA9IGtub3duLmluY2x1ZGVzKGNvbmZpZy5nb2FsRmFjdCk7CiAgY29uc3QgY29uY2xPSyA9ICQoJyNmaW5hbC1zZWwnKS52YWx1ZSA9PT0gY29uZmlnLmNvcnJlY3RBbnN3ZXIgJiYgcmVhY2hlZEdvYWw7CiAgZ3JhZGVkKys7IGlmKGNvbmNsT0spIGNvcnJlY3QrKzsKCiAgY29uc3QgYm94PSQoJyNzY29yZScpOwogIGJveC5jbGFzc05hbWUgPSAnc2hvdyAnICsgKGNvcnJlY3Q9PT1ncmFkZWQgPyAnZ29vZCc6J3BhcnRpYWwnKTsKICAkKCcjc2NvcmUtbnVtJykudGV4dENvbnRlbnQgPSBgJHtjb3JyZWN0fS8ke2dyYWRlZH0g4LiC4LmJ4LitYDsKICAkKCcjc2NvcmUtbXNnJykudGV4dENvbnRlbnQgPSBjb3JyZWN0PT09Z3JhZGVkCiAgICA/ICcg4oCUIOC5gOC4ouC4teC5iOC4ouC4oeC4oeC4suC4gSEg4Lit4LiZ4Li44Lih4Liy4LiZ4LmE4LiU4LmJ4LiE4Lij4Lia4LiW4Li54LiB4LiV4LmJ4Lit4LiHIPCfjoknCiAgICA6ICghcmVhY2hlZEdvYWwgPyAnIOKAlCDguKLguLHguIfguK3guJnguLjguKHguLLguJnguYTguJvguYTguKHguYjguJbguLbguIcg4oCc4Lih4Li14LmA4LiH4Li04LiZ4oCdIOC4peC4reC4h+C5hOC4peC5iOC4geC4juC4leC5iOC4reC5g+C4q+C5ieC4hOC4o+C4micKICAgICAgICAgICAgICAgICAgICA6ICcg4oCUIOC5gOC4geC4t+C4reC4muC5geC4peC5ieC4pyDguJXguKPguKfguIjguIrguYjguK3guIfguJfguLXguYjguYDguJvguYfguJnguKrguLXguYHguJTguIfguK3guLXguIHguITguKPguLHguYnguIcnKTsKfSk7CgovLyA9PT09PSDguJTguLnguYDguInguKXguKIgPT09PT0KJCgnI3NvbCcpLmFkZEV2ZW50TGlzdGVuZXIoJ2NsaWNrJywgKCkgPT4gewogIGJ1aWxkUm91bmRzKCk7CiAgLy8g4LmA4LiV4Li04Lih4LiE4Liz4LiV4Lit4Lia4LiV4Liy4Lih4Lil4Liz4LiU4Lix4Lia4LiB4Liy4Lij4Lit4LiZ4Li44Lih4Liy4LiZ4LiX4Li14LmI4LiW4Li54LiB4LiV4LmJ4Lit4LiHIOC5hOC4peC5iOC4peC4h+C5g+C4meC5geC4luC4p+C4leC4suC4oeC4o+C4reC4mgogIGxldCBrbm93bj1bLi4uY29uZmlnLnN0YXJ0RmFjdHNdOwogIGNvbnN0IHNsb3RzPSQkKCcuYXJvdycpOwogIGxldCBpZHg9MDsKICBjb25maWcuc29sdXRpb25DaGFpbi5mb3JFYWNoKGlkPT57CiAgICBjb25zdCByPXJ1bGVCeUlkKGlkKTsKICAgIGlmKGlkeDxzbG90cy5sZW5ndGgpewogICAgICBzbG90c1tpZHhdLnF1ZXJ5U2VsZWN0b3IoJy5zZWwtcnVsZScpLnZhbHVlPWlkOwogICAgICBzbG90c1tpZHhdLnF1ZXJ5U2VsZWN0b3IoJy5zZWwtZmFjdCcpLnZhbHVlPXIuZ2l2ZXM7CiAgICAgIGlkeCsrOwogICAgfQogIH0pOwogICQoJyNmaW5hbC1zZWwnKS52YWx1ZT1jb25maWcuY29ycmVjdEFuc3dlcjsKICAkKCcjY2hlY2snKS5jbGljaygpOwoKICAvLyDguYHguJzguJnguKDguLLguJ7guKrguLLguKLguYLguIvguYjguYDguKvguJXguLjguJzguKUKICBjb25zdCBvcmRlcj1bNSwzLDYsN107CiAgY29uc3QgY2hhaW4gPSAnPHNwYW4gY2xhc3M9Im5vZGUgZ29sZCI+4LiC4Lii4Lix4LiZ4LmA4Lij4Li14Lii4LiZPC9zcGFuPicgKwogICAgb3JkZXIubWFwKGlkPT57Y29uc3Qgcj1ydWxlQnlJZChpZCk7CiAgICAgIHJldHVybiBgPHNwYW4gY2xhc3M9ImFyIj7ihpI8L3NwYW4+PHNwYW4gY2xhc3M9Im5vZGUiPuC4geC4jiAke2lkfTogJHtyLmdpdmVzfTwvc3Bhbj5gO30pLmpvaW4oJycpOwoKICBjb25zdCBleD0kKCcjZXhwbGFpbicpOyBleC5jbGFzc05hbWU9J2V4cGxhaW4gc2hvdyc7CiAgZXguaW5uZXJIVE1MID0KICAgIGA8aDQ+4Liq4Liy4Lii4LmC4LiL4LmI4LiB4Liy4Lij4Lit4LiZ4Li44Lih4Liy4LiZPC9oND4KICAgICA8ZGl2IGNsYXNzPSJjaGFpbiI+JHtjaGFpbn08L2Rpdj4KICAgICA8ZGl2IGNsYXNzPSJ3aHkiPgogICAgICAgPGI+4Liq4Lij4Li44LibOiDguKHguLXguYDguIfguLTguJk8L2I+IOKAlCDguJbguLbguIfguYHguKHguYkg4oCc4LmC4LiK4LiE4LmE4Lih4LmI4LiU4Li14oCdIOC4iOC4sOC4l+C4s+C5g+C4q+C5iSDigJzguYTguKHguYjguJbguLnguIHguKrguKXguLLguIHguK3guK3guKHguKrguLTguJnigJ0gKOC4geC4jiAyKQogICAgICAg4LmB4LiV4LmI4LiE4Lin4Liy4LihIOKAnOC4guC4ouC4seC4meC5gOC4o+C4teC4ouC4meKAnSDguJfguLPguYPguKvguYkgPGI+4Lih4Li14LiE4Lin4Liy4Lih4Lij4Li54LmJPC9iPiAo4LiB4LiOIDUpIOKGkiA8Yj7guKrguK3guJrguJzguYjguLLguJk8L2I+ICjguIHguI4gMykg4oaSCiAgICAgICA8Yj7guKHguLXguIfguLLguJnguJfguLM8L2I+ICjguIHguI4gNikg4LmB4Lil4Liw4LmA4Lie4Lij4Liy4Liw4LiB4LiOIDcg4Lia4Lit4LiB4Lin4LmI4LiyIOKAnOC4oeC4teC4h+C4suC4meC4l+C4syA8dT7guKvguKPguLfguK08L3U+IOC4luC4ueC4geC4quC4peC4suC4geC4reC4reC4oeC4quC4tOC4mSDguYHguKXguYnguKfguKHguLXguYDguIfguLTguJnigJ0KICAgICAgIOC5gOC4oeC4t+C5iOC4rSA8Yj7guKHguLXguIfguLLguJnguJfguLM8L2I+IOC4geC5h+C5gOC4nuC4teC4ouC4h+C4nuC4reC4l+C4teC5iOC4iOC4sCA8Yj7guKHguLXguYDguIfguLTguJk8L2I+IOC5hOC4lOC5iSDigJQg4Liq4Lih4LiK4Li34LmI4LitIOKAnOC4leC4o+C4o+C4geC4sOC4nuC4suC4o+C4p+C4ouKAnSDguJfguLXguYjguKfguYjguLLguITguKfguLLguKHguILguKLguLHguJnguJ7guLLguKPguKfguKLguYTguJTguYnguYHguKHguYnguYTguKHguYjguKHguLXguYLguIrguIQKICAgICA8L2Rpdj5gOwp9KTsKCi8vID09PT09IOC5gOC4o+C4tOC5iOC4oeC5g+C4q+C4oeC5iCA9PT09PQokKCcjcmVzZXQnKS5hZGRFdmVudExpc3RlbmVyKCdjbGljaycsICgpID0+IHsKICBidWlsZFJvdW5kcygpOwogICQoJyNmaW5hbC1zZWwnKS52YWx1ZT1jb25maWcuYW5zd2VyT3B0aW9uc1swXTsKICAkKCcjc2NvcmUnKS5jbGFzc05hbWU9Jyc7ICQoJyNleHBsYWluJykuY2xhc3NOYW1lPSdleHBsYWluJzsKfSk7Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4K" title="ใบกิจกรรมที่ 3.1 ตรรกะพารวย" loading="lazy" style="width:100%;height:840px;border:0;display:block;background:#eaf1fb"></iframe>
+      </div>
+
+      <h2 class="sec"><span class="num">3</span> นวัตกรรมที่ใช้ AI</h2>
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">🎙️</span>แปลงเสียงเป็นข้อความ</h4><p>Speech to Text</p></div>
+        <div class="tile"><h4><span class="ic">🌐</span>แปลภาษาด้วยเครื่อง</h4><p>Machine Translation</p></div>
+        <div class="tile"><h4><span class="ic">🙂</span>ระบุตัวตนด้วยใบหน้า</h4><p>Facial Identification</p></div>
+        <div class="tile"><h4><span class="ic">🚗</span>รถยนต์ขับเคลื่อนอัตโนมัติ</h4><p>Self-driving Car</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">4</span> ระดับความสามารถของ AI</h2>
+      <p>นักวิชาการแบ่ง AI ตาม “ขอบเขตความสามารถ” ออกเป็น 3 ระดับ ปัจจุบันที่ใช้งานจริงเกือบทั้งหมดยังอยู่ระดับแรกเท่านั้น</p>
+      <div class="grid g3">
+        <div class="tile"><h4>AI เฉพาะทาง<br>(Narrow / ANI)</h4><p>เก่งเฉพาะงานที่ออกแบบไว้ เช่น ผู้ช่วยเสียง ระบบแนะนำหนัง คัดกรองสแปม — เป็น AI เกือบทั้งหมดในทุกวันนี้</p></div>
+        <div class="tile"><h4>AI ทั่วไป<br>(General / AGI)</h4><p>คิด เรียนรู้ และแก้ปัญหาได้หลากหลายเทียบเท่ามนุษย์ ยัง<strong>อยู่ในขั้นวิจัย ยังไม่มีจริง</strong></p></div>
+        <div class="tile"><h4>AI เหนือมนุษย์<br>(Super / ASI)</h4><p>เก่งเหนือมนุษย์ในแทบทุกด้าน ทั้งความคิดสร้างสรรค์และการตัดสินใจ — ยังเป็น<strong>แนวคิดเชิงทฤษฎี</strong></p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">5</span> AI เรียนรู้ได้อย่างไร — การเรียนรู้ของเครื่อง (Machine Learning)</h2>
+      <p>การเรียนรู้ของเครื่อง (Machine Learning) คือการให้คอมพิวเตอร์<strong>เรียนรู้รูปแบบจากข้อมูลด้วยตนเอง</strong> แทนการเขียนกฎทุกข้อให้ แบ่งวิธีการเรียนรู้หลักได้ 3 แบบ</p>
+      <div class="grid g3">
+        <div class="tile"><h4>มีผู้สอน<br>(Supervised)</h4><p>เรียนจากข้อมูลที่<strong>ติดป้ายคำตอบ</strong>ไว้ เหมือนครูเฉลย เช่น ดูภาพผลไม้พร้อมชื่อ แล้วทำนายภาพใหม่ ใช้จำแนกประเภท/พยากรณ์ค่า</p></div>
+        <div class="tile"><h4>ไม่มีผู้สอน<br>(Unsupervised)</h4><p>เรียนจากข้อมูล<strong>ที่ไม่มีป้ายคำตอบ</strong> ให้เครื่องหากลุ่มหรือรูปแบบเอง เช่น จัดกลุ่มลูกค้าที่พฤติกรรมคล้ายกัน</p></div>
+        <div class="tile"><h4>เสริมแรง<br>(Reinforcement)</h4><p>เรียนจาก<strong>การลองผิดลองถูก</strong> ทำดีได้รางวัล ทำพลาดถูกหักคะแนน เพื่อหาวิธีที่ดีที่สุด เช่น สอนหุ่นยนต์เดิน หรือ AI เล่นหมากล้อม</p></div>
+      </div>
+      <div class="note"><div class="nt">การเรียนรู้เชิงลึก (Deep Learning)</div>
+        เทคนิคที่ใช้ <strong>โครงข่ายประสาทเทียม (Neural Network)</strong> หลายชั้นเลียนแบบการทำงานของเซลล์สมอง เหมาะกับข้อมูลซับซ้อนอย่างภาพและเสียง เป็นหัวใจของ AI ยุคใหม่</div>
+      <p>โดยภาพรวม AI เรียนรู้ตามลำดับ: <span class="hl">ข้อมูล → ฝึกสอน (train) → ได้แบบจำลอง (model) → นำไปทำนาย (predict)</span> ยิ่งข้อมูลมีคุณภาพและหลากหลาย ผลลัพธ์ยิ่งแม่นยำ</p>
+
+      <h2 class="sec"><span class="num">6</span> ปัญญาประดิษฐ์เชิงรู้สร้าง (Generative AI)</h2>
+      <p>Generative AI คือ AI ที่<strong>สร้างเนื้อหาใหม่</strong>ขึ้นมาได้ ทั้งข้อความ รูปภาพ เสียง วิดีโอ หรือโค้ด โดยเรียนรูปแบบจากข้อมูลจำนวนมหาศาลแล้วสร้างผลงานที่ไม่เคยมีมาก่อน ตัวอย่างที่นักเรียนคุ้นเคย เช่น แชตบอตตอบคำถาม ผู้ช่วยเขียน–สรุปข้อความ และเครื่องมือสร้างภาพจากคำสั่งข้อความ</p>
+      <div class="note warn"><div class="nt">ใช้ Generative AI อย่างรู้เท่าทัน</div>
+        <ul class="clean">
+          <li><strong>อาจให้ข้อมูลผิด</strong> ที่ฟังดูน่าเชื่อ (hallucination) — ต้องตรวจสอบกับแหล่งจริงเสมอ</li>
+          <li><strong>อาจมีอคติ (bias)</strong> ตามข้อมูลที่เรียนมา</li>
+          <li><strong>ระวังความเป็นส่วนตัว</strong> — อย่าป้อนข้อมูลส่วนตัวหรือความลับลงไป</li>
+          <li><strong>ใช้เป็นผู้ช่วย ไม่ใช่คัดลอก</strong> — ต้องเรียบเรียง ตรวจทาน และอ้างอิงเสมอ ไม่นำผลงาน AI มาส่งเป็นของตนเอง</li>
+        </ul></div>
+    `
+  },
+  {
+    id:'u2-3', nx:'2.3', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'หุ่นยนต์ · คลาวด์ · IoT · VR/AR',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 2</span>
+      <h1 class="title">เทคโนโลยีสมัยใหม่รอบตัวเรา</h1>
+      <p class="lead">นอกจาก AI ยังมีเทคโนโลยีอีกหลายอย่างที่ทำงานเบื้องหลังชีวิตประจำวันของเรา</p>
+
+      <h2 class="sec"><span class="num">1</span> เทคโนโลยีหุ่นยนต์ (Robotics)</h2>
+      <p>เครื่องจักรกลที่ทำงานควบคุมโดยอัตโนมัติ มักมีโครงสร้างและการทำงานคล้ายมนุษย์ ทำงาน<strong>ซ้ำ ๆ และซับซ้อน</strong>ได้ดี เหมาะกับงานที่ต้องการความแม่นยำหรือเสี่ยงอันตราย</p>
+
+      <h2 class="sec"><span class="num">2</span> การประมวลผลแบบคลาวด์ (Cloud)</h2>
+      <p>Cloud Computing คือการใช้บริการจัดเก็บและประมวลผลข้อมูลบน<strong>เซิร์ฟเวอร์ผ่านอินเทอร์เน็ต</strong> แทนการเก็บไว้ในเครื่องตนเองเท่านั้น ทำให้เข้าถึงไฟล์ได้ทุกที่ทุกอุปกรณ์</p>
+      <div class="chips"><span class="chip">Dropbox</span><span class="chip">Google Workspace</span><span class="chip">Microsoft 365</span></div>
+      <div class="note"><div class="nt">ข้อดี / ข้อจำกัด</div>
+        <strong>+</strong> เข้าถึงได้ทุกที่ ลดภาระดูแลเครื่องเซิร์ฟเวอร์ ทำงานร่วมกันง่าย &nbsp;|&nbsp; <strong>–</strong> ต้องพึ่งอินเทอร์เน็ต และต้องไว้ใจผู้ให้บริการเรื่องความปลอดภัยของข้อมูล</div>
+
+      <h2 class="sec"><span class="num">3</span> อินเทอร์เน็ตของสรรพสิ่ง (IoT)</h2>
+      <p>Internet of Things คือการเชื่อมต่ออุปกรณ์ต่าง ๆ เข้ากับอินเทอร์เน็ต เพื่อสั่งงานและแลกเปลี่ยนข้อมูลกันได้ เช่น การควบคุมไฟ เครื่องปรับอากาศ หรือกล้องในบ้านผ่านโทรศัพท์มือถือ (สมาร์ตโฮม)</p>
+      <h3 class="sub">สถาปัตยกรรม IoT 4 ชั้น</h3>
+      <ol class="clean">
+        <li><strong>สมองกลฝังตัวและเซนเซอร์</strong> — เชื่อมโลกกายภาพกับดิจิทัล ตรวจจับและเก็บข้อมูล เช่น เซนเซอร์วัดอุณหภูมิ ความชื้น การเคลื่อนไหว</li>
+        <li><strong>เกตเวย์และเครือข่าย</strong> — เชื่อมต่อผ่าน LAN, Wi-Fi, Bluetooth, PAN เพื่อรับ-ส่งข้อมูลอย่างเสถียรและปลอดภัย รองรับการสื่อสารระหว่างอุปกรณ์ (M2M)</li>
+        <li><strong>ส่วนสนับสนุนการบริการ</strong> — ประมวลผล วิเคราะห์ และควบคุมความปลอดภัย มักใช้การประมวลผลแบบคลาวด์ช่วยจัดเก็บข้อมูลขนาดใหญ่</li>
+        <li><strong>แอปพลิเคชัน</strong> — ส่วนที่ผู้ใช้สั่งงานและควบคุมอุปกรณ์จากระยะไกลผ่านอินเทอร์เน็ต</li>
+      </ol>
+
+      <h2 class="sec"><span class="num">4</span> เทคโนโลยีเสมือนจริง VR &amp; AR</h2>
+      <table class="cmp">
+        <tr><th>เปรียบเทียบ</th><th>VR (เสมือนจริง)</th><th>AR (ความจริงเสริม)</th></tr>
+        <tr><td>หลักการ</td><td>สร้างโลกเสมือนทั้งหมด ผู้ใช้ดื่มด่ำในสภาพแวดล้อมจำลอง</td><td>ซ้อนวัตถุเสมือน 2D/3D ลงบนภาพจริง และโต้ตอบได้ทันที</td></tr>
+        <tr><td>ตัวอย่าง</td><td>แว่น VR เล่นเกม/ฝึกจำลองสถานการณ์</td><td>ลองวางเฟอร์นิเจอร์เสมือนในห้องจริงผ่านมือถือ</td></tr>
+      </table>
+      <div class="note warn"><div class="nt">อย่าสับสน</div>
+        VR กับ AR <strong>ไม่ใช่สิ่งเดียวกัน</strong> — VR พาเราเข้าไปในโลกเสมือนทั้งหมด ส่วน AR เสริมวัตถุเสมือนลงบนโลกจริงที่เรายังเห็นอยู่</div>
+    `
+  },
+  {
+    id:'u2-4', nx:'2.4', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'ผลกระทบของเทคโนโลยี',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 2</span>
+      <h1 class="title">ผลกระทบของการใช้เทคโนโลยีสารสนเทศ</h1>
+      <p class="lead">เทคโนโลยีส่งผลทั้งทางบวกและทางลบใน 4 ด้านหลัก การรู้เท่าทันช่วยให้ใช้ประโยชน์ได้สูงสุด</p>
+
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">🏠</span>ด้านการดำเนินชีวิต</h4>
+          <p><strong>+</strong> สะดวก เข้าถึงบริการได้ทุกที่ทุกเวลา</p>
+          <p><strong>–</strong> เสี่ยงเสพติดหน้าจอ ขาดปฏิสัมพันธ์จริง</p></div>
+        <div class="tile"><h4><span class="ic">💼</span>ด้านอาชีพ</h4>
+          <p><strong>+</strong> เกิดอาชีพใหม่ ทำงานทางไกลได้</p>
+          <p><strong>–</strong> บางอาชีพถูกแทนที่ด้วยระบบอัตโนมัติ</p></div>
+        <div class="tile"><h4><span class="ic">👥</span>ด้านสังคม</h4>
+          <p><strong>+</strong> เชื่อมโยงคนทั่วโลก แลกเปลี่ยนความรู้</p>
+          <p><strong>–</strong> ข่าวปลอม การกลั่นแกล้งออนไลน์</p></div>
+        <div class="tile"><h4><span class="ic">🎭</span>ด้านวัฒนธรรม</h4>
+          <p><strong>+</strong> เผยแพร่/อนุรักษ์วัฒนธรรมได้กว้างขึ้น</p>
+          <p><strong>–</strong> วัฒนธรรมท้องถิ่นอาจถูกกลืน</p></div>
+      </div>
+      <div class="note warn"><div class="nt">แนวคิดสำคัญ</div>
+        เทคโนโลยีไม่ดีหรือเลวในตัวเอง — <strong>ผู้ใช้</strong> ต่างหากที่กำหนดว่ามันจะเป็นประโยชน์หรือโทษ การใช้อย่างรู้เท่าทัน มีจริยธรรม และมีวิจารณญาณ คือกุญแจสำคัญ</div>
+    `
+  },
+  {
+    id:'q2', nx:'✎', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'แบบทดสอบ Self Check หน่วย 2', quiz:'q2',
+    intro:`<span class="eyebrow">ตรวจสอบความเข้าใจ</span>
+      <h1 class="title">Self Check — หน่วยที่ 2</h1>
+      <p class="lead">พิจารณาว่าข้อความต่อไปนี้ “ถูก” หรือ “ผิด” แล้วกดเลือกคำตอบเพื่อดูเฉลยทันที</p>`,
+    items:[
+      {q:'ในยุคแรก ปัญญาประดิษฐ์ตัดสินใจโดยใช้การสร้างกฎ (Rule-based) เช่นเดียวกับการเล่นเกม Tic-Tac-Toe',ans:true,
+       why:'ถูกต้อง — ยุคแรก AI ใช้เงื่อนไข “ถ้า…แล้ว…” ต่อมาจึงพัฒนาให้เรียนรู้จากข้อมูลได้เอง (ทบทวนหัวข้อ 2.2)'},
+      {q:'แนวคิดสำคัญของ AI มี 5 ประการ ได้แก่ การรับรู้ การแทนความรู้และให้เหตุผล การเรียนรู้ การปฏิสัมพันธ์อย่างเป็นธรรมชาติ และผลกระทบทางสังคม',ans:true,
+       why:'ถูกต้อง — เป็นแนวคิดหลัก 5 ประการของปัญญาประดิษฐ์ (ทบทวนหัวข้อ 2.2)'},
+      {q:'การประมวลผลแบบคลาวด์ (Cloud Computing) คือการเก็บและประมวลผลข้อมูลไว้บนเครื่องคอมพิวเตอร์ส่วนตัวของผู้ใช้เท่านั้น',ans:false,
+       why:'ผิด — คลาวด์คือการใช้บริการบนเซิร์ฟเวอร์ผ่านอินเทอร์เน็ต เช่น Dropbox, Google Workspace, Microsoft 365 (ทบทวนหัวข้อ 2.3)'},
+      {q:'รถยนต์ขับเคลื่อนอัตโนมัติและการแปลภาษาด้วยเครื่อง เป็นตัวอย่างนวัตกรรมที่ใช้ปัญญาประดิษฐ์',ans:true,
+       why:'ถูกต้อง — รวมถึง Speech to Text และการระบุตัวตนด้วยใบหน้าด้วย (ทบทวนหัวข้อ 2.2)'},
+      {q:'เทคโนโลยีเสมือนจริง (VR) และความจริงเสริม (AR) เป็นสิ่งเดียวกันทุกประการ',ans:false,
+       why:'ผิด — VR พาเข้าไปในโลกเสมือนทั้งหมด ส่วน AR ซ้อนวัตถุเสมือนลงบนภาพจริง (ทบทวนหัวข้อ 2.3)'},
+      {q:'สถาปัตยกรรมของ IoT ประกอบด้วย สมองกลฝังตัวและเซนเซอร์ เกตเวย์และเครือข่าย ส่วนสนับสนุนการบริการ และแอปพลิเคชัน',ans:true,
+       why:'ถูกต้อง — เป็นองค์ประกอบ 4 ชั้นที่ทำงานสัมพันธ์กันของระบบ IoT (ทบทวนหัวข้อ 2.3)'}
+    ]
+  },
+
+  {
+    id:'ex2', nx:'★', group:'หน่วยที่ 2 · นวัตกรรมและเทคโนโลยีสมัยใหม่',
+    title:'แบบฝึกหัดท้ายบท บทที่ 2', quiz:'ex2',
+    intro:`<span class="eyebrow">แบบฝึกหัดท้ายบท</span>
+      <h1 class="title">แบบฝึกหัดท้ายบท — บทที่ 2</h1>
+      <p class="lead">เลือกคำตอบที่ถูกต้องที่สุด แล้วกดเพื่อดูเฉลยและคำอธิบายทันที (ปรนัย 5 ข้อ)</p>`,
+    items:[
+      {q:'ในยุคแรก ปัญญาประดิษฐ์ใช้วิธีใดในการตัดสินใจ',
+       opts:['การเรียนรู้เชิงลึก','การสร้างกฎ (Rule-based)','การสุ่มคำตอบ','การประมวลผลควอนตัม'],correct:1,
+       why:'ยุคแรก AI ใช้การสร้างกฎ “ถ้า…แล้ว…” ต่อมาจึงพัฒนาให้เรียนรู้จากข้อมูล (ทบทวนหัวข้อ 2.2)'},
+      {q:'ข้อใดไม่ใช่แนวคิดสำคัญ 5 ประการของปัญญาประดิษฐ์',
+       opts:['การรับรู้','การเรียนรู้','การปฏิสัมพันธ์อย่างเป็นธรรมชาติ','การผลิตชิ้นส่วนฮาร์ดแวร์'],correct:3,
+       why:'แนวคิด 5 ประการ ได้แก่ การรับรู้ การแทนความรู้/ให้เหตุผล การเรียนรู้ การปฏิสัมพันธ์ และผลกระทบทางสังคม (ทบทวนหัวข้อ 2.2)'},
+      {q:'บริการใดเป็นตัวอย่างของการประมวลผลแบบคลาวด์',
+       opts:['โปรแกรม Paint ในเครื่อง','Google Workspace และ Dropbox','เครื่องคิดเลขพกพา','โปรแกรมที่ทำงานออฟไลน์ล้วน ๆ'],correct:1,
+       why:'คลาวด์คือบริการบนเซิร์ฟเวอร์ผ่านอินเทอร์เน็ต เช่น Google Workspace, Dropbox, Microsoft 365 (ทบทวนหัวข้อ 2.3)'},
+      {q:'ชั้นใดของสถาปัตยกรรม IoT ทำหน้าที่ตรวจจับและเก็บข้อมูลจากโลกกายภาพ',
+       opts:['แอปพลิเคชัน','เกตเวย์และเครือข่าย','สมองกลฝังตัวและเซนเซอร์','ส่วนสนับสนุนการบริการ'],correct:2,
+       why:'ชั้นสมองกลฝังตัวและเซนเซอร์เชื่อมโลกกายภาพกับดิจิทัล ทำหน้าที่ตรวจจับและเก็บข้อมูล (ทบทวนหัวข้อ 2.3)'},
+      {q:'ข้อใดอธิบายความแตกต่างของ VR กับ AR ได้ถูกต้อง',
+       opts:['ทั้งสองอย่างเหมือนกันทุกประการ','VR ซ้อนภาพบนของจริง ส่วน AR สร้างโลกเสมือน','VR สร้างโลกเสมือนทั้งหมด ส่วน AR ซ้อนวัตถุเสมือนบนภาพจริง','ทั้งคู่ใช้งานบนมือถือไม่ได้'],correct:2,
+       why:'VR พาเข้าไปในโลกเสมือนทั้งหมด ส่วน AR เสริมวัตถุเสมือนลงบนภาพจริง (ทบทวนหัวข้อ 2.3)'}
+    ]
+  },
+
+  /* ====================== หน่วยที่ 3 ====================== */
+  {
+    id:'u3-1', nx:'3.1', group:'หน่วยที่ 3 · พลเมืองดิจิทัล',
+    title:'การเป็นพลเมืองดิจิทัล',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 3</span>
+      <h1 class="title">การเป็นพลเมืองดิจิทัล</h1>
+      <p class="lead">พลเมืองดิจิทัล (Digital Citizen) คือผู้ที่ใช้เทคโนโลยีได้อย่างชาญฉลาด ปลอดภัย และเคารพผู้อื่นในสังคมออนไลน์</p>
+
+      <h2 class="sec"><span class="num">1</span> คุณลักษณะ 3 ประการ</h2>
+      <div class="grid g3">
+        <div class="tile"><h4>SAVY</h4><p>มีความรู้ทางเทคโนโลยี และแบ่งปันความรู้ให้ผู้อื่น</p></div>
+        <div class="tile"><h4>SAFE</h4><p>รู้จักป้องกันตนเองและผู้อื่นจากภัยออนไลน์</p></div>
+        <div class="tile"><h4>SOCIAL</h4><p>เคารพตนเองและผู้อื่นในสังคมออนไลน์</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> ทักษะพื้นฐานของพลเมืองดิจิทัล</h2>
+      <ul class="clean">
+        <li><strong>การรู้ดิจิทัล (Digital Literacy)</strong> — ค้นหา ประเมิน และใช้ข้อมูลได้อย่างมีวิจารณญาณ</li>
+        <li><strong>ทักษะการสื่อสาร</strong> — สื่อสารออนไลน์อย่างเหมาะสมและสุภาพ</li>
+        <li><strong>การซื้อขายสินค้าออนไลน์</strong> — ทำธุรกรรมอย่างปลอดภัย รู้ทันกลโกง</li>
+      </ul>
+    `
+  },
+  {
+    id:'u3-2', nx:'3.2', group:'หน่วยที่ 3 · พลเมืองดิจิทัล',
+    title:'การป้องกันตนเองและผู้อื่น',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 3</span>
+      <h1 class="title">การป้องกันตนเองและผู้อื่น</h1>
+      <p class="lead">โลกออนไลน์เปิดกว้าง แต่ก็มีภัย การรู้จักป้องกันตัวจึงเป็นหัวใจของการเป็นพลเมืองดิจิทัลที่ดี</p>
+
+      <h2 class="sec"><span class="num">1</span> 3 เรื่องที่ต้องดูแล</h2>
+      <div class="grid g3">
+        <div class="tile"><h4>ความเป็นส่วนตัว</h4><p>ระวังการเปิดเผยข้อมูลส่วนตัว ตั้งค่าความเป็นส่วนตัว</p></div>
+        <div class="tile"><h4>สิทธิและความรับผิดชอบ</h4><p>เคารพสิทธิผู้อื่น และรับผิดชอบต่อสิ่งที่โพสต์</p></div>
+        <div class="tile"><h4>สุขภาพ</h4><p>ใช้เทคโนโลยีอย่างพอดี ดูแลสุขภาพกายและใจ</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> ภัยจากสังคมออนไลน์</h2>
+      <p>ภัยที่พบบ่อย เช่น การถูกหลอกลวง การถูกขโมยข้อมูล และที่สำคัญคือ <strong>การกลั่นแกล้งรังแกกันบนโลกออนไลน์ (Cyberbullying)</strong> ซึ่งส่งผลกระทบต่อจิตใจอย่างรุนแรง</p>
+
+      <h2 class="sec"><span class="num">3</span> DQ — ความฉลาดทางดิจิทัล</h2>
+      <div class="note"><div class="nt">นอกจาก IQ และ EQ</div>
+        การอยู่รอดปลอดภัยในสังคมออนไลน์ ต้องมี <strong>DQ (Digital Intelligence)</strong> ความฉลาดทางดิจิทัล ควบคู่ไปกับ <strong>IQ</strong> (เชาว์ปัญญา) และ <strong>EQ</strong> (อารมณ์)</div>
+    `
+  },
+  {
+    id:'u3-3', nx:'3.3', group:'หน่วยที่ 3 · พลเมืองดิจิทัล',
+    title:'กฎหมายและมารยาทในสังคมดิจิทัล',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 3</span>
+      <h1 class="title">กฎหมายและมารยาทในสังคมดิจิทัล</h1>
+      <p class="lead">เสรีภาพออนไลน์ต้องมาพร้อมความรับผิดชอบและการเคารพกติกาของสังคม</p>
+
+      <h2 class="sec"><span class="num">1</span> 3 ด้านที่ควรเข้าใจ</h2>
+      <div class="grid g3">
+        <div class="tile"><h4>การเข้าถึงและร่วมตัดสินใจ</h4><p>ทุกคนควรมีโอกาสเข้าถึงและมีส่วนร่วมในสังคมดิจิทัล</p></div>
+        <div class="tile"><h4>เสรีภาพในการแสดงออก</h4><p>แสดงความคิดเห็นได้ แต่ต้องอยู่ในขอบเขตที่เหมาะสม</p></div>
+        <div class="tile"><h4>กฎหมายดิจิทัล</h4><p>ปฏิบัติตามกฎหมาย เช่น พ.ร.บ. คอมพิวเตอร์</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> มารยาทพื้นฐานบนโลกออนไลน์</h2>
+      <ul class="clean">
+        <li>ไม่ใช้สื่อสังคมออนไลน์ทำร้าย รบกวน หรือหลอกลวงผู้อื่น</li>
+        <li>ไม่ละเมิดลิขสิทธิ์หรือนำผลงานผู้อื่นมาเป็นของตน</li>
+        <li>คิดถึงผลกระทบทางสังคมก่อนโพสต์หรือแชร์</li>
+        <li>ใช้สื่อด้วยความใคร่ครวญและเคารพต่อผู้อื่น</li>
+      </ul>
+      <div class="note warn"><div class="nt">จำไว้</div>
+        เสรีภาพในการแสดงออก <strong>ไม่ได้แปลว่าไร้ขอบเขต</strong> — ยังต้องคำนึงถึงกฎหมายดิจิทัลและสิทธิของผู้อื่นเสมอ</div>
+    `
+  },
+  {
+    id:'q3', nx:'✎', group:'หน่วยที่ 3 · พลเมืองดิจิทัล',
+    title:'แบบทดสอบ Self Check หน่วย 3', quiz:'q3',
+    intro:`<span class="eyebrow">ตรวจสอบความเข้าใจ</span>
+      <h1 class="title">Self Check — หน่วยที่ 3</h1>
+      <p class="lead">พิจารณาว่าข้อความต่อไปนี้ “ถูก” หรือ “ผิด” แล้วกดเลือกคำตอบเพื่อดูเฉลยทันที</p>`,
+    items:[
+      {q:'พลเมืองดิจิทัลที่ดีควรมีคุณลักษณะ SAVY (มีความรู้/แบ่งปัน) SAFE (ป้องกันตนเองและผู้อื่น) และ SOCIAL (เคารพตนเองและผู้อื่น)',ans:true,
+       why:'ถูกต้อง — เป็นคุณลักษณะ 3 ประการของพลเมืองดิจิทัล (ทบทวนหัวข้อ 3.1)'},
+      {q:'DQ หมายถึงความฉลาดทางดิจิทัล ซึ่งสำคัญต่อการอยู่รอดปลอดภัยในสังคมออนไลน์ ควบคู่กับ IQ และ EQ',ans:true,
+       why:'ถูกต้อง — DQ = Digital Intelligence (ทบทวนหัวข้อ 3.2)'},
+      {q:'การกลั่นแกล้งรังแกกันบนโลกออนไลน์ (Cyberbullying) ถือเป็นภัยคุกคามอย่างหนึ่งในสังคมดิจิทัล',ans:true,
+       why:'ถูกต้อง — และส่งผลกระทบต่อจิตใจอย่างรุนแรง (ทบทวนหัวข้อ 3.2)'},
+      {q:'การป้องกันตนเองและผู้อื่นในโลกดิจิทัล ครอบคลุมเรื่องความเป็นส่วนตัว สิทธิและความรับผิดชอบ และสุขภาพจากการใช้เทคโนโลยี',ans:true,
+       why:'ถูกต้อง — เป็น 3 เรื่องหลักที่ต้องดูแล (ทบทวนหัวข้อ 3.2)'},
+      {q:'เสรีภาพในการแสดงออกบนโลกออนไลน์ทำได้อย่างไร้ขอบเขต ไม่ต้องคำนึงถึงกฎหมายดิจิทัล',ans:false,
+       why:'ผิด — เสรีภาพต้องอยู่ในขอบเขตที่เหมาะสมและเคารพกฎหมายดิจิทัลและสิทธิผู้อื่น (ทบทวนหัวข้อ 3.3)'}
+    ]
+  },
+
+  {
+    id:'ex3', nx:'★', group:'หน่วยที่ 3 · พลเมืองดิจิทัล',
+    title:'แบบฝึกหัดท้ายบท บทที่ 3', quiz:'ex3',
+    intro:`<span class="eyebrow">แบบฝึกหัดท้ายบท</span>
+      <h1 class="title">แบบฝึกหัดท้ายบท — บทที่ 3</h1>
+      <p class="lead">เลือกคำตอบที่ถูกต้องที่สุด แล้วกดเพื่อดูเฉลยและคำอธิบายทันที (ปรนัย 5 ข้อ)</p>`,
+    items:[
+      {q:'คุณลักษณะ “SAFE” ของพลเมืองดิจิทัลหมายถึงข้อใด',
+       opts:['มีความรู้และแบ่งปัน','รู้จักป้องกันตนเองและผู้อื่น','เคารพตนเองและผู้อื่น','ซื้อขายสินค้าออนไลน์'],correct:1,
+       why:'SAFE = รู้จักป้องกันตนเองและผู้อื่นจากภัยออนไลน์ (ทบทวนหัวข้อ 3.1)'},
+      {q:'DQ หมายถึงอะไร',
+       opts:['ความฉลาดทางอารมณ์','ความฉลาดทางเชาว์ปัญญา','ความฉลาดทางดิจิทัล','คุณภาพของข้อมูล'],correct:2,
+       why:'DQ (Digital Intelligence) คือความฉลาดทางดิจิทัล ควบคู่กับ IQ และ EQ (ทบทวนหัวข้อ 3.2)'},
+      {q:'ข้อใดเป็นภัยคุกคามในสังคมออนไลน์',
+       opts:['การกลั่นแกล้งทางออนไลน์ (Cyberbullying)','การสำรองข้อมูล','การตั้งรหัสผ่านที่รัดกุม','การอัปเดตซอฟต์แวร์'],correct:0,
+       why:'Cyberbullying เป็นภัยคุกคามที่ส่งผลต่อจิตใจอย่างรุนแรง (ทบทวนหัวข้อ 3.2)'},
+      {q:'การป้องกันตนเองและผู้อื่นในโลกดิจิทัลครอบคลุมเรื่องใดบ้าง',
+       opts:['ความเป็นส่วนตัว สิทธิและความรับผิดชอบ และสุขภาพ','เฉพาะความเป็นส่วนตัว','เฉพาะเรื่องการเงิน','เฉพาะการเล่นเกม'],correct:0,
+       why:'ครอบคลุม 3 เรื่องหลัก คือ ความเป็นส่วนตัว สิทธิและความรับผิดชอบ และสุขภาพ (ทบทวนหัวข้อ 3.2)'},
+      {q:'ข้อใดถูกต้องเกี่ยวกับเสรีภาพในการแสดงออกบนโลกออนไลน์',
+       opts:['ทำได้ทุกอย่างอย่างไร้ขอบเขต','แสดงออกได้แต่ต้องเคารพกฎหมายและสิทธิของผู้อื่น','ห้ามแสดงความคิดเห็นใด ๆ','โพสต์ข่าวปลอมได้ถ้าสนุก'],correct:1,
+       why:'เสรีภาพต้องอยู่ในขอบเขตที่เหมาะสมและเคารพกฎหมายดิจิทัลและสิทธิผู้อื่น (ทบทวนหัวข้อ 3.3)'}
+    ]
+  },
+
+  /* ====================== หน่วยที่ 4 ====================== */
+  {
+    id:'u4-1', nx:'4.1', group:'หน่วยที่ 4 · อาชีพในยุคดิจิทัล',
+    title:'อาชีพ IT และการเปลี่ยนแปลง',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 4</span>
+      <h1 class="title">อาชีพในยุคดิจิทัล</h1>
+      <p class="lead">เมื่อเทคโนโลยีเปลี่ยน อาชีพก็เปลี่ยนตาม เราจึงต้องเข้าใจทั้งอาชีพใหม่ และวิธีปรับตัว</p>
+
+      <h2 class="sec"><span class="num">1</span> อาชีพด้านเทคโนโลยีสารสนเทศ</h2>
+      <p>สายงานที่ต้องการทักษะดิจิทัลโดยตรง เช่น</p>
+      <div class="chips">
+        <span class="chip">นักพัฒนาซอฟต์แวร์</span>
+        <span class="chip">นักวิเคราะห์ข้อมูล</span>
+        <span class="chip">ความมั่นคงปลอดภัยไซเบอร์</span>
+        <span class="chip">นักออกแบบ UX/UI</span>
+        <span class="chip">ผู้สร้างเนื้อหาดิจิทัล</span>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> วิวัฒนาการของเทคโนโลยีกับอาชีพ</h2>
+      <p>เทคโนโลยีพัฒนาผ่านยุคต่าง ๆ ตั้งแต่ <strong>ยุคโบราณ</strong> มาจนถึง <strong>การปฏิวัติอุตสาหกรรมครั้งที่ 1–4</strong> ทำให้รูปแบบการทำงานและอาชีพเปลี่ยนไปในทุกยุค</p>
+
+      <h2 class="sec"><span class="num">3</span> กฎของมัวร์ (Moore Law)</h2>
+      <div class="card">
+        <p><strong>กอร์ดอน มัวร์ (Gordon Moore)</strong> สังเกตตั้งแต่ปี พ.ศ. 2508 ว่า จำนวนทรานซิสเตอร์ต่อพื้นที่ในหน่วยประมวลผลจะ<strong>เพิ่มขึ้นประมาณ 2 เท่าทุก 2 ปี</strong> — เป็นเหตุผลที่คอมพิวเตอร์ทรงพลังขึ้นอย่างรวดเร็วแบบทวีคูณ</p>
+      </div>
+      <p>การพัฒนานวัตกรรมหนึ่งยังเร่งให้นวัตกรรมอื่นเกิดเร็วขึ้น เช่น <strong>เครื่องพิมพ์ 3 มิติ</strong> และ <strong>รถยนต์ไร้คนขับ</strong> ที่ช่วยสร้างต้นแบบได้เร็วและประหยัดต้นทุน</p>
+    `
+  },
+  {
+    id:'u4-2', nx:'4.2', group:'หน่วยที่ 4 · อาชีพในยุคดิจิทัล',
+    title:'ผลกระทบของเทคโนโลยีกับอาชีพ',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 4</span>
+      <h1 class="title">งานแบบไหนเสี่ยงถูกแทนที่</h1>
+      <p class="lead">ระบบอัตโนมัติและ AI เข้ามาแทนที่งานบางประเภทได้ การรู้เกณฑ์ช่วยให้เราเตรียมตัวและพัฒนาทักษะที่ถูกทาง</p>
+
+      <h2 class="sec"><span class="num">1</span> เกณฑ์งานที่เสี่ยงถูกทดแทน</h2>
+      <div class="grid g2">
+        <div class="tile"><h4><span class="ic">😴</span>น่าเบื่อ ซ้ำซาก (Dull)</h4><p>ระบบอัตโนมัติทดแทนได้ง่าย</p></div>
+        <div class="tile"><h4><span class="ic">🧤</span>สกปรก ยากลำบาก (Dirty)</h4><p>งานที่มนุษย์มักหลีกเลี่ยง</p></div>
+        <div class="tile"><h4><span class="ic">⚠️</span>อันตราย (Dangerous)</h4><p>เสี่ยงต่อชีวิต ใช้เครื่องจักรแทนปลอดภัยกว่า</p></div>
+        <div class="tile"><h4><span class="ic">💰</span>ทำเงินได้ดี (Dear)</h4><p>การพัฒนาระบบมาแทนต้องลงทุนสูง งานที่รายได้น้อยจึงไม่คุ้มถูกแทน</p></div>
+      </div>
+
+      <h2 class="sec"><span class="num">2</span> ตัวอย่างการพิจารณา</h2>
+      <ul class="clean">
+        <li><strong>ครู</strong> — ถ้าเป็นเพียงการบรรยายเนื้อหาเดิมซ้ำ ๆ ก็มีความเสี่ยง แต่บทบาทการสร้างแรงบันดาลใจยังแทนได้ยาก</li>
+        <li><strong>แพทย์</strong> — AI ช่วยวินิจฉัยภาพถ่ายทางการแพทย์ได้แม่นยำขึ้น แต่ยังต้องอาศัยการตัดสินใจของแพทย์</li>
+        <li><strong>นักแต่งเพลง</strong> — ปัจจุบันมีโปรแกรมแต่งเพลงได้จนแยกแทบไม่ออกว่าใครแต่ง</li>
+      </ul>
+      <div class="note"><div class="nt">ข้อคิด</div>
+        ทักษะที่เครื่องจักรแทนได้ยาก เช่น ความคิดสร้างสรรค์ การแก้ปัญหาที่ซับซ้อน ความเห็นอกเห็นใจ และการทำงานร่วมกับผู้อื่น คือสิ่งที่ควรพัฒนา</div>
+    `
+  },
+  {
+    id:'u4-3', nx:'4.3', group:'หน่วยที่ 4 · อาชีพในยุคดิจิทัล',
+    title:'ทำงานร่วมกับเครื่องจักรและ AI',
+    html:`
+      <span class="eyebrow">หน่วยการเรียนรู้ที่ 4</span>
+      <h1 class="title">การทำงานร่วมกับเครื่องจักรและระบบอัตโนมัติ</h1>
+      <p class="lead">อนาคตไม่ใช่ “คนปะทะเครื่องจักร” แต่เป็น “คนทำงานร่วมกับเครื่องจักร” — เกิดบทบาทใหม่ที่มนุษย์ทำได้ดี</p>
+
+      <h2 class="sec"><span class="num">1</span> บทบาทใหม่ของมนุษย์</h2>
+      <div class="grid g3">
+        <div class="tile"><h4><span class="ic">🎓</span>ผู้ฝึกสอน</h4><p>สอนและให้คะแนนผลลัพธ์ของ AI/หุ่นยนต์ให้ทำงานได้ตามต้องการ</p></div>
+        <div class="tile"><h4><span class="ic">🔗</span>ตัวกลาง</h4><p>เชื่อมระหว่างผู้ใช้กับระบบคอมพิวเตอร์ ให้สื่อสารกันเข้าใจ</p></div>
+        <div class="tile"><h4><span class="ic">🛠️</span>ผู้ดูแลรักษา</h4><p>ดูแลและบำรุงรักษาระบบ AI และหุ่นยนต์</p></div>
+      </div>
+      <p>มนุษย์อาจไม่ใช่ผู้ตัดสินใจหลักเพียงผู้เดียวอีกต่อไป แต่จะ<strong>ทำงานเคียงข้างเครื่องจักร</strong>เพื่อให้ได้ผลลัพธ์ที่ดีที่สุด</p>
+
+      <div class="note warn"><div class="nt">สรุปทั้ง 4 หน่วย</div>
+        เริ่มจาก <strong>สื่อสาร/แบ่งปันอย่างปลอดภัยมีจริยธรรม</strong> (หน่วย 1) → รู้จัก <strong>เทคโนโลยีสมัยใหม่</strong> (หน่วย 2) → เป็น <strong>พลเมืองดิจิทัล</strong> ที่รับผิดชอบ (หน่วย 3) → เข้าใจและปรับตัวกับ <strong>อาชีพในยุคดิจิทัล</strong> (หน่วย 4) ทั้งหมดนี้คือเส้นทางสู่การเป็นพลเมืองดิจิทัลที่ใช้เทคโนโลยีได้อย่างชาญฉลาดและรับผิดชอบ</div>
+    `
+  },
+  {
+    id:'q4', nx:'✎', group:'หน่วยที่ 4 · อาชีพในยุคดิจิทัล',
+    title:'แบบทดสอบ Self Check หน่วย 4', quiz:'q4',
+    intro:`<span class="eyebrow">ตรวจสอบความเข้าใจ</span>
+      <h1 class="title">Self Check — หน่วยที่ 4</h1>
+      <p class="lead">พิจารณาว่าข้อความต่อไปนี้ “ถูก” หรือ “ผิด” แล้วกดเลือกคำตอบเพื่อดูเฉลยทันที</p>`,
+    items:[
+      {q:'กฎของมัวร์ (Moore Law) กล่าวว่า จำนวนทรานซิสเตอร์ต่อพื้นที่ในหน่วยประมวลผลจะเพิ่มขึ้นประมาณ 2 เท่าทุก 2 ปี',ans:true,
+       why:'ถูกต้อง — กอร์ดอน มัวร์สังเกตไว้ตั้งแต่ปี พ.ศ. 2508 อธิบายการเติบโตแบบทวีคูณของคอมพิวเตอร์ (ทบทวนหัวข้อ 4.1)'},
+      {q:'งานที่เสี่ยงถูกแทนที่ด้วยระบบอัตโนมัติ มักเป็นงานที่น่าเบื่อซ้ำซาก สกปรกยากลำบาก และอันตราย',ans:true,
+       why:'ถูกต้อง — ตรงกับเกณฑ์ Dull, Dirty, Dangerous (ทบทวนหัวข้อ 4.2)'},
+      {q:'ในอนาคต มนุษย์จะไม่มีบทบาทใด ๆ เลยเมื่อทำงานร่วมกับหุ่นยนต์และ AI',ans:false,
+       why:'ผิด — มนุษย์ยังมีบทบาทสำคัญ เช่น ผู้ฝึกสอน ตัวกลาง และผู้ดูแลรักษาระบบ (ทบทวนหัวข้อ 4.3)'},
+      {q:'อาชีพใหม่ที่เกิดจากการทำงานร่วมกับเครื่องจักร เช่น ผู้ฝึกสอน AI ตัวกลางระหว่างผู้ใช้กับระบบ และผู้ดูแลรักษาระบบ',ans:true,
+       why:'ถูกต้อง — เป็นบทบาทใหม่ที่มนุษย์ทำงานเคียงข้างเครื่องจักร (ทบทวนหัวข้อ 4.3)'},
+      {q:'ทักษะอย่างความคิดสร้างสรรค์และความเห็นอกเห็นใจ เป็นสิ่งที่เครื่องจักรแทนที่ได้ง่ายที่สุด',ans:false,
+       why:'ผิด — ทักษะเหล่านี้เครื่องจักรแทนได้ยาก จึงเป็นสิ่งที่ควรพัฒนา (ทบทวนหัวข้อ 4.2)'}
+    ]
+  },
+
+  {
+    id:'ex4', nx:'★', group:'หน่วยที่ 4 · อาชีพในยุคดิจิทัล',
+    title:'แบบฝึกหัดท้ายบท บทที่ 4', quiz:'ex4',
+    intro:`<span class="eyebrow">แบบฝึกหัดท้ายบท</span>
+      <h1 class="title">แบบฝึกหัดท้ายบท — บทที่ 4</h1>
+      <p class="lead">เลือกคำตอบที่ถูกต้องที่สุด แล้วกดเพื่อดูเฉลยและคำอธิบายทันที (ปรนัย 5 ข้อ)</p>`,
+    items:[
+      {q:'กฎของมัวร์ (Moore Law) กล่าวถึงสิ่งใด',
+       opts:['จำนวนผู้ใช้อินเทอร์เน็ตเพิ่มขึ้น','จำนวนทรานซิสเตอร์ต่อพื้นที่เพิ่มเป็น 2 เท่าทุก ~2 ปี','ราคาคอมพิวเตอร์เพิ่มขึ้นเรื่อย ๆ','ความเร็วอินเทอร์เน็ตลดลง'],correct:1,
+       why:'กฎของมัวร์อธิบายการเติบโตแบบทวีคูณของพลังประมวลผล (ทบทวนหัวข้อ 4.1)'},
+      {q:'ข้อใดไม่ใช่ลักษณะงานที่เสี่ยงถูกแทนที่ด้วยระบบอัตโนมัติ',
+       opts:['งานน่าเบื่อซ้ำซาก','งานสกปรกยากลำบาก','งานอันตราย','งานที่ต้องใช้ความคิดสร้างสรรค์สูง'],correct:3,
+       why:'งานเสี่ยงถูกแทนคืองาน Dull/Dirty/Dangerous ส่วนงานสร้างสรรค์เครื่องจักรแทนได้ยาก (ทบทวนหัวข้อ 4.2)'},
+      {q:'อาชีพใหม่ที่เกิดจากการทำงานร่วมกับเครื่องจักรคือข้อใด',
+       opts:['ผู้ฝึกสอน AI','คนขับรถม้า','พนักงานพิมพ์ดีด','พนักงานส่งโทรเลข'],correct:0,
+       why:'บทบาทใหม่ของมนุษย์ ได้แก่ ผู้ฝึกสอน AI ตัวกลาง และผู้ดูแลรักษาระบบ (ทบทวนหัวข้อ 4.3)'},
+      {q:'ปัจจุบันเทคโนโลยีพัฒนาเข้าสู่การปฏิวัติอุตสาหกรรมครั้งที่เท่าใด',
+       opts:['ครั้งที่ 1','ครั้งที่ 2','ครั้งที่ 3','ครั้งที่ 4'],correct:3,
+       why:'ยุคปัจจุบันคือการปฏิวัติอุตสาหกรรมครั้งที่ 4 ที่ขับเคลื่อนด้วยดิจิทัลและระบบอัตโนมัติ (ทบทวนหัวข้อ 4.1)'},
+      {q:'ทักษะใดที่เครื่องจักรแทนที่ได้ยากที่สุด',
+       opts:['การคำนวณเลขจำนวนมาก','การจดจำข้อมูล','ความคิดสร้างสรรค์และความเห็นอกเห็นใจ','การทำงานซ้ำ ๆ'],correct:2,
+       why:'ทักษะสร้างสรรค์และความเห็นอกเห็นใจเป็นสิ่งที่ควรพัฒนา เพราะเครื่องจักรแทนได้ยาก (ทบทวนหัวข้อ 4.2)'}
+    ]
+  },
+];
+
+/* =================== RENDER =================== */
+const nav=document.getElementById('nav');
+const content=document.getElementById('content');
+const visited=new Set();
+let groups={};
+LESSONS.forEach(l=>{ (groups[l.group]=groups[l.group]||[]).push(l); });
+
+Object.keys(groups).forEach(g=>{
+  const wrap=document.createElement('div');wrap.className='navgroup';
+  wrap.innerHTML=`<div class="gh">${g}</div>`;
+  groups[g].forEach(l=>{
+    const b=document.createElement('button');
+    b.className='navitem';b.id='nav-'+l.id;
+    b.innerHTML=`<span class="nx">${l.nx}</span><span>${l.title}</span>`;
+    b.onclick=()=>go(l.id);
+    wrap.appendChild(b);
+  });
+  nav.appendChild(wrap);
+});
+
+function optsOf(it){
+  if(it.opts) return it.opts.map((o,idx)=>({label:o,val:idx}));
+  return [{label:'ถูก',val:true},{label:'ผิด',val:false}];
+}
+function buildQuiz(l){
+  let h=l.intro;
+  h+=`<div id="qbox-${l.quiz}">`;
+  l.items.forEach((it,i)=>{
+    const col = it.opts ? ' opts-col' : '';
+    let ob='';
+    optsOf(it).forEach(o=>{
+      ob+=`<button class="opt" data-val="${o.val}" onclick="answer('${l.quiz}',${i},this)">${o.label}</button>`;
+    });
+    h+=`<div class="quiz" data-i="${i}">
+      <div class="qhead"><div class="qno">${i+1}</div><div class="qtext">${it.q}</div></div>
+      <div class="opts${col}">${ob}</div>
+      <div class="explain" id="ex-${l.quiz}-${i}"></div>
+    </div>`;
+  });
+  h+=`</div>
+    <div class="scorebox" id="score-${l.quiz}">
+      <div class="big" id="scorenum-${l.quiz}">0<span>/${l.items.length}</span></div>
+      <p id="scoremsg-${l.quiz}"></p>
+      <button class="reset" onclick="resetQuiz('${l.quiz}')">ทำใหม่อีกครั้ง</button>
+    </div>`;
+  return h;
+}
+function correctOf(it){ return it.opts ? it.correct : it.ans; }
+function valOf(it,btn){ return it.opts ? parseInt(btn.dataset.val,10) : (btn.dataset.val==='true'); }
+
+const quizState={};
+function scoreMessage(s,t){
+  return s===t ? 'เยี่ยมมาก! เข้าใจเนื้อหาหน่วยนี้ครบถ้วน 🎉'
+       : s>=t*0.6 ? 'ทำได้ดี ลองทบทวนข้อที่พลาดอีกนิดนะ 👍'
+       : 'ไม่เป็นไร กลับไปอ่านหัวข้อที่เกี่ยวข้องแล้วลองใหม่ได้เลย 💪';
+}
+function answer(qz,i,btn){
+  quizState[qz]=quizState[qz]||{answered:{},score:0};
+  if(quizState[qz].answered[i]!==undefined) return;
+  const l=LESSONS.find(x=>x.quiz===qz);
+  const it=l.items[i];
+  const cv=correctOf(it);
+  const chosen=valOf(it,btn);
+  const ok=(chosen===cv);
+  quizState[qz].answered[i]={ok:ok,chosen:chosen};
+  if(ok) quizState[qz].score++;
+  const opts=btn.parentElement.querySelectorAll('.opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(ok?'sel-correct':'sel-wrong');
+  if(!ok){ // reveal correct one
+    opts.forEach(o=>{ if(valOf(it,o)===cv) o.classList.add('reveal'); });
+  }
+  const ex=document.getElementById(`ex-${qz}-${i}`);
+  ex.innerHTML=`<b>${ok?'✓ ถูกต้อง':'✗ ยังไม่ถูก'}</b> — ${it.why}`;
+  ex.className='explain show '+(ok?'ok':'no');
+  // score box if all answered
+  if(Object.keys(quizState[qz].answered).length===l.items.length){
+    const s=quizState[qz].score,t=l.items.length;
+    document.getElementById(`scorenum-${qz}`).innerHTML=`${s}<span>/${t}</span>`;
+    document.getElementById(`scoremsg-${qz}`).textContent=scoreMessage(s,t);
+    document.getElementById(`score-${qz}`).classList.add('show');
+    sendResults(true);
+  }
+}
+function resetQuiz(qz){ quizState[qz]={answered:{},score:0}; const l=LESSONS.find(x=>x.quiz===qz); go(l.id,true); }
+
+function go(id,force){
+  const l=LESSONS.find(x=>x.id===id);
+  if(!l) return;
+  content.innerHTML=`<section class="lesson show" id="sec-${id}">${l.quiz?buildQuiz(l):l.html}${pager(id)}</section>`;
+  // nav state
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-'+id).classList.add('active');
+  visited.add(id);
+  document.getElementById('nav-'+id).classList.add('done');
+  updateProgress();
+  // restore quiz answers if revisiting
+  if(l.quiz && quizState[l.quiz] && !force){
+    Object.entries(quizState[l.quiz].answered).forEach(([i,rec])=>{
+      const ok=rec.ok, chosen=rec.chosen;
+      const it=l.items[i];const node=document.querySelector(`#qbox-${l.quiz} .quiz[data-i="${i}"]`);
+      if(!node)return;const opts=node.querySelectorAll('.opt');opts.forEach(o=>o.disabled=true);
+      const cv=correctOf(it);
+      opts.forEach(o=>{
+        const v=valOf(it,o);
+        if(v===cv) o.classList.add(ok?'sel-correct':'reveal');
+        else if(!ok && v===chosen) o.classList.add('sel-wrong');
+      });
+      const ex=document.getElementById(`ex-${l.quiz}-${i}`);
+      ex.innerHTML=`<b>${ok?'✓ ถูกต้อง':'✗ ยังไม่ถูก'}</b> — ${it.why}`;
+      ex.className='explain show '+(ok?'ok':'no');
+    });
+    if(Object.keys(quizState[l.quiz].answered).length===l.items.length){
+      const s=quizState[l.quiz].score,t=l.items.length;
+      document.getElementById(`scorenum-${l.quiz}`).innerHTML=`${s}<span>/${t}</span>`;
+      document.getElementById(`scoremsg-${l.quiz}`).textContent=scoreMessage(s,t);
+      document.getElementById(`score-${l.quiz}`).classList.add('show');
+    }
+  }
+  content.parentElement.scrollTop=0;window.scrollTo(0,0);
+  closeNav();
+}
+
+function pager(id){
+  const i=LESSONS.findIndex(x=>x.id===id);
+  const prev=LESSONS[i-1],next=LESSONS[i+1];
+  let h='<div class="pager">';
+  h+= prev?`<button onclick="go('${prev.id}')"><span class="pk">← ก่อนหน้า</span>${prev.title}</button>`
+         :`<button disabled><span class="pk">← ก่อนหน้า</span>—</button>`;
+  h+= next?`<button class="next" onclick="go('${next.id}')"><span class="pk">ถัดไป →</span>${next.title}</button>`
+         :`<button class="next" onclick="go('home')"><span class="pk">เสร็จสิ้น ✓</span>กลับหน้าแรก</button>`;
+  h+='</div>';
+  return h;
+}
+
+function updateProgress(){
+  const total=LESSONS.length-1; // exclude home
+  const done=[...visited].filter(v=>v!=='home').length;
+  const pct=Math.min(100,Math.round(done/total*100));
+  document.getElementById('progbar').style.width=pct+'%';
+  document.getElementById('progtxt').textContent=pct+'%';
+}
+
+/* mobile nav */
+const sb=document.getElementById('sidebar'),bd=document.getElementById('backdrop');
+function closeNav(){sb.classList.remove('open');bd.classList.remove('show');}
+document.getElementById('hamb').onclick=()=>{sb.classList.toggle('open');bd.classList.toggle('show');};
+bd.onclick=closeNav;
+
+/* ===================================================================
+   ระบบล็อกอิน + ส่งผลการเรียนเข้า Google ชีต
+   ⬇️⬇️ ครู: วางลิงก์ Apps Script Web App (ลงท้าย /exec) ในเครื่องหมายคำพูดด้านล่าง
+   (ดูขั้นตอนติดตั้งในไฟล์คู่มือ) จำเป็นต้องตั้งค่า REPORT_URL ระบบล็อกอินจึงทำงาน
+   =================================================================== */
+const REPORT_URL = "https://script.google.com/macros/s/AKfycbzLgoPKn47wzD-zuaO4ooHToKPtzK5sXiKYyAsiG6hrDqaskQIGksgAO5hH5ROaYrrc/exec";
+const REPORT_SECRET = "krugolf-2569";   // ตั้งรหัสลับให้ตรงกับ SECRET ใน Apps Script (เช่น "krugolf-2568") เว้นว่าง = ไม่ใช้รหัสลับ
+
+const LS='wkc_m6_student';
+let student=null;
+function loadStudent(){ try{const s=localStorage.getItem(LS);if(s)return JSON.parse(s);}catch(e){} return null; }
+function saveStudent(s){ try{localStorage.setItem(LS,JSON.stringify(s));}catch(e){} }
+
+const QUIZZES=LESSONS.filter(l=>l.quiz).map(l=>l.quiz);
+function collectScores(){
+  const out={};
+  QUIZZES.forEach(qz=>{
+    const l=LESSONS.find(x=>x.quiz===qz);const t=l.items.length;const st=quizState[qz];
+    out[qz]= st?`${st.score}/${t}`:`-/${t}`;
+  });
+  return out;
+}
+function progressPct(){
+  const total=LESSONS.length-1;const done=[...visited].filter(v=>v!=='home').length;
+  return Math.min(100,Math.round(done/total*100));
+}
+function toast(msg,type){
+  const el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+(type||'');
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.className='toast '+(type||'');},2800);
+}
+
+let sending=false;
+function sendResults(silent){
+  if(!student) return;
+  if(student.id==='guest'){ if(!silent) toast('โหมดเยี่ยมชม ไม่บันทึกคะแนน','no'); return; }
+  if(!REPORT_URL){ if(!silent) toast('ยังไม่ได้ตั้งค่าลิงก์ส่งผล (ครูต้องตั้งค่าก่อน)','no'); return; }
+  if(sending) return; sending=true;
+  const btn=document.getElementById('sendBtn'); if(btn) btn.disabled=true;
+  const payload={
+    secret:REPORT_SECRET,
+    name:student.name, studentId:student.id, room:student.room,
+    progress:progressPct()+'%', scores:collectScores(),
+    updated:new Date().toLocaleString('th-TH')
+  };
+  fetch(REPORT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)})
+    .then(()=>{ if(!silent) toast('ส่งผลให้คุณครูเรียบร้อยแล้ว ✓','ok'); })
+    .catch(()=>{ if(!silent) toast('ส่งผลไม่สำเร็จ ลองใหม่อีกครั้ง','no'); })
+    .finally(()=>{ sending=false; if(btn) btn.disabled=false; });
+}
+
+function showWho(){
+  document.getElementById('who-name').textContent=student.name;
+  document.getElementById('who-id').textContent=(student.room?student.room+' · ':'')+'รหัส '+student.id;
+  document.getElementById('who').classList.add('show');
+}
+function setLoginErr(msg){ const el=document.getElementById('reg-err'); el.textContent=msg; el.classList.add('show'); }
+
+function jsonpLogin(id,pw,cb){
+  const cbn='__login_'+Date.now();
+  let done=false;
+  const s=document.createElement('script');
+  function cleanup(){ done=true; if(s.parentNode)s.parentNode.removeChild(s); try{delete window[cbn];}catch(e){window[cbn]=undefined;} }
+  window[cbn]=function(res){ if(done)return; cleanup(); cb(res); };
+  const q='action=login&id='+encodeURIComponent(id)+'&pw='+encodeURIComponent(pw)+'&secret='+encodeURIComponent(REPORT_SECRET)+'&callback='+cbn;
+  s.src=REPORT_URL+(REPORT_URL.indexOf('?')>=0?'&':'?')+q;
+  s.onerror=function(){ if(!done){ cleanup(); cb({ok:false,error:'network'}); } };
+  setTimeout(function(){ if(!done){ cleanup(); cb({ok:false,error:'timeout'}); } },12000);
+  document.body.appendChild(s);
+}
+
+function doLogin(){
+  const id=document.getElementById('login-id').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  document.getElementById('reg-err').classList.remove('show');
+  if(!id||!pw){ setLoginErr('กรุณากรอกรหัสนักเรียนและรหัสผ่าน'); return; }
+  if(!REPORT_URL){ setLoginErr('ยังไม่ได้ตั้งค่าระบบล็อกอิน (ครูต้องตั้งค่า REPORT_URL)'); return; }
+  const btn=document.getElementById('login-go'); btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...';
+  jsonpLogin(id,pw,function(res){
+    btn.disabled=false; btn.textContent='เข้าสู่ระบบ →';
+    if(res&&res.ok){
+      student={id:id, name:res.name||id, room:res.room||''};
+      saveStudent(student);
+      document.getElementById('login-pw').value='';
+      document.getElementById('regOverlay').style.display='none';
+      showWho();
+    }else if(res&&(res.error==='timeout'||res.error==='network')){
+      setLoginErr('เชื่อมต่อระบบไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+    }else if(res&&res.error==='unauthorized'){
+      setLoginErr('รหัสระบบไม่ถูกต้อง (REPORT_SECRET ไม่ตรงกับเซิร์ฟเวอร์)');
+    }else if(res&&res.error==='no roster'){
+      setLoginErr('ครูยังไม่ได้สร้างรายชื่อนักเรียน (ชีต "รายชื่อนักเรียน")');
+    }else{
+      setLoginErr('รหัสนักเรียนหรือรหัสผ่านไม่ถูกต้อง');
+    }
+  });
+}
+
+function logout(){
+  try{ localStorage.removeItem(LS); }catch(e){}
+  student=null;
+  visited.clear();
+  for(const k in quizState){ delete quizState[k]; }
+  document.getElementById('who').classList.remove('show');
+  document.getElementById('login-id').value='';
+  document.getElementById('login-pw').value='';
+  document.getElementById('reg-err').classList.remove('show');
+  document.getElementById('regOverlay').style.display='flex';
+  go('home');
+}
+
+function guestEnter(e){ if(e)e.preventDefault(); student={id:'guest',name:'ผู้เยี่ยมชม',room:''}; document.getElementById('regOverlay').style.display='none'; showWho(); }
+
+document.getElementById('login-go').onclick=doLogin;
+document.getElementById('logoutBtn').onclick=logout;
+document.getElementById('guest-link').onclick=guestEnter;
+['login-id','login-pw'].forEach(fid=>{
+  document.getElementById(fid).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+});
+document.getElementById('sendBtn').onclick=()=>sendResults(false);
+
+/* init: render lesson, then show/hide login */
+go('home');
+if(!REPORT_URL){ document.getElementById('guest-wrap').style.display='block'; }
+student=loadStudent();
+if(student){ document.getElementById('regOverlay').style.display='none'; showWho(); }
+</script>
+<div class="toast" id="toast"></div>
+</body>
+</html>
