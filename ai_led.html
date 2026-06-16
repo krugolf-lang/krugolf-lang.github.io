@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI เปิด-ปิดไฟด้วยท่ามือ (MQTT) | คุมจากมือถือได้ทุกที่</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700&family=Sarabun:wght@400;600&display=swap');
+
+:root{
+  --bg:#0b1220;--panel:#141d2e;--panel-2:#1b2740;--line:#27344f;
+  --cool:#38bdf8;--cool-deep:#0ea5e9;--warm:#fbbf24;--warm-deep:#f59e0b;
+  --text:#e8eef7;--muted:#8aa0bf;--on:#34d399;--off:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:
+    radial-gradient(1100px 600px at 80% -10%, #16233c 0%, transparent 60%),
+    radial-gradient(900px 500px at 0% 110%, #121b2e 0%, transparent 55%),
+    var(--bg);
+  color:var(--text);min-height:100vh;padding:24px 18px 60px;
+}
+.wrap{max-width:1060px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .ico{width:46px;height:46px;border-radius:13px;flex:none;background:linear-gradient(140deg,var(--cool),var(--warm));display:grid;place-items:center;font-size:24px;box-shadow:0 8px 24px -8px rgba(56,189,248,.6)}
+.brand h1{font-family:'Kanit',sans-serif;font-weight:700;font-size:1.42rem;line-height:1.15}
+.brand p{color:var(--muted);font-size:.9rem;margin-top:2px}
+.pill{font-family:'Kanit',sans-serif;font-weight:600;font-size:.92rem;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;gap:9px;white-space:nowrap}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--off);transition:.25s}
+.pill.live .dot{background:var(--on);box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+
+.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:20px;padding:18px}
+.card h2{font-family:'Kanit',sans-serif;font-weight:600;font-size:1.04rem;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);padding:2px 9px;border-radius:999px;font-family:'Kanit',sans-serif}
+
+.cam{position:relative;border-radius:14px;overflow:hidden;background:#070c16;aspect-ratio:4/3}
+.cam canvas{width:100%;height:100%;display:block;object-fit:cover}
+.cam .overlay{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;background:rgba(7,12,22,.78);transition:.3s}
+.cam .overlay.hide{opacity:0;pointer-events:none}
+.cam .overlay .big{font-family:'Kanit',sans-serif;font-weight:600;font-size:1.05rem;margin:14px 0 6px}
+.cam .overlay .sm{color:var(--muted);font-size:.86rem;max-width:280px}
+.cam .badge{position:absolute;left:12px;top:12px;font-family:'Kanit',sans-serif;font-weight:600;font-size:.85rem;padding:6px 13px;border-radius:999px;background:rgba(11,18,32,.7);border:1px solid var(--line);display:flex;align-items:center;gap:7px}
+.btn{font-family:'Kanit',sans-serif;font-weight:600;font-size:.96rem;cursor:pointer;border:none;border-radius:12px;padding:12px 20px;color:#06121f;background:linear-gradient(135deg,var(--cool),var(--cool-deep));transition:transform .12s;box-shadow:0 10px 22px -10px rgba(56,189,248,.7)}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none}
+.fingers{display:flex;gap:7px;margin-top:14px}
+.fingers .f{flex:1;height:7px;border-radius:6px;background:#22304b;transition:.18s}
+.fingers .f.up{background:linear-gradient(90deg,var(--cool),var(--warm))}
+
+.lampbox{position:relative;display:grid;place-items:center;padding:20px 10px 8px;border-radius:16px;background:radial-gradient(circle at 50% 38%, #1f2a42 0%, #111a2c 70%);transition:.45s;overflow:hidden}
+.lampbox.on{background:radial-gradient(circle at 50% 38%, #4a3a16 0%, #1a1c1f 75%);box-shadow:inset 0 0 60px rgba(251,191,36,.22)}
+.bulb{width:130px;height:auto;transition:.4s}
+.lampbox.on .bulb{filter:drop-shadow(0 0 26px rgba(251,191,36,.85))}
+.glass{fill:#2b3852;transition:.4s}
+.lampbox.on .glass{fill:#ffe9a8}
+.fila{stroke:#46587a;transition:.4s}
+.lampbox.on .fila{stroke:#f59e0b}
+.state{font-family:'Kanit',sans-serif;font-weight:700;font-size:1.5rem;margin-top:6px;text-align:center;color:var(--off);transition:.3s}
+.lampbox.on .state{color:var(--warm)}
+.statesub{text-align:center;color:var(--muted);font-size:.86rem;margin-top:2px}
+
+.ctrl{margin-top:16px;border-top:1px dashed var(--line);padding-top:16px}
+.ctrl .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.ctrl label{font-family:'Kanit',sans-serif;font-size:.9rem;color:var(--muted)}
+.ctrl input[type=text]{flex:1;min-width:150px;background:#0c1424;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;font-family:'Sarabun';font-size:.95rem}
+.ctrl input[type=text]:focus{outline:none;border-color:var(--cool)}
+.switch{position:relative;width:50px;height:28px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#2b3852;border-radius:999px;cursor:pointer;transition:.25s}
+.slider::before{content:"";position:absolute;width:20px;height:20px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.25s}
+.switch input:checked + .slider{background:var(--on)}
+.switch input:checked + .slider::before{transform:translateX(22px)}
+.cloud{display:flex;align-items:center;gap:8px;font-family:'Kanit',sans-serif;font-size:.85rem;color:var(--muted);margin-bottom:12px}
+.cloud .d{width:9px;height:9px;border-radius:50%;background:var(--off);transition:.25s}
+.cloud.ok .d{background:var(--on)}
+.cloud.bad .d{background:#fb7185}
+.log{margin-top:6px;font-size:.82rem;color:var(--muted);min-height:18px}
+.log.ok{color:var(--on)}.log.err{color:#fb7185}
+
+.note{margin-top:18px}
+details{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:4px 18px}
+summary{font-family:'Kanit',sans-serif;font-weight:600;cursor:pointer;padding:14px 0;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"›";display:inline-block;margin-right:10px;transition:.2s;color:var(--cool)}
+details[open] summary::before{transform:rotate(90deg)}
+.note .body{padding:0 0 16px;color:#cdd9ec;font-size:.92rem;line-height:1.75}
+.note code{background:#0c1424;border:1px solid var(--line);padding:1px 7px;border-radius:6px;font-size:.86em;color:var(--warm)}
+.note .warn{color:#fcd34d;border-left:3px solid var(--warm-deep);padding-left:12px;margin:10px 0}
+.note ol{padding-left:20px;margin:8px 0}.note li{margin:5px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="ico">✋</div>
+      <div>
+        <h1>AI เปิด-ปิดไฟด้วยท่ามือ</h1>
+        <p>เวอร์ชัน MQTT — คุมไฟจริงจากมือถือได้ทุกที่ แม้คนละเครือข่าย</p>
+      </div>
+    </div>
+    <div class="pill" id="livePill"><span class="dot"></span><span id="liveText">ยังไม่เริ่มกล้อง</span></div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>กล้อง + AI ตรวจจับมือ <span class="tag">เบราว์เซอร์</span></h2>
+      <div class="cam">
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <div class="badge"><span class="dot" id="handDot" style="background:var(--off)"></span><span id="gestureLabel">รอตรวจจับ</span></div>
+        <div class="overlay" id="overlay">
+          <div style="font-size:40px">📷</div>
+          <div class="big" id="ovTitle">เริ่มใช้งานกล้อง</div>
+          <div class="sm" id="ovText">กดปุ่มแล้วอนุญาตให้ใช้กล้อง จากนั้นยกมือขึ้นให้กล้องเห็น</div>
+          <button class="btn" id="startBtn" style="margin-top:16px">เปิดกล้อง</button>
+        </div>
+      </div>
+      <div class="fingers" id="fingerBar"><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.82rem;color:var(--muted)">
+        <span>นิ้วที่กางออก</span><span id="fingerCount">–</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>สถานะไฟ <span class="tag">ผ่านคลาวด์</span></h2>
+      <div class="lampbox" id="lampbox">
+        <svg class="bulb" viewBox="0 0 100 140">
+          <path class="glass" d="M50 8C29 8 14 24 14 45c0 14 7 22 14 30 5 6 8 11 9 18h26c1-7 4-12 9-18 7-8 14-16 14-30C86 24 71 8 50 8z"/>
+          <path class="fila" fill="none" stroke-width="3" stroke-linecap="round" d="M38 60c4-8 8-8 12 0s8 8 12 0"/>
+          <rect x="36" y="95" width="28" height="8" rx="2" fill="#5a6b8a"/>
+          <rect x="38" y="106" width="24" height="7" rx="2" fill="#48577a"/>
+          <path d="M42 117h16l-3 9a5 5 0 0 1-10 0z" fill="#3c4a68"/>
+        </svg>
+        <div class="state" id="stateText">ปิด</div>
+        <div class="statesub" id="stateSub">แบมือเพื่อเปิด · กำมือเพื่อปิด</div>
+      </div>
+
+      <div class="ctrl">
+        <div class="cloud" id="cloud"><span class="d"></span><span id="cloudText">ยังไม่เชื่อมคลาวด์</span></div>
+        <div class="row">
+          <label style="flex:1">ส่งคำสั่งไปไฟจริง</label>
+          <label class="switch"><input type="checkbox" id="sendToggle"><span class="slider"></span></label>
+        </div>
+        <div class="row">
+          <label>Topic</label>
+          <input type="text" id="topic" value="krugolf-kgaudio-7421/light/cmd">
+          <button class="btn ghost" id="testBtn">ทดสอบ</button>
+        </div>
+        <div class="log" id="log">Topic ต้องตรงกับในโค้ด ESP และตั้งให้ไม่ซ้ำใคร (broker เป็นสาธารณะ)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <details>
+      <summary>วิธีใช้งานบนมือถือ + เรื่องที่ต้องรู้</summary>
+      <div class="body">
+        <p class="warn">⚠️ ไฟ 220V อันตรายถึงชีวิต — ต่อผ่านรีเลย์ที่มี optocoupler ใส่กล่องปิดมิดชิด และให้ครูดูแลเสมอ ทดสอบด้วย LED ก่อน</p>
+        <ol>
+          <li>อัปโหลดโค้ด ESP เวอร์ชัน MQTT แล้วเช็ค Serial Monitor ว่าขึ้น "เชื่อม MQTT สำเร็จ"</li>
+          <li>ตั้ง <code>Topic</code> ในหน้านี้ให้ <b>ตรงกับ</b> <code>topic_cmd</code> ในโค้ด ESP เป๊ะ ๆ</li>
+          <li>เอาไฟล์นี้ขึ้น GitHub Pages (เป็น https) แล้วเปิดลิงก์บนมือถือ</li>
+          <li>เปิดกล้อง → เปิดสวิตช์ "ส่งคำสั่งไปไฟจริง" → แบมือ/กำมือ ไฟจริงจะทำงาน</li>
+        </ol>
+        <p>ทำไมถึงคุมข้ามเครือข่ายได้: ทั้งมือถือและ ESP ต่างวิ่งออกไปหา <code>broker.hivemq.com</code> เลยไม่ต้องอยู่ WiFi เดียวกัน และไม่ติด mixed-content เหมือนการยิง IP ตรง ๆ</p>
+        <p style="margin-top:10px">หมายเหตุ: broker สาธารณะนี้เหมาะสำหรับเรียน/ทดสอบ ใครรู้ Topic ก็ส่งได้ ถ้าใช้จริงจังควรตั้ง Topic ที่เดายาก หรือใช้ broker ส่วนตัว</p>
+      </div>
+    </details>
+  </div>
+</div>
+
+<script src="https://unpkg.com/mqtt@5/dist/mqtt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script>
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay'),ovTitle=document.getElementById('ovTitle'),ovText=document.getElementById('ovText'),startBtn=document.getElementById('startBtn');
+const gestureLabel=document.getElementById('gestureLabel'),handDot=document.getElementById('handDot'),fingerCount=document.getElementById('fingerCount'),fingerBar=document.getElementById('fingerBar').children;
+const lampbox=document.getElementById('lampbox'),stateText=document.getElementById('stateText'),stateSub=document.getElementById('stateSub');
+const livePill=document.getElementById('livePill'),liveText=document.getElementById('liveText');
+const sendToggle=document.getElementById('sendToggle'),topicInput=document.getElementById('topic'),testBtn=document.getElementById('testBtn');
+const cloud=document.getElementById('cloud'),cloudText=document.getElementById('cloudText'),log=document.getElementById('log');
+
+let hands,camera,committed=null,mqttClient=null,mqttReady=false;
+const hist=[],HIST=6,NEED=5;
+
+function setLog(m,c){log.textContent=m;log.className='log'+(c?' '+c:'')}
+function setCloud(m,c){cloudText.textContent=m;cloud.className='cloud'+(c?' '+c:'')}
+
+function connectMqtt(){
+  setCloud('กำลังเชื่อมต่อคลาวด์...','');
+  mqttClient=mqtt.connect('wss://broker.hivemq.com:8884/mqtt',{clientId:'web-'+Math.random().toString(16).slice(2,8),reconnectPeriod:2000});
+  mqttClient.on('connect',()=>{mqttReady=true;setCloud('เชื่อมต่อคลาวด์แล้ว','ok')});
+  mqttClient.on('reconnect',()=>{mqttReady=false;setCloud('กำลังเชื่อมต่อใหม่...','')});
+  mqttClient.on('error',e=>{setCloud('เชื่อมคลาวด์ผิดพลาด','bad');console.error(e)});
+  mqttClient.on('close',()=>{mqttReady=false});
+}
+function publishState(state){
+  const topic=topicInput.value.trim();
+  if(mqttClient&&mqttReady&&topic){mqttClient.publish(topic,state);setLog('ส่งคำสั่ง "'+state+'" ไปยังไฟจริงแล้ว','ok')}
+  else setLog('ยังส่งไม่ได้ — รอเชื่อมต่อคลาวด์ให้สำเร็จก่อน','err');
+}
+
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y,(a.z||0)-(b.z||0))}
+function countExtended(lm){const f=[[8,6],[12,10],[16,14],[20,18]];let c=0;for(const[t,p]of f)if(dist(lm[t],lm[0])>dist(lm[p],lm[0]))c++;return c}
+function setFingerBar(n){for(let i=0;i<4;i++)fingerBar[i].classList.toggle('up',n!==null&&i<n);fingerCount.textContent=(n===null)?'–':n+' / 4'}
+function pushLabel(l){hist.push(l);if(hist.length>HIST)hist.shift();const o=hist.filter(x=>x==='open').length,f=hist.filter(x=>x==='fist').length;if(o>=NEED)return'on';if(f>=NEED)return'off';return null}
+
+function commit(state){
+  committed=state;const on=state==='on';
+  lampbox.classList.toggle('on',on);
+  stateText.textContent=on?'เปิด':'ปิด';
+  stateSub.textContent=on?'ไฟติดอยู่ — กำมือเพื่อปิด':'ไฟดับอยู่ — แบมือเพื่อเปิด';
+  if(sendToggle.checked)publishState(state);
+}
+
+function onResults(res){
+  ctx.save();ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.translate(canvas.width,0);ctx.scale(-1,1);
+  ctx.drawImage(res.image,0,0,canvas.width,canvas.height);
+  let label='unknown';
+  if(res.multiHandLandmarks&&res.multiHandLandmarks.length){
+    const lm=res.multiHandLandmarks[0];
+    drawConnectors(ctx,lm,HAND_CONNECTIONS,{color:'#38bdf8',lineWidth:3});
+    drawLandmarks(ctx,lm,{color:'#fbbf24',lineWidth:1,radius:3});
+    const n=countExtended(lm);setFingerBar(n);
+    label=n>=3?'open':(n<=1?'fist':'unknown');
+    handDot.style.background='var(--on)';
+    gestureLabel.textContent=label==='open'?'แบมือ ✋':label==='fist'?'กำมือ ✊':'ไม่ชัดเจน';
+  }else{setFingerBar(null);handDot.style.background='var(--off)';gestureLabel.textContent='ไม่พบมือ'}
+  ctx.restore();
+  const next=pushLabel(label);
+  if(next&&next!==committed)commit(next);
+}
+
+async function start(){
+  startBtn.disabled=true;ovTitle.textContent='กำลังโหลดโมเดล AI...';ovText.textContent='ครั้งแรกอาจใช้เวลาสักครู่';
+  try{
+    hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+    hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:0.6,minTrackingConfidence:0.6});
+    hands.onResults(onResults);
+    const v=document.createElement('video');v.setAttribute('playsinline','');
+    camera=new Camera(v,{onFrame:async()=>{await hands.send({image:v})},width:640,height:480});
+    await camera.start();
+    overlay.classList.add('hide');livePill.classList.add('live');liveText.textContent='กล้องทำงาน';
+  }catch(e){
+    startBtn.disabled=false;ovTitle.textContent='เปิดกล้องไม่สำเร็จ';
+    ovText.textContent='ตรวจว่าอนุญาตกล้องแล้ว และเปิดผ่าน https หรือ http://localhost';
+    console.error(e);
+  }
+}
+startBtn.addEventListener('click',start);
+testBtn.addEventListener('click',()=>publishState(committed==='on'?'on':'off'));
+sendToggle.addEventListener('change',()=>setLog(sendToggle.checked?'เปิดส่งคำสั่งไปไฟจริงแล้ว':'กลับสู่โหมดจำลอง (เฉพาะหลอดบนจอ)',sendToggle.checked?'ok':''));
+connectMqtt();
+</script>
+</body>
+</html>
