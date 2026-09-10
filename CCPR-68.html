@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>อาชีพในยุคดิจิทัล | ชุดนวัตกรรมการเรียนรู้ออนไลน์ Active Learning (CCPR)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1f3a5f; --navy-dark:#132741;
+    --c1:#2f6fed; --c1-bg:#eaf1ff;
+    --c2:#e6772e; --c2-bg:#fff2e8;
+    --p:#1f9d63;  --p-bg:#e8f9f0;
+    --r:#c0392b;  --r-bg:#fdeeec;
+    --ink:#1c2733; --sub:#5a6a7a; --line:#e2e8f0; --bg:#f5f7fa; --card:#ffffff;
+    --radius:16px;
+    font-family:"Sarabun","TH Sarabun New",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;padding-bottom:60px;}
+  h1,h2,h3,h4{font-family:"Kanit","Sarabun",sans-serif;margin:0 0 .5em;color:var(--navy);}
+  p{margin:.4em 0;}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px;}
+  header.top{background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:#fff;padding:32px 0 26px;}
+  header.top .eyebrow{font-size:.85rem;letter-spacing:.08em;opacity:.85;font-weight:500;}
+  header.top h1{color:#fff;font-size:1.7rem;margin:.2em 0;}
+  header.top .sub{opacity:.9;font-size:.95rem;}
+  nav.tabs{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line);
+    display:flex;overflow-x:auto;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+  nav.tabs button{flex:0 0 auto;border:none;background:none;padding:14px 16px;font-family:"Kanit",sans-serif;
+    font-size:.92rem;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+  nav.tabs button.active{color:var(--navy);border-color:var(--navy);font-weight:600;}
+  nav.tabs button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-inline-end:6px;background:#cbd5e1;}
+  nav.tabs button.done .dot{background:#22c55e;}
+  main{padding:26px 0 10px;}
+  section.page{display:none;animation:fade .25s ease;}
+  section.page.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;}
+  .badge{display:inline-block;font-family:"Kanit",sans-serif;font-weight:600;font-size:.78rem;
+    padding:4px 12px;border-radius:999px;margin-bottom:10px;}
+  .badge.c1{background:var(--c1-bg);color:var(--c1);}
+  .badge.c2{background:var(--c2-bg);color:var(--c2);}
+  .badge.p{background:var(--p-bg);color:var(--p);}
+  .badge.r{background:var(--r-bg);color:var(--r);}
+  .grid{display:grid;gap:14px;}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  @media(max-width:720px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr;}}
+  .mini-card{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fafbfc;}
+  .mini-card h4{margin:0 0 4px;font-size:1rem;}
+  .mini-card p{font-size:.9rem;color:var(--sub);margin:0;}
+  .ccpr-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0;}
+  @media(max-width:720px){.ccpr-hero{grid-template-columns:repeat(2,1fr);}}
+  .ccpr-hero .box{border-radius:14px;padding:16px 14px;color:#fff;text-align:center;}
+  .ccpr-hero .box .letter{font-family:"Kanit",sans-serif;font-size:2rem;font-weight:700;line-height:1;}
+  .ccpr-hero .box .name{font-weight:600;margin-top:4px;font-size:.9rem;}
+  .ccpr-hero .box .th{font-size:.78rem;opacity:.9;}
+  .box.c1{background:var(--c1);} .box.c2{background:var(--c2);} .box.p{background:var(--p);} .box.r{background:var(--r);}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.92rem;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:#f1f5f9;font-family:"Kanit",sans-serif;font-weight:600;}
+  textarea,input[type=text]{width:100%;font-family:inherit;font-size:.95rem;padding:8px 10px;
+    border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  textarea{min-height:60px;resize:vertical;}
+  label.field{display:block;font-size:.85rem;color:var(--sub);margin:10px 0 4px;font-weight:600;}
+  .btn{font-family:"Kanit",sans-serif;font-weight:600;border:none;border-radius:10px;padding:10px 18px;
+    cursor:pointer;font-size:.92rem;background:var(--navy);color:#fff;}
+  .btn.secondary{background:#eef2f6;color:var(--navy);}
+  .btn.small{padding:6px 12px;font-size:.82rem;}
+  .btn:hover{opacity:.92;}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .steps{counter-reset:step;list-style:none;padding:0;margin:0;}
+  .steps li{counter-increment:step;position:relative;padding:8px 0 8px 40px;border-bottom:1px dashed var(--line);}
+  .steps li:last-child{border-bottom:none;}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:6px;width:26px;height:26px;
+    border-radius:50%;background:var(--navy);color:#fff;font-family:"Kanit",sans-serif;font-size:.82rem;
+    display:flex;align-items:center;justify-content:center;font-weight:600;}
+  .steps li .time{float:right;color:var(--sub);font-size:.82rem;}
+  .quiz-q{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+  .quiz-q .opt{display:block;padding:6px 4px;cursor:pointer;font-size:.94rem;}
+  .quiz-q .opt input{margin-inline-end:8px;}
+  .quiz-result{padding:12px 16px;border-radius:10px;margin-top:10px;font-family:"Kanit",sans-serif;font-weight:600;display:none;}
+  .quiz-result.show{display:block;}
+  .quiz-result.pass{background:#e8f9f0;color:var(--p);}
+  .quiz-result.fail{background:#fdeeec;color:var(--r);}
+  .case{border-left:4px solid var(--r);background:#fff8f6;border-radius:0 12px 12px 0;padding:14px 18px;margin-bottom:14px;}
+  .case h4{margin-bottom:6px;}
+  .reveal{display:none;margin-top:10px;padding:10px 14px;background:#f1f5f9;border-radius:10px;font-size:.9rem;}
+  .reveal.show{display:block;}
+  .likert{width:100%;border-collapse:collapse;font-size:.85rem;}
+  .likert th{text-align:center;font-family:"Kanit",sans-serif;font-size:.78rem;}
+  .likert td{text-align:center;}
+  .likert td.item-text{text-align:left;font-size:.9rem;}
+  .likert input{transform:scale(1.2);}
+  .progress-bar{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:6px 0 2px;}
+  .progress-bar > div{height:100%;border-radius:999px;}
+  .dim-result{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .dim-result .lab{width:150px;font-family:"Kanit",sans-serif;font-weight:600;font-size:.88rem;}
+  .dim-result .pct{width:52px;text-align:right;font-weight:700;font-family:"Kanit",sans-serif;}
+  footer{text-align:center;color:var(--sub);font-size:.82rem;padding:26px 0;}
+  .save-note{font-size:.78rem;color:var(--sub);margin-top:6px;}
+  .checklist label{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:.94rem;}
+  .checklist input{margin-top:4px;}
+  @media print{ nav.tabs, .btn, header.top{display:none!important;} section.page{display:block!important;} }
+
+  /* ---------- login screen ---------- */
+  .login-overlay{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--navy),var(--navy-dark));padding:24px;}
+  .login-card{background:#fff;border-radius:20px;padding:32px 28px;max-width:420px;width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .login-card h2{margin-bottom:6px;}
+  .login-card p{color:var(--sub);font-size:.9rem;}
+  select{width:100%;font-family:inherit;font-size:.95rem;padding:9px 10px;border:1px solid var(--line);
+    border-radius:8px;background:#fff;color:var(--ink);}
+  select:disabled{background:#f1f5f9;color:var(--sub);}
+  .sync-note{font-size:.76rem;margin-top:4px;display:block;}
+  .sync-note.ok{color:var(--p);}
+  .sync-note.fail{color:var(--r);}
+  #studentBar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;
+    margin-top:10px;font-size:.85rem;opacity:.95;}
+  #studentBar a{color:#fff;text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-overlay">
+  <div class="login-card">
+    <h2>🔐 เข้าสู่ระบบนักเรียน</h2>
+    <p>เลือกห้องและชื่อของนักเรียนเพื่อเริ่มทำกิจกรรม ใบงาน คำตอบแบบทดสอบ และแบบวัดคุณลักษณะ CCPR
+    ของนักเรียนจะถูกส่งเข้าระบบของครูโดยอัตโนมัติ (ต้องต่ออินเทอร์เน็ต)</p>
+    <label class="field">ห้อง</label>
+    <select id="loginRoom" onchange="populateNameOptions()">
+      <option value="">-- เลือกห้อง --</option>
+      <option value="1">ม.6/1</option>
+      <option value="2">ม.6/2</option>
+    </select>
+    <label class="field">ชื่อ-นามสกุล</label>
+    <select id="loginName" disabled>
+      <option value="">-- เลือกห้องก่อน --</option>
+    </select>
+    <div class="row-actions">
+      <button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    </div>
+    <p class="save-note" id="loginError" style="color:var(--r)"></p>
+  </div>
+</div>
+
+<div id="appContent" hidden>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">ชุดนวัตกรรมการเรียนรู้ออนไลน์ Active Learning · รายวิชาวิทยาการคำนวณ ม.6</div>
+    <h1>อาชีพในยุคดิจิทัล</h1>
+    <div class="sub">พัฒนาคุณลักษณะเชิงก้าวหน้าตามรูปแบบ CCPR — Critical · Creative · Productive · Responsible mind</div>
+    <div id="studentBar"></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-page="home" class="active">🏠 หน้าแรก</button>
+  <button data-page="act1"><span class="dot"></span>1) วิเคราะห์อาชีพ</button>
+  <button data-page="act2"><span class="dot"></span>2) ออกแบบอาชีพในฝัน</button>
+  <button data-page="act3"><span class="dot"></span>3) สร้าง Portfolio</button>
+  <button data-page="act4"><span class="dot"></span>4) จรรยาบรรณ</button>
+  <button data-page="posttest"><span class="dot"></span>แบบวัดคุณลักษณะ CCPR</button>
+  <button data-page="summary">📊 สรุปผล</button>
+</nav>
+
+<main class="wrap">
+
+<!-- ================= HOME ================= -->
+<section class="page active" id="home">
+  <div class="card">
+    <h2>ยินดีต้อนรับเข้าสู่บทเรียน</h2>
+    <p>บทเรียนออนไลน์นี้ออกแบบด้วยกิจกรรมการเรียนรู้แบบ <b>Active Learning</b> จำนวน 4 กิจกรรมหลัก
+    เพื่อพานักเรียนไปสำรวจ คิด สร้าง และรับผิดชอบต่อ "โลกอาชีพในยุคดิจิทัล" โดยแต่ละกิจกรรมมุ่งเสริมสร้าง
+    คุณลักษณะเชิงก้าวหน้า 1 ด้าน ตามรูปแบบ <b>CCPR</b></p>
+  </div>
+
+  <div class="ccpr-hero">
+    <div class="box c1"><div class="letter">C</div><div class="name">Critical mind</div><div class="th">คิดวิเคราะห์ไตร่ตรอง</div></div>
+    <div class="box c2"><div class="letter">C</div><div class="name">Creative mind</div><div class="th">คิดสร้างสรรค์</div></div>
+    <div class="box p"><div class="letter">P</div><div class="name">Productive mind</div><div class="th">สร้างชิ้นงาน</div></div>
+    <div class="box r"><div class="letter">R</div><div class="name">Responsible mind</div><div class="th">ความรับผิดชอบ</div></div>
+  </div>
+
+  <div class="card">
+    <h3>วิธีใช้บทเรียน</h3>
+    <ol>
+      <li>เรียนตามลำดับกิจกรรมที่ 1 → 2 → 3 → 4 จากเมนูด้านบน (ใช้เวลากิจกรรมละประมาณ 3 ชั่วโมง)</li>
+      <li>ทำใบงาน/กิจกรรมและแบบทดสอบท้ายกิจกรรมให้ครบ ระบบจะบันทึกคำตอบไว้ในเครื่องของนักเรียนอัตโนมัติ</li>
+      <li>เมื่อเรียนครบทั้ง 4 กิจกรรม ให้ทำ "แบบวัดคุณลักษณะเชิงก้าวหน้า CCPR" เพื่อประเมินตนเอง</li>
+      <li>ดูภาพรวมความก้าวหน้าได้ที่แท็บ "สรุปผล"</li>
+    </ol>
+    <p class="save-note">💾 ข้อมูลที่กรอกจะถูกส่งเข้าระบบของครูโดยอัตโนมัติ (ต้องต่ออินเทอร์เน็ต) และบันทึกสำรองไว้ในเบราว์เซอร์นี้ด้วย — หากอินเทอร์เน็ตหลุดระหว่างทำกิจกรรม ข้อมูลจะยังอยู่ในเครื่องนี้ ให้กดปุ่มบันทึกซ้ำอีกครั้งเมื่อกลับมาออนไลน์</p>
+  </div>
+
+  <div class="card">
+    <h3>6 กลุ่มอาชีพในยุคดิจิทัล</h3>
+    <div class="grid cols-3">
+      <div class="mini-card"><h4>💻 พัฒนาซอฟต์แวร์/แอป</h4><p>Web Developer, App Developer, Software Engineer</p></div>
+      <div class="mini-card"><h4>📊 ข้อมูลและ AI</h4><p>Data Analyst, Data Scientist, AI Engineer</p></div>
+      <div class="mini-card"><h4>🎨 ออกแบบดิจิทัล</h4><p>UX/UI Designer, Graphic & Motion Designer</p></div>
+      <div class="mini-card"><h4>📱 การตลาดดิจิทัล/ครีเอเตอร์</h4><p>Digital Marketer, Content Creator</p></div>
+      <div class="mini-card"><h4>🔐 ความปลอดภัยไซเบอร์</h4><p>Cybersecurity Specialist, Ethical Hacker</p></div>
+      <div class="mini-card"><h4>🚀 ธุรกิจดิจิทัล/ฟรีแลนซ์</h4><p>E-commerce, Startup Founder, Freelancer</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY 1 : CRITICAL ================= -->
+<section class="page" id="act1">
+  <div class="card">
+    <span class="badge c1">กิจกรรมที่ 1 · Critical mind</span>
+    <h2>สำรวจและวิเคราะห์โลกอาชีพดิจิทัล</h2>
+    <p><b>จุดประสงค์:</b> วิเคราะห์ข้อมูลอาชีพในยุคดิจิทัล จำแนกโอกาส ความเสี่ยง และทักษะที่จำเป็นได้อย่างมีเหตุผล</p>
+    <ul class="steps">
+      <li><span class="time">10 นาที</span>นำเข้าสู่บทเรียนด้วยสถานการณ์ "อาชีพที่หายไป อาชีพที่เกิดใหม่"</li>
+      <li><span class="time">30 นาที</span>ศึกษาข้อมูล 6 กลุ่มอาชีพดิจิทัล (ดูหน้าแรก)</li>
+      <li><span class="time">60 นาที</span>วิเคราะห์อาชีพที่สนใจด้วยใบงานด้านล่าง</li>
+      <li><span class="time">40 นาที</span>นำเสนอและอภิปรายร่วมกันทั้งชั้นเรียน</li>
+      <li><span class="time">20 นาที</span>สรุปองค์ความรู้และทำแบบทดสอบท้ายกิจกรรม</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>📝 ใบงาน: ตารางวิเคราะห์อาชีพ (Career Analysis Sheet)</h3>
+    <p>เลือกอาชีพในยุคดิจิทัลที่นักเรียนสนใจ 1 อาชีพ แล้ววิเคราะห์ตามหัวข้อด้านล่าง</p>
+    <label class="field">อาชีพที่สนใจ</label>
+    <input type="text" id="c1_career" placeholder="เช่น UX/UI Designer">
+    <label class="field">โอกาส / แนวโน้มการเติบโต</label>
+    <textarea id="c1_opportunity" placeholder="ตลาดต้องการอย่างไร เติบโตในอุตสาหกรรมใด..."></textarea>
+    <label class="field">ความเสี่ยงจาก AI / Automation</label>
+    <textarea id="c1_risk" placeholder="งานส่วนใดอาจถูกแทนที่ด้วยเทคโนโลยี..."></textarea>
+    <label class="field">ทักษะที่จำเป็นต้องมี</label>
+    <textarea id="c1_skills" placeholder="ทักษะด้านเทคนิคและ soft skills ที่ต้องพัฒนา..."></textarea>
+    <label class="field">สรุปเหตุผลที่เลือกอาชีพนี้ (แสดงการคิดวิเคราะห์ไตร่ตรอง)</label>
+    <textarea id="c1_reason" placeholder="เพราะเหตุใดนักเรียนจึงคิดว่าอาชีพนี้เหมาะกับตนเองหรือมีความน่าสนใจ..."></textarea>
+    <div class="row-actions">
+      <button class="btn" onclick="saveField(['c1_career','c1_opportunity','c1_risk','c1_skills','c1_reason'],'act1')">💾 บันทึกใบงาน</button>
+      <span class="save-note" id="act1_saved"></span>
+      <span class="sync-note" id="act1_sync"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>✅ แบบทดสอบท้ายกิจกรรมที่ 1</h3>
+    <div id="quiz1"></div>
+    <button class="btn" onclick="gradeQuiz('quiz1_data','quiz1_result','act1')">ตรวจคำตอบ</button>
+    <div class="quiz-result" id="quiz1_result"></div>
+    <span class="sync-note" id="quiz1_sync"></span>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY 2 : CREATIVE ================= -->
+<section class="page" id="act2">
+  <div class="card">
+    <span class="badge c2">กิจกรรมที่ 2 · Creative mind</span>
+    <h2>ออกแบบอาชีพในฝันแห่งอนาคต</h2>
+    <p><b>จุดประสงค์:</b> คิดสร้างสรรค์ออกแบบเส้นทางหรือแนวคิดอาชีพแห่งอนาคตของตนเองได้อย่างหลากหลาย</p>
+    <ul class="steps">
+      <li><span class="time">10 นาที</span>ชมตัวอย่างอาชีพแปลกใหม่ในต่างประเทศ</li>
+      <li><span class="time">20 นาที</span>เรียนรู้เทคนิค SCAMPER และ Mind Mapping</li>
+      <li><span class="time">50 นาที</span>ระดมสมองออกแบบ "อาชีพในฝันในอีก 10 ปีข้างหน้า"</li>
+      <li><span class="time">60 นาที</span>สร้างสรรค์ Infographic/Mood board นำเสนอแนวคิด</li>
+      <li><span class="time">40 นาที</span>Gallery Walk ให้ข้อเสนอแนะเพื่อน และสรุปบทเรียน</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🧠 เทคนิค SCAMPER สำหรับคิดอาชีพใหม่</h3>
+    <div class="grid cols-3">
+      <div class="mini-card"><h4>S — Substitute</h4><p>แทนที่งานเดิมด้วยเทคโนโลยีใหม่ได้อย่างไร</p></div>
+      <div class="mini-card"><h4>C — Combine</h4><p>รวมสองอาชีพ/ทักษะเข้าด้วยกันเป็นอาชีพใหม่</p></div>
+      <div class="mini-card"><h4>A — Adapt</h4><p>ปรับอาชีพเดิมให้เข้ากับบริบทดิจิทัล</p></div>
+      <div class="mini-card"><h4>M — Modify</h4><p>ขยาย/ย่อขอบเขตงานให้แตกต่างไป</p></div>
+      <div class="mini-card"><h4>P — Put to other use</h4><p>นำทักษะไปใช้ในบริบทอื่นที่ไม่เคยมีมาก่อน</p></div>
+      <div class="mini-card"><h4>E / R — Eliminate / Reverse</h4><p>ตัดขั้นตอนที่ไม่จำเป็น หรือกลับมุมมองงานเดิม</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🗺️ ใบงาน: Mind Map อาชีพในฝันของฉัน</h3>
+    <label class="field">ชื่ออาชีพในฝัน (อาจเป็นอาชีพที่มีอยู่แล้ว หรือคิดขึ้นใหม่)</label>
+    <input type="text" id="c2_title" placeholder="เช่น นักออกแบบประสบการณ์ AI เพื่อการศึกษา">
+    <label class="field">แรงบันดาลใจ / ที่มาของแนวคิด</label>
+    <textarea id="c2_inspire"></textarea>
+    <label class="field">ทักษะ/เทคโนโลยีที่จะนำมาผสมผสาน</label>
+    <textarea id="c2_mix"></textarea>
+    <label class="field">คุณค่า/ประโยชน์ต่อสังคมของอาชีพนี้</label>
+    <textarea id="c2_value"></textarea>
+    <label class="field">แนวทางการนำเสนอ (Infographic/Mood board) — บรรยายไอเดียภาพที่จะสร้าง</label>
+    <textarea id="c2_design" placeholder="สี ภาพประกอบ ข้อความหลักที่จะใช้..."></textarea>
+    <div class="row-actions">
+      <button class="btn" onclick="saveField(['c2_title','c2_inspire','c2_mix','c2_value','c2_design'],'act2')">💾 บันทึกใบงาน</button>
+      <span class="save-note" id="act2_saved"></span>
+      <span class="sync-note" id="act2_sync"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY 3 : PRODUCTIVE ================= -->
+<section class="page" id="act3">
+  <div class="card">
+    <span class="badge p">กิจกรรมที่ 3 · Productive mind</span>
+    <h2>สร้างผลงาน Digital Portfolio / Resume</h2>
+    <p><b>จุดประสงค์:</b> ลงมือสร้างชิ้นงาน Digital Portfolio หรือ Resume ของตนเองที่นำไปใช้ได้จริง</p>
+    <ul class="steps">
+      <li><span class="time">10 นาที</span>ทบทวนแนวคิดอาชีพในฝันจากกิจกรรมที่ 2</li>
+      <li><span class="time">30 นาที</span>เรียนรู้หลักการออกแบบ Resume/Portfolio ที่ดี</li>
+      <li><span class="time">90 นาที</span>ลงมือปฏิบัติสร้าง Digital Portfolio/Resume ของตนเอง</li>
+      <li><span class="time">30 นาที</span>นำเสนอผลงานแบบ Peer Feedback</li>
+      <li><span class="time">20 นาที</span>ปรับปรุงผลงานและสรุปบทเรียน</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🧰 เครื่องมือแนะนำ (เลือกใช้ตามความพร้อม)</h3>
+    <div class="grid cols-3">
+      <div class="mini-card"><h4>Canva</h4><p>เทมเพลต Resume/Portfolio สำเร็จรูป ปรับแต่งง่าย</p></div>
+      <div class="mini-card"><h4>Google Sites</h4><p>สร้างเว็บพอร์ตโฟลิโอแบบไม่ต้องเขียนโค้ด</p></div>
+      <div class="mini-card"><h4>Google Slides / Word</h4><p>ทำเป็นเอกสาร/สไลด์นำเสนอ กรณีไม่มีอินเทอร์เน็ต</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>✅ รายการตรวจสอบ Portfolio/Resume ที่ดี</h3>
+    <div class="checklist" id="c3_checklist">
+      <label><input type="checkbox" data-k="c3_chk1"> มีข้อมูลส่วนตัวและช่องทางติดต่อที่เหมาะสม</label>
+      <label><input type="checkbox" data-k="c3_chk2"> ระบุเป้าหมาย/อาชีพในฝันอย่างชัดเจน</label>
+      <label><input type="checkbox" data-k="c3_chk3"> แสดงทักษะและผลงาน/กิจกรรมที่เกี่ยวข้อง</label>
+      <label><input type="checkbox" data-k="c3_chk4"> ออกแบบสวยงาม อ่านง่าย สื่อสารชัดเจน</label>
+      <label><input type="checkbox" data-k="c3_chk5"> ตรวจทานคำผิดและความถูกต้องก่อนนำเสนอ</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📝 ร่างเนื้อหา Portfolio/Resume ของฉัน</h3>
+    <label class="field">แนะนำตัวสั้น ๆ (Bio)</label>
+    <textarea id="c3_bio"></textarea>
+    <label class="field">ทักษะเด่นของฉัน</label>
+    <textarea id="c3_skills"></textarea>
+    <label class="field">ผลงาน/กิจกรรมที่ภาคภูมิใจ</label>
+    <textarea id="c3_works"></textarea>
+    <label class="field">ลิงก์ผลงานจริง (ถ้ามี เช่น Canva/Google Sites)</label>
+    <input type="text" id="c3_link" placeholder="วางลิงก์ผลงานที่สร้างเสร็จแล้ว">
+    <div class="row-actions">
+      <button class="btn" onclick="submitAct3()">💾 บันทึกใบงาน</button>
+      <span class="save-note" id="act3_saved"></span>
+      <span class="sync-note" id="act3_sync"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY 4 : RESPONSIBLE ================= -->
+<section class="page" id="act4">
+  <div class="card">
+    <span class="badge r">กิจกรรมที่ 4 · Responsible mind</span>
+    <h2>จรรยาบรรณและความรับผิดชอบในโลกอาชีพดิจิทัล</h2>
+    <p><b>จุดประสงค์:</b> ตระหนักถึงจริยธรรม กฎหมาย และความรับผิดชอบต่อตนเองและสังคมในการประกอบอาชีพดิจิทัล</p>
+    <ul class="steps">
+      <li><span class="time">10 นาที</span>สถานการณ์จริยธรรมดิจิทัล เช่น การใช้ AI สร้างข่าวปลอม</li>
+      <li><span class="time">30 นาที</span>ศึกษากรณีศึกษา 3 สถานการณ์ด้านล่าง</li>
+      <li><span class="time">60 นาที</span>วิเคราะห์และแสดงบทบาทสมมติ (Role-play)</li>
+      <li><span class="time">30 นาที</span>เขียนปฏิญญาจรรยาบรรณส่วนบุคคล</li>
+      <li><span class="time">50 นาที</span>สรุปภาพรวม 4 กิจกรรม และทำแบบวัดคุณลักษณะ CCPR</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⚖️ กรณีศึกษาจริยธรรมดิจิทัล</h3>
+
+    <div class="case">
+      <h4>สถานการณ์ที่ 1 — ลิขสิทธิ์ผลงาน</h4>
+      <p>เพื่อนนำภาพวาดของนักออกแบบต่างชาติมาใช้ในผลงานส่งประกวดโดยไม่ให้เครดิต นักเรียนจะทำอย่างไร?</p>
+      <button class="btn small secondary" onclick="toggleReveal('r1')">ดูแนวทางที่เหมาะสม</button>
+      <div class="reveal" id="r1">ควรให้เครดิตเจ้าของผลงานเสมอ หรือขออนุญาตใช้ภาพ/เลือกใช้ภาพที่มีสิทธิ์ใช้งานถูกต้อง (Creative Commons) การไม่ให้เครดิตถือเป็นการละเมิดทรัพย์สินทางปัญญา</div>
+    </div>
+
+    <div class="case">
+      <h4>สถานการณ์ที่ 2 — ข้อมูลส่วนบุคคล</h4>
+      <p>เว็บไซต์สมัครงานขอให้กรอกข้อมูลส่วนตัวจำนวนมากเกินความจำเป็น นักเรียนจะพิจารณาอย่างไรก่อนให้ข้อมูล?</p>
+      <button class="btn small secondary" onclick="toggleReveal('r2')">ดูแนวทางที่เหมาะสม</button>
+      <div class="reveal" id="r2">ควรตรวจสอบความน่าเชื่อถือของเว็บไซต์ อ่านนโยบายความเป็นส่วนตัว และให้ข้อมูลเท่าที่จำเป็นต่อการสมัครงานเท่านั้น ตามหลักการคุ้มครองข้อมูลส่วนบุคคล (PDPA)</div>
+    </div>
+
+    <div class="case">
+      <h4>สถานการณ์ที่ 3 — การใช้ AI สร้างเนื้อหา</h4>
+      <p>นักเรียนใช้ AI ช่วยเขียนบทความส่งงาน แล้วนำส่งโดยไม่ตรวจสอบความถูกต้องหรือระบุแหล่งที่มา เหมาะสมหรือไม่?</p>
+      <button class="btn small secondary" onclick="toggleReveal('r3')">ดูแนวทางที่เหมาะสม</button>
+      <div class="reveal" id="r3">ควรตรวจสอบความถูกต้องของเนื้อหาที่ AI สร้างขึ้นเสมอ และแจ้ง/ระบุอย่างโปร่งใสว่าใช้ AI ช่วยในกระบวนการทำงาน เพื่อความรับผิดชอบต่อผู้อ่านและความน่าเชื่อถือของงาน</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>✍️ ปฏิญญาจรรยาบรรณอาชีพดิจิทัลของฉัน</h3>
+    <p>เขียนคำมั่นสัญญาของตนเองในการใช้เทคโนโลยีและประกอบอาชีพในยุคดิจิทัลอย่างมีความรับผิดชอบ</p>
+    <textarea id="c4_pledge" style="min-height:120px" placeholder="ข้าพเจ้าขอให้คำมั่นว่า..."></textarea>
+    <div class="row-actions">
+      <button class="btn" onclick="saveField(['c4_pledge'],'act4')">💾 บันทึกปฏิญญา</button>
+      <span class="save-note" id="act4_saved"></span>
+      <span class="sync-note" id="act4_sync"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= POST-TEST : CCPR ================= -->
+<section class="page" id="posttest">
+  <div class="card">
+    <h2>แบบวัดคุณลักษณะเชิงก้าวหน้า CCPR</h2>
+    <p>ให้นักเรียนประเมินตนเองหลังเรียนจบทั้ง 4 กิจกรรม โดยเลือกระดับที่ตรงกับตนเองมากที่สุด
+    (5 = มากที่สุด, 4 = มาก, 3 = ปานกลาง, 2 = น้อย, 1 = น้อยที่สุด) เกณฑ์ผ่านร้อยละ 70 ในแต่ละด้าน</p>
+  </div>
+  <div class="card">
+    <table class="likert" id="likertTable"></table>
+    <div class="row-actions">
+      <button class="btn" onclick="gradeCCPR()">📊 ประมวลผล</button>
+      <span class="sync-note" id="posttest_sync"></span>
+    </div>
+  </div>
+  <div class="card" id="ccprResult" style="display:none">
+    <h3>ผลการประเมินคุณลักษณะเชิงก้าวหน้า CCPR</h3>
+    <div id="ccprBars"></div>
+  </div>
+</section>
+
+<!-- ================= SUMMARY ================= -->
+<section class="page" id="summary">
+  <div class="card">
+    <h2>สรุปความก้าวหน้าการเรียนรู้</h2>
+    <p>สถานะการทำกิจกรรมของนักเรียน (บันทึกอัตโนมัติจากเบราว์เซอร์นี้)</p>
+    <div id="summaryList"></div>
+    <div class="row-actions">
+      <button class="btn secondary" onclick="window.print()">🖨️ พิมพ์/บันทึกเป็น PDF</button>
+      <button class="btn secondary" onclick="if(confirm('ล้างข้อมูลที่บันทึกไว้ทั้งหมด?')){localStorage.clear();location.reload();}">🗑️ ล้างข้อมูลทั้งหมด</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>ชุดนวัตกรรมการเรียนรู้ออนไลน์ Active Learning เรื่อง อาชีพในยุคดิจิทัล (รูปแบบ CCPR) · รายวิชาวิทยาการคำนวณ ม.6<br>
+จัดทำโดย นายราชศักดิ์ ฐานมั่น · โรงเรียนกาญจนาภิเษกวิทยาลัย ชัยภูมิ</footer>
+</div><!-- /appContent -->
+
+<script>
+/* =========================================================
+   ระบบล็อกอินนักเรียน (รายชื่อจริง) + ส่งข้อมูลเข้า Google Sheets
+   ========================================================= */
+
+// ***** วางลิงก์ Google Apps Script Web App ที่ deploy แล้วแทนค่านี้ *****
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyU54slzx_hV8D1wZpGnJrQbDWumW3SoIvvP6dNFwgekArR-lP_PTbJd6yTjI2g1eZc/exec";
+
+const ROSTER = [
+  {room:1, no:'1', sid:'05056', name:'นายชนาเมธ  ยอดสละ'},
+  {room:1, no:'2', sid:'04983', name:'นายณภัทร  อันทพิระ'},
+  {room:1, no:'3', sid:'04984', name:'นายณรงค์พัฒน์  เพิกขุนทด'},
+  {room:1, no:'4', sid:'05010', name:'นายณิธิพงษ์  คะลา'},
+  {room:1, no:'5', sid:'04989', name:'นายธนทัต  พิมพ์สวัสดิ์'},
+  {room:1, no:'6', sid:'04996', name:'นายภาคภูมิ  เคียงสันเทียะ'},
+  {room:1, no:'7', sid:'05014', name:'นายภูมิชัย  เพ็งชัยภูมิ'},
+  {room:1, no:'8', sid:'05157', name:'นายวรวุฒิ  วังหอม'},
+  {room:1, no:'9', sid:'05038', name:'นายวันชัย  โคตวงษา'},
+  {room:1, no:'10', sid:'05016', name:'นายศรายุธ  ชัยชวลิต'},
+  {room:1, no:'11', sid:'05238', name:'นางสาวจิดาภา  โชติแฉล้มสกุลชัย'},
+  {room:1, no:'12', sid:'05044', name:'นางสาวชนาภัทร  ก้อนทอง'},
+  {room:1, no:'13', sid:'05019', name:'นางสาวฐิติกาญจน์  จันบัวลา'},
+  {room:1, no:'14', sid:'05002', name:'นางสาวณัฐทพัสส์  โพธิ์คะนะ'},
+  {room:1, no:'15', sid:'05004', name:'นางสาวทิพธัญญา  ลมอ่อน'},
+  {room:1, no:'16', sid:'05005', name:'นางสาวธมลณัฏฐ์  ป้องแก้วน้อย'},
+  {room:1, no:'17', sid:'05327', name:'นางสาวธิดารัตน์  พลบุรี'},
+  {room:1, no:'18', sid:'05020', name:'นางสาวนันทิยา  ช่วยนุ่น'},
+  {room:1, no:'19', sid:'05061', name:'นางสาวพลอยชนก  อภิพันธ์ดำรงสุข'},
+  {room:1, no:'20', sid:'05239', name:'นางสาวพิชญา  พลโยธา'},
+  {room:1, no:'21', sid:'05008', name:'นางสาวมัทติญา  ทูลแรง'},
+  {room:1, no:'22', sid:'05009', name:'นางสาวศศิมา  สาวิถี'},
+  {room:1, no:'24', sid:'05241', name:'นางสาวสุวพิชญ์  ผาละสี'},
+  {room:1, no:'25', sid:'05025', name:'นางสาวอนัณญา  ทาวงค์ษา'},
+  {room:2, no:'1', sid:'05026', name:'นายกิตติศักดิ์  สวัสดิรักษ์'},
+  {room:2, no:'2', sid:'04980', name:'นายชยุต  เวียงดินดำ'},
+  {room:2, no:'3', sid:'05062', name:'นายณัฐพล  เข็มพร'},
+  {room:2, no:'4', sid:'05324', name:'นายธนเทพ  ผานคำ'},
+  {room:2, no:'5', sid:'05027', name:'นายธนบูรณ์  แดงสกุล'},
+  {room:2, no:'6', sid:'05028', name:'นายธิติกร  สิงห์โคตร'},
+  {room:2, no:'7', sid:'05063', name:'นายธีรภัทร  เพียรขุนทด'},
+  {room:2, no:'8', sid:'05029', name:'นายนันธกร  เติมศักดิ์'},
+  {room:2, no:'9', sid:'05242', name:'นายนิธิกร  เติบจันทึก'},
+  {room:2, no:'10', sid:'05243', name:'นายปรเมธ  อิงชัยภูมิ'},
+  {room:2, no:'11', sid:'05032', name:'นายพีรพัฒน์  ดาบลาอำ'},
+  {room:2, no:'12', sid:'05065', name:'นายเมธาวิน  จงชนะ'},
+  {room:2, no:'13', sid:'05325', name:'นายวราวุธ  คะสุวรรณ์'},
+  {room:2, no:'14', sid:'05244', name:'นายวาฤทธิ์  กองเกิด'},
+  {room:2, no:'15', sid:'05245', name:'นายวิชชากร  วาสิงหน'},
+  {room:2, no:'16', sid:'05246', name:'นายวิทยา  ดาทอง'},
+  {room:2, no:'17', sid:'05066', name:'นายศรภลักษณ์  โถนคำ'},
+  {room:2, no:'18', sid:'05247', name:'นายสรวิชญ์  ป้องภัย'},
+  {room:2, no:'19', sid:'05039', name:'นายสิทธิโชค  พรชัยภูมิ'},
+  {room:2, no:'20', sid:'05040', name:'นายหัศพล  เพ็งศรี'},
+  {room:2, no:'21', sid:'05326', name:'นายอัครพล  ตะนะแสง'},
+  {room:2, no:'22', sid:'05043', name:'นางสาวจิราพัชร  พันธ์ภูรักษ์'},
+  {room:2, no:'23', sid:'05045', name:'นางสาวธัญธิวา  พรหมศร'},
+  {room:2, no:'24', sid:'05046', name:'นางสาวธัญพิชชา  ลีทองหลาง'},
+  {room:2, no:'25', sid:'05249', name:'นางสาวประติภา  กระฉอดนอก'},
+  {room:2, no:'26', sid:'05048', name:'นางสาวปิยนุช  โชคเจริญ'},
+  {room:2, no:'27', sid:'05049', name:'นางสาวไปรยา  ไขขุนทด'},
+  {room:2, no:'28', sid:'05050', name:'นางสาวรัตนากร  พรมผา'},
+  {room:2, no:'29', sid:'05051', name:'นางสาวรัตนาวดี  กอบการดี'},
+  {room:2, no:'30', sid:'05052', name:'นางสาววรนิษฐา  สีมาวงษ์'},
+  {room:2, no:'31', sid:'05250', name:'นางสาวสุภาภรณ์  สุขเกษม'},
+];
+
+function populateNameOptions(){
+  const room = document.getElementById('loginRoom').value;
+  const nameSel = document.getElementById('loginName');
+  if(!room){
+    nameSel.innerHTML = '<option value="">-- เลือกห้องก่อน --</option>';
+    nameSel.disabled = true;
+    return;
+  }
+  const list = ROSTER.filter(s=>String(s.room)===String(room))
+                      .sort((a,b)=>parseInt(a.no)-parseInt(b.no));
+  nameSel.innerHTML = '<option value="">-- เลือกชื่อ --</option>' +
+    list.map(s=>`<option value="${s.sid}">${s.no}. ${s.name}</option>`).join('');
+  nameSel.disabled = false;
+}
+
+function getProfile(){
+  const raw = localStorage.getItem('student_profile');
+  return raw ? JSON.parse(raw) : null;
+}
+
+function doLogin(){
+  const room = document.getElementById('loginRoom').value;
+  const sid = document.getElementById('loginName').value;
+  const errEl = document.getElementById('loginError');
+  if(!room || !sid){ errEl.textContent = 'กรุณาเลือกห้องและชื่อให้ครบ'; return; }
+  const student = ROSTER.find(s=>s.sid===sid && String(s.room)===String(room));
+  if(!student){ errEl.textContent = 'ไม่พบข้อมูลนักเรียน กรุณาเลือกใหม่'; return; }
+  errEl.textContent = '';
+  localStorage.setItem('student_profile', JSON.stringify(student));
+  enterApp(student);
+}
+
+function logout(){
+  if(!confirm('ออกจากระบบ? คำตอบที่บันทึกไว้ในเครื่องนี้จะยังอยู่ ครั้งหน้าเข้าสู่ระบบใหม่ได้')) return;
+  localStorage.removeItem('student_profile');
+  location.reload();
+}
+
+function enterApp(student){
+  document.getElementById('loginScreen').hidden = true;
+  document.getElementById('appContent').hidden = false;
+  document.getElementById('studentBar').innerHTML =
+    `<span>เข้าสู่ระบบเป็น: <b>${student.name}</b> (ม.6/${student.room} เลขที่ ${student.no})</span>` +
+    `<a onclick="logout()">ออกจากระบบ</a>`;
+}
+
+/* ส่งข้อมูลไปยัง Google Apps Script Web App (Google Sheets) */
+function submitToServer(type, payload, statusElId){
+  const student = getProfile();
+  const showStatus = (ok, msg)=>{
+    if(!statusElId) return;
+    const el = document.getElementById(statusElId);
+    if(!el) return;
+    el.textContent = msg;
+    el.className = 'sync-note ' + (ok ? 'ok' : 'fail');
+  };
+  if(!GAS_URL || GAS_URL.indexOf('PASTE_') === 0){
+    showStatus(false, '⚠️ ยังไม่ได้ตั้งค่าระบบเก็บข้อมูล (GAS_URL) — บันทึกไว้ในเครื่องนี้เท่านั้น');
+    return;
+  }
+  if(!student){
+    showStatus(false, '⚠️ ยังไม่ได้เข้าสู่ระบบ — บันทึกไว้ในเครื่องนี้เท่านั้น');
+    return;
+  }
+  const body = JSON.stringify({ type, student, payload, ts: new Date().toISOString() });
+  fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body })
+    .then(r=>r.json())
+    .then(res=>{
+      if(res && res.ok){ showStatus(true, '🌐 ส่งเข้าระบบครูแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH')); }
+      else{ showStatus(false, '⚠️ ส่งเข้าระบบไม่สำเร็จ (เซิร์ฟเวอร์ตอบผิดพลาด) — บันทึกในเครื่องไว้แล้ว'); }
+    })
+    .catch(()=>{ showStatus(false, '⚠️ ส่งเข้าระบบไม่สำเร็จ (ออฟไลน์/เชื่อมต่อไม่ได้) — บันทึกในเครื่องไว้แล้ว'); });
+}
+
+/* ---------- tab navigation ---------- */
+const tabs = document.querySelectorAll('nav.tabs button');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+    document.getElementById(btn.dataset.page).classList.add('active');
+    if(btn.dataset.page==='summary') renderSummary();
+  });
+});
+
+/* ---------- generic save ---------- */
+function saveField(ids, actKey){
+  const fields = {};
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    localStorage.setItem(id, el.value);
+    fields[id] = el.value;
+  });
+  localStorage.setItem(actKey+'_worksheet_done','1');
+  const note = document.getElementById(actKey+'_saved');
+  if(note){ note.textContent = '✔ บันทึกแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH'); }
+  markTabDone(actKey);
+  submitToServer('worksheet', { activity: actKey, fields }, actKey+'_sync');
+}
+function loadFields(){
+  document.querySelectorAll('textarea, input[type=text]').forEach(el=>{
+    const v = localStorage.getItem(el.id);
+    if(v!==null) el.value = v;
+  });
+  document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
+    const v = localStorage.getItem(cb.dataset.k);
+    if(v==='1') cb.checked = true;
+  });
+}
+function saveChecklist(){
+  document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
+    localStorage.setItem(cb.dataset.k, cb.checked ? '1':'0');
+  });
+}
+function submitAct3(){
+  const ids = ['c3_bio','c3_skills','c3_works','c3_link'];
+  const fields = {};
+  ids.forEach(id=>{ const el=document.getElementById(id); localStorage.setItem(id, el.value); fields[id]=el.value; });
+  saveChecklist();
+  const checklist = {};
+  document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{ checklist[cb.dataset.k]=cb.checked; });
+  localStorage.setItem('act3_worksheet_done','1');
+  const note = document.getElementById('act3_saved');
+  if(note){ note.textContent = '✔ บันทึกแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH'); }
+  markTabDone('act3');
+  submitToServer('worksheet', { activity:'act3', fields, checklist }, 'act3_sync');
+}
+function markTabDone(actKey){
+  const btn = document.querySelector(`nav.tabs button[data-page="${actKey}"]`);
+  if(btn) btn.classList.add('done');
+}
+
+/* ---------- Quiz 1 (Critical mind) ---------- */
+const quiz1Data = [
+  {q:"อาชีพกลุ่มใดมีแนวโน้มเติบโตสูงในยุคดิจิทัล เพราะเกี่ยวข้องกับการวิเคราะห์ข้อมูลขนาดใหญ่", opts:["ช่างตัดเย็บเสื้อผ้า","Data Scientist","พนักงานรับสายโทรศัพท์","เกษตรกรแบบดั้งเดิม"], ans:1},
+  {q:"เหตุใดอาชีพบางประเภทจึงมีความเสี่ยงที่จะถูกแทนที่ด้วยระบบอัตโนมัติ", opts:["เพราะมีค่าตอบแทนสูง","เพราะเป็นงานที่ทำซ้ำ ๆ ตามรูปแบบเดิม","เพราะต้องใช้ความคิดสร้างสรรค์สูง","เพราะเป็นงานที่ต้องพบปะผู้คน"], ans:1},
+  {q:"ข้อใดคือทักษะสำคัญที่ควรมีในการประกอบอาชีพยุคดิจิทัล", opts:["การท่องจำเนื้อหาอย่างเดียว","การเรียนรู้ตลอดชีวิต (Lifelong Learning)","การหลีกเลี่ยงเทคโนโลยีใหม่","การทำงานคนเดียวเท่านั้น"], ans:1},
+  {q:"การวิเคราะห์อาชีพอย่างมีวิจารณญาณ (Critical mind) ควรพิจารณาสิ่งใดเป็นสำคัญ", opts:["ความคิดเห็นของเพื่อนเพียงคนเดียว","ข้อมูลและหลักฐานที่น่าเชื่อถือรอบด้าน","กระแสความนิยมในโซเชียลมีเดียเท่านั้น","การเดาโดยไม่มีข้อมูลสนับสนุน"], ans:1},
+  {q:"อาชีพ UX/UI Designer เกี่ยวข้องกับด้านใดมากที่สุด", opts:["การออกแบบประสบการณ์และหน้าตาการใช้งานผลิตภัณฑ์ดิจิทัล","การซ่อมเครื่องจักรกลหนัก","การปลูกพืชไร้ดิน","การขับขี่ยานพาหนะสาธารณะ"], ans:0},
+];
+function buildQuiz(containerId, data){
+  const el = document.getElementById(containerId);
+  el.innerHTML = data.map((item,i)=>`
+    <div class="quiz-q">
+      <p><b>${i+1}. ${item.q}</b></p>
+      ${item.opts.map((o,j)=>`<label class="opt"><input type="radio" name="${containerId}_q${i}" value="${j}"> ${o}</label>`).join('')}
+    </div>`).join('');
+}
+buildQuiz('quiz1', quiz1Data);
+
+function gradeQuiz(dataName, resultId, actKey){
+  const data = quiz1Data;
+  let score = 0;
+  const answers = [];
+  data.forEach((item,i)=>{
+    const chosen = document.querySelector(`input[name="quiz1_q${i}"]:checked`);
+    const chosenVal = chosen ? parseInt(chosen.value) : null;
+    answers.push(chosenVal);
+    if(chosenVal===item.ans) score++;
+  });
+  if(answers.some(a=>a===null)){ alert('กรุณาตอบให้ครบทุกข้อก่อนตรวจคำตอบ'); return; }
+  const pct = Math.round(score/data.length*100);
+  const resEl = document.getElementById(resultId);
+  resEl.classList.add('show');
+  resEl.classList.toggle('pass', pct>=70);
+  resEl.classList.toggle('fail', pct<70);
+  resEl.textContent = `ได้คะแนน ${score}/${data.length} (${pct}%) — ${pct>=70? 'ผ่านเกณฑ์ 👏':'ยังไม่ผ่านเกณฑ์ร้อยละ 70 ลองทบทวนอีกครั้ง'}`;
+  localStorage.setItem(actKey+'_quiz_score', pct);
+  if(pct>=70) markTabDone(actKey);
+  // ส่งคำตอบดิบไปให้เซิร์ฟเวอร์ตรวจให้คะแนนอย่างเป็นทางการ (กันการแก้ไขคะแนนฝั่งไคลเอนต์)
+  submitToServer('quiz1', { activity: actKey, answers, clientScorePct: pct }, 'quiz1_sync');
+}
+
+/* ---------- CCPR post-test (20 items, 5-point Likert) ---------- */
+const ccprItems = [
+  ["C1","ข้าพเจ้าพิจารณาข้อมูลรอบด้านก่อนตัดสินใจเลือกแนวทางอาชีพของตนเอง"],
+  ["C1","ข้าพเจ้าตั้งคำถามและตรวจสอบความน่าเชื่อถือของข้อมูลอาชีพก่อนเชื่อ"],
+  ["C1","ข้าพเจ้าสามารถเปรียบเทียบข้อดีข้อเสียของอาชีพต่าง ๆ ได้อย่างมีเหตุผล"],
+  ["C1","ข้าพเจ้าวิเคราะห์ผลกระทบของเทคโนโลยีต่ออาชีพในอนาคตได้"],
+  ["C1","ข้าพเจ้าสรุปข้อคิดเห็นเกี่ยวกับอาชีพโดยอ้างอิงหลักฐานหรือเหตุผลประกอบ"],
+  ["C2","ข้าพเจ้าสามารถคิดแนวทางหรือไอเดียใหม่ ๆ เกี่ยวกับอาชีพในอนาคตได้หลากหลาย"],
+  ["C2","ข้าพเจ้ากล้านำเสนอความคิดที่แตกต่างหรือแปลกใหม่"],
+  ["C2","ข้าพเจ้าสามารถผสมผสานความรู้จากหลายด้านมาสร้างแนวคิดใหม่"],
+  ["C2","ข้าพเจ้าสนุกกับการจินตนาการถึงอาชีพหรือรูปแบบงานที่ยังไม่เคยมี"],
+  ["C2","ข้าพเจ้าสามารถถ่ายทอดความคิดสร้างสรรค์ผ่านชิ้นงาน เช่น ภาพหรือแผนผัง"],
+  ["P","ข้าพเจ้าลงมือสร้างผลงานของตนเองจนสำเร็จตามเป้าหมายที่วางไว้"],
+  ["P","ข้าพเจ้าใช้เครื่องมือดิจิทัลในการสร้างชิ้นงานได้อย่างเหมาะสม"],
+  ["P","ข้าพเจ้าตรวจสอบและปรับปรุงคุณภาพผลงานของตนเองก่อนส่ง"],
+  ["P","ข้าพเจ้าส่งมอบชิ้นงานตรงตามเวลาที่กำหนด"],
+  ["P","ข้าพเจ้าภาคภูมิใจในผลงานที่ตนเองลงมือสร้างขึ้น"],
+  ["R","ข้าพเจ้าตระหนักถึงผลกระทบต่อสังคมจากการใช้เทคโนโลยีในการประกอบอาชีพ"],
+  ["R","ข้าพเจ้าเคารพลิขสิทธิ์และทรัพย์สินทางปัญญาของผู้อื่นเสมอ"],
+  ["R","ข้าพเจ้าใช้ข้อมูลส่วนบุคคลของผู้อื่นอย่างระมัดระวังและมีจริยธรรม"],
+  ["R","ข้าพเจ้ารับผิดชอบต่อผลของการกระทำของตนเองในโลกออนไลน์"],
+  ["R","ข้าพเจ้าตรวจสอบความถูกต้องของข้อมูล/เนื้อหาก่อนเผยแพร่หรือส่งต่อ"],
+];
+const dimNames = {C1:"Critical mind", C2:"Creative mind", P:"Productive mind", R:"Responsible mind"};
+const dimColor = {C1:"var(--c1)", C2:"var(--c2)", P:"var(--p)", R:"var(--r)"};
+
+function buildLikert(){
+  const table = document.getElementById('likertTable');
+  let html = `<tr><th style="text-align:left">ข้อความ</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr>`;
+  ccprItems.forEach((item,i)=>{
+    html += `<tr><td class="item-text">${i+1}. ${item[1]}</td>`;
+    for(let v=5;v>=1;v--){
+      html += `<td><input type="radio" name="ccpr_q${i}" value="${v}"></td>`;
+    }
+    html += `</tr>`;
+  });
+  table.innerHTML = html;
+}
+buildLikert();
+
+function gradeCCPR(){
+  const sums = {C1:0,C2:0,P:0,R:0};
+  const counts = {C1:0,C2:0,P:0,R:0};
+  const rawScores = [];
+  let answeredAll = true;
+  ccprItems.forEach((item,i)=>{
+    const chosen = document.querySelector(`input[name="ccpr_q${i}"]:checked`);
+    if(!chosen){ answeredAll=false; return; }
+    const v = parseInt(chosen.value);
+    rawScores.push(v);
+    sums[item[0]] += v;
+    counts[item[0]] += 1;
+  });
+  if(!answeredAll){ alert('กรุณาตอบให้ครบทุกข้อก่อนประมวลผล'); return; }
+  const resultBox = document.getElementById('ccprResult');
+  resultBox.style.display='block';
+  const bars = document.getElementById('ccprBars');
+  bars.innerHTML = '';
+  let overallPct = 0;
+  Object.keys(sums).forEach(k=>{
+    const max = counts[k]*5;
+    const pct = Math.round(sums[k]/max*100);
+    overallPct += pct;
+    localStorage.setItem('ccpr_'+k, pct);
+    bars.innerHTML += `
+      <div class="dim-result">
+        <div class="lab">${dimNames[k]}</div>
+        <div style="flex:1">
+          <div class="progress-bar"><div style="width:${pct}%;background:${dimColor[k]}"></div></div>
+        </div>
+        <div class="pct" style="color:${dimColor[k]}">${pct}%</div>
+      </div>`;
+  });
+  overallPct = Math.round(overallPct/4);
+  localStorage.setItem('ccpr_overall', overallPct);
+  bars.innerHTML += `<p style="margin-top:10px"><b>ค่าเฉลี่ยรวม ${overallPct}%</b> — ${overallPct>=70? '✅ ผ่านเกณฑ์ร้อยละ 70':'⚠️ ยังไม่ผ่านเกณฑ์ร้อยละ 70'}</p>`;
+  markTabDone('posttest');
+  submitToServer('posttest', { scores: rawScores }, 'posttest_sync');
+}
+
+/* ---------- misc ---------- */
+function toggleReveal(id){ document.getElementById(id).classList.toggle('show'); }
+
+function renderSummary(){
+  const items = [
+    ['act1','กิจกรรมที่ 1 · Critical mind'],
+    ['act2','กิจกรรมที่ 2 · Creative mind'],
+    ['act3','กิจกรรมที่ 3 · Productive mind'],
+    ['act4','กิจกรรมที่ 4 · Responsible mind'],
+    ['posttest','แบบวัดคุณลักษณะ CCPR'],
+  ];
+  const el = document.getElementById('summaryList');
+  el.innerHTML = items.map(([key,label])=>{
+    const done = localStorage.getItem(key+'_worksheet_done')==='1' || document.querySelector(`nav.tabs button[data-page="${key}"]`).classList.contains('done');
+    return `<div class="mini-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+      <span>${label}</span><span>${done? '✅ ทำแล้ว':'⬜ ยังไม่ทำ'}</span></div>`;
+  }).join('');
+  const overall = localStorage.getItem('ccpr_overall');
+  if(overall){
+    el.innerHTML += `<p style="margin-top:14px"><b>ผลรวมคุณลักษณะเชิงก้าวหน้า CCPR: ${overall}%</b></p>`;
+  }
+}
+
+/* ---------- init ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadFields();
+  ['act1','act2','act3','act4','posttest'].forEach(k=>{
+    if(localStorage.getItem(k+'_worksheet_done')==='1') markTabDone(k);
+  });
+  const existing = getProfile();
+  if(existing){ enterApp(existing); }
+});
+loadFields();
+</script>
+</body>
+</html>
