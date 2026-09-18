@@ -105,6 +105,9 @@
   .checklist input{margin-top:4px;}
   @media print{ nav.tabs, .btn, header.top{display:none!important;} section.page{display:block!important;} }
 
+  #likertTable tr.miss td{background:#fdeeec;}
+  .quiz-q.miss{border-color:var(--r);background:#fdeeec;}
+
   /* ---------- login screen ---------- */
   [hidden]{display:none!important;}
   .login-overlay{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -632,7 +635,18 @@ function loadFields(){
   document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
     cb.checked = (lsGet(cb.dataset.k)==='1');
   });
+  // คืนค่าคำตอบแบบวงกลม (แบบทดสอบ + แบบวัด CCPR) ของนักเรียนคนที่ล็อกอินอยู่
+  document.querySelectorAll('input[type=radio]').forEach(r=>{
+    const v = lsGet('radio::' + r.name);
+    r.checked = (v !== null && v === r.value);
+  });
 }
+
+/* บันทึกคำตอบแบบวงกลมทันทีที่นักเรียนเลือก จะได้ไม่หายเมื่อรีเฟรชหรือปิดเครื่อง */
+document.addEventListener('change', function(e){
+  const t = e.target;
+  if(t && t.type === 'radio' && t.name){ lsSet('radio::' + t.name, t.value); }
+});
 function saveChecklist(){
   document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
     lsSet(cb.dataset.k, cb.checked ? '1':'0');
@@ -684,7 +698,16 @@ function gradeQuiz(dataName, resultId, actKey){
     answers.push(chosenVal);
     if(chosenVal===item.ans) score++;
   });
-  if(answers.some(a=>a===null)){ alert('กรุณาตอบให้ครบทุกข้อก่อนตรวจคำตอบ'); return; }
+  const missQ = [];
+  answers.forEach((a,i)=>{ if(a===null) missQ.push(i+1); });
+  const qBlocks = document.querySelectorAll('#quiz1 .quiz-q');
+  qBlocks.forEach(b=>b.classList.remove('miss'));
+  if(missQ.length){
+    missQ.forEach(n=>{ if(qBlocks[n-1]) qBlocks[n-1].classList.add('miss'); });
+    if(qBlocks[missQ[0]-1]) qBlocks[missQ[0]-1].scrollIntoView({behavior:'smooth', block:'center'});
+    alert('ยังตอบไม่ครบ ' + missQ.length + ' ข้อ — ข้อ ' + missQ.join(', ') + '\nระบบไฮไลต์สีแดงให้แล้ว เลื่อนไปตอบให้ครบแล้วกดตรวจคำตอบอีกครั้ง');
+    return;
+  }
   const pct = Math.round(score/data.length*100);
   const resEl = document.getElementById(resultId);
   resEl.classList.add('show');
@@ -741,16 +764,24 @@ function gradeCCPR(){
   const sums = {C1:0,C2:0,P:0,R:0};
   const counts = {C1:0,C2:0,P:0,R:0};
   const rawScores = [];
-  let answeredAll = true;
+  const missing = [];
   ccprItems.forEach((item,i)=>{
     const chosen = document.querySelector(`input[name="ccpr_q${i}"]:checked`);
-    if(!chosen){ answeredAll=false; return; }
+    if(!chosen){ missing.push(i+1); return; }
     const v = parseInt(chosen.value);
     rawScores.push(v);
     sums[item[0]] += v;
     counts[item[0]] += 1;
   });
-  if(!answeredAll){ alert('กรุณาตอบให้ครบทุกข้อก่อนประมวลผล'); return; }
+  const rows = document.querySelectorAll('#likertTable tr');
+  rows.forEach(tr=>tr.classList.remove('miss'));
+  if(missing.length){
+    missing.forEach(n=>{ if(rows[n]) rows[n].classList.add('miss'); });
+    if(rows[missing[0]]) rows[missing[0]].scrollIntoView({behavior:'smooth', block:'center'});
+    alert('ยังตอบไม่ครบ ' + missing.length + ' ข้อ จาก 20 ข้อ — ข้อ ' + missing.join(', ') +
+          '\nระบบไฮไลต์สีแดงให้แล้ว เลื่อนไปตอบให้ครบแล้วกดประมวลผลอีกครั้ง');
+    return;
+  }
   const resultBox = document.getElementById('ccprResult');
   resultBox.style.display='block';
   const bars = document.getElementById('ccprBars');
