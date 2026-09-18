@@ -434,7 +434,7 @@
     <div id="summaryList"></div>
     <div class="row-actions">
       <button class="btn secondary" onclick="window.print()">🖨️ พิมพ์/บันทึกเป็น PDF</button>
-      <button class="btn secondary" onclick="if(confirm('ล้างข้อมูลที่บันทึกไว้ทั้งหมด?')){localStorage.clear();location.reload();}">🗑️ ล้างข้อมูลทั้งหมด</button>
+      <button class="btn secondary" onclick="if(confirm('ล้างข้อมูลที่บันทึกไว้ของฉันทั้งหมด?')){clearMyData();location.reload();}">🗑️ ล้างข้อมูลทั้งหมด</button>
     </div>
   </div>
 </section>
@@ -531,6 +531,19 @@ function getProfile(){
   return raw ? JSON.parse(raw) : null;
 }
 
+/* แยกข้อมูลของนักเรียนแต่ละคนออกจากกัน (กันข้อมูลปนกันเมื่อใช้เครื่องร่วมกัน) */
+function dataKey(k){
+  const p = getProfile();
+  return (p && p.sid ? p.sid : 'guest') + '::' + k;
+}
+function lsSet(k, v){ localStorage.setItem(dataKey(k), v); }
+function lsGet(k){ return localStorage.getItem(dataKey(k)); }
+function clearMyData(){
+  const p = getProfile();
+  const prefix = (p && p.sid ? p.sid : 'guest') + '::';
+  Object.keys(localStorage).filter(k=>k.indexOf(prefix)===0).forEach(k=>localStorage.removeItem(k));
+}
+
 function doLogin(){
   const room = document.getElementById('loginRoom').value;
   const sid = document.getElementById('loginName').value;
@@ -540,7 +553,7 @@ function doLogin(){
   if(!student){ errEl.textContent = 'ไม่พบข้อมูลนักเรียน กรุณาเลือกใหม่'; return; }
   errEl.textContent = '';
   localStorage.setItem('student_profile', JSON.stringify(student));
-  enterApp(student);
+  location.reload();   // รีโหลดเพื่อล้างคำตอบของคนก่อนหน้าที่ค้างอยู่ในหน้าจอ
 }
 
 function logout(){
@@ -602,10 +615,10 @@ function saveField(ids, actKey){
   const fields = {};
   ids.forEach(id=>{
     const el = document.getElementById(id);
-    localStorage.setItem(id, el.value);
+    lsSet(id, el.value);
     fields[id] = el.value;
   });
-  localStorage.setItem(actKey+'_worksheet_done','1');
+  lsSet(actKey+'_worksheet_done','1');
   const note = document.getElementById(actKey+'_saved');
   if(note){ note.textContent = '✔ บันทึกแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH'); }
   markTabDone(actKey);
@@ -613,27 +626,26 @@ function saveField(ids, actKey){
 }
 function loadFields(){
   document.querySelectorAll('textarea, input[type=text]').forEach(el=>{
-    const v = localStorage.getItem(el.id);
-    if(v!==null) el.value = v;
+    const v = lsGet(el.id);
+    el.value = (v!==null ? v : '');   // ไม่เคยบันทึก = ต้องว่าง ไม่ใช่ค่าของคนก่อน
   });
   document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
-    const v = localStorage.getItem(cb.dataset.k);
-    if(v==='1') cb.checked = true;
+    cb.checked = (lsGet(cb.dataset.k)==='1');
   });
 }
 function saveChecklist(){
   document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{
-    localStorage.setItem(cb.dataset.k, cb.checked ? '1':'0');
+    lsSet(cb.dataset.k, cb.checked ? '1':'0');
   });
 }
 function submitAct3(){
   const ids = ['c3_bio','c3_skills','c3_works','c3_link'];
   const fields = {};
-  ids.forEach(id=>{ const el=document.getElementById(id); localStorage.setItem(id, el.value); fields[id]=el.value; });
+  ids.forEach(id=>{ const el=document.getElementById(id); lsSet(id, el.value); fields[id]=el.value; });
   saveChecklist();
   const checklist = {};
   document.querySelectorAll('.checklist input[type=checkbox]').forEach(cb=>{ checklist[cb.dataset.k]=cb.checked; });
-  localStorage.setItem('act3_worksheet_done','1');
+  lsSet('act3_worksheet_done','1');
   const note = document.getElementById('act3_saved');
   if(note){ note.textContent = '✔ บันทึกแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH'); }
   markTabDone('act3');
@@ -679,7 +691,7 @@ function gradeQuiz(dataName, resultId, actKey){
   resEl.classList.toggle('pass', pct>=70);
   resEl.classList.toggle('fail', pct<70);
   resEl.textContent = `ได้คะแนน ${score}/${data.length} (${pct}%) — ${pct>=70? 'ผ่านเกณฑ์ 👏':'ยังไม่ผ่านเกณฑ์ร้อยละ 70 ลองทบทวนอีกครั้ง'}`;
-  localStorage.setItem(actKey+'_quiz_score', pct);
+  lsSet(actKey+'_quiz_score', pct);
   if(pct>=70) markTabDone(actKey);
   // ส่งคำตอบดิบไปให้เซิร์ฟเวอร์ตรวจให้คะแนนอย่างเป็นทางการ (กันการแก้ไขคะแนนฝั่งไคลเอนต์)
   submitToServer('quiz1', { activity: actKey, answers, clientScorePct: pct }, 'quiz1_sync');
@@ -748,7 +760,7 @@ function gradeCCPR(){
     const max = counts[k]*5;
     const pct = Math.round(sums[k]/max*100);
     overallPct += pct;
-    localStorage.setItem('ccpr_'+k, pct);
+    lsSet('ccpr_'+k, pct);
     bars.innerHTML += `
       <div class="dim-result">
         <div class="lab">${dimNames[k]}</div>
@@ -759,7 +771,7 @@ function gradeCCPR(){
       </div>`;
   });
   overallPct = Math.round(overallPct/4);
-  localStorage.setItem('ccpr_overall', overallPct);
+  lsSet('ccpr_overall', overallPct);
   bars.innerHTML += `<p style="margin-top:10px"><b>ค่าเฉลี่ยรวม ${overallPct}%</b> — ${overallPct>=70? '✅ ผ่านเกณฑ์ร้อยละ 70':'⚠️ ยังไม่ผ่านเกณฑ์ร้อยละ 70'}</p>`;
   markTabDone('posttest');
   submitToServer('posttest', { scores: rawScores }, 'posttest_sync');
@@ -778,11 +790,11 @@ function renderSummary(){
   ];
   const el = document.getElementById('summaryList');
   el.innerHTML = items.map(([key,label])=>{
-    const done = localStorage.getItem(key+'_worksheet_done')==='1' || document.querySelector(`nav.tabs button[data-page="${key}"]`).classList.contains('done');
+    const done = lsGet(key+'_worksheet_done')==='1' || document.querySelector(`nav.tabs button[data-page="${key}"]`).classList.contains('done');
     return `<div class="mini-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
       <span>${label}</span><span>${done? '✅ ทำแล้ว':'⬜ ยังไม่ทำ'}</span></div>`;
   }).join('');
-  const overall = localStorage.getItem('ccpr_overall');
+  const overall = lsGet('ccpr_overall');
   if(overall){
     el.innerHTML += `<p style="margin-top:14px"><b>ผลรวมคุณลักษณะเชิงก้าวหน้า CCPR: ${overall}%</b></p>`;
   }
@@ -792,7 +804,7 @@ function renderSummary(){
 document.addEventListener('DOMContentLoaded', ()=>{
   loadFields();
   ['act1','act2','act3','act4','posttest'].forEach(k=>{
-    if(localStorage.getItem(k+'_worksheet_done')==='1') markTabDone(k);
+    if(lsGet(k+'_worksheet_done')==='1') markTabDone(k);
   });
   const existing = getProfile();
   if(existing){ enterApp(existing); }
