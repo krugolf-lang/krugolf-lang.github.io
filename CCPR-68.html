@@ -106,6 +106,10 @@
   @media print{ nav.tabs, .btn, header.top{display:none!important;} section.page{display:block!important;} }
 
   #likertTable tr.miss td{background:#fdeeec;}
+  .lock-note{display:none;margin-top:12px;padding:12px 16px;border-radius:10px;
+    background:#eef6ff;border:1px solid #cfe3ff;color:var(--navy);font-size:.92rem;line-height:1.6;}
+  .likert input:disabled{opacity:.45;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
   .quiz-q.miss{border-color:var(--r);background:#fdeeec;}
 
   /* ---------- login screen ---------- */
@@ -414,14 +418,18 @@
   <div class="card">
     <h2>แบบวัดคุณลักษณะเชิงก้าวหน้า CCPR</h2>
     <p>ให้นักเรียนประเมินตนเองหลังเรียนจบทั้ง 4 กิจกรรม โดยเลือกระดับที่ตรงกับตนเองมากที่สุด
-    (5 = มากที่สุด, 4 = มาก, 3 = ปานกลาง, 2 = น้อย, 1 = น้อยที่สุด) เกณฑ์ผ่านร้อยละ 70 ในแต่ละด้าน</p>
+    (5 = มากที่สุด, 4 = มาก, 3 = ปานกลาง, 2 = น้อย, 1 = น้อยที่สุด)</p>
+    <p style="color:var(--sub)">แบบวัดนี้ไม่มีคำตอบถูกหรือผิด และไม่ได้นำไปตัดเกรด
+    ขอให้ตอบตามความเป็นจริงที่สุด เพื่อให้ผลสะท้อนตัวตนของนักเรียนจริง ๆ
+    <b>ทำได้ครั้งเดียว</b> เมื่อส่งแล้วจะแก้ไขไม่ได้ กรุณาตรวจทานก่อนกดประมวลผล</p>
   </div>
   <div class="card">
     <table class="likert" id="likertTable"></table>
     <div class="row-actions">
-      <button class="btn" onclick="gradeCCPR()">📊 ประมวลผล</button>
+      <button class="btn" id="btnGradeCCPR" onclick="gradeCCPR()">📊 ประมวลผล</button>
       <span class="sync-note" id="posttest_sync"></span>
     </div>
+    <div class="lock-note" id="posttest_lock"></div>
   </div>
   <div class="card" id="ccprResult" style="display:none">
     <h3>ผลการประเมินคุณลักษณะเชิงก้าวหน้า CCPR</h3>
@@ -571,10 +579,11 @@ function enterApp(student){
   document.getElementById('studentBar').innerHTML =
     `<span>เข้าสู่ระบบเป็น: <b>${student.name}</b> (ม.6/${student.room} เลขที่ ${student.no})</span>` +
     `<a onclick="logout()">ออกจากระบบ</a>`;
+  checkPosttestStatus();
 }
 
 /* ส่งข้อมูลไปยัง Google Apps Script Web App (Google Sheets) */
-function submitToServer(type, payload, statusElId){
+function submitToServer(type, payload, statusElId, onDone){
   const student = getProfile();
   const showStatus = (ok, msg)=>{
     if(!statusElId) return;
@@ -592,13 +601,19 @@ function submitToServer(type, payload, statusElId){
     return;
   }
   const body = JSON.stringify({ type, student, payload, ts: new Date().toISOString() });
+  showStatus(true, '⏳ กำลังส่งเข้าระบบ...');
   fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body })
     .then(r=>r.json())
     .then(res=>{
       if(res && res.ok){ showStatus(true, '🌐 ส่งเข้าระบบครูแล้ว เมื่อ ' + new Date().toLocaleTimeString('th-TH')); }
+      else if(res && res.locked){ showStatus(false, '🔒 ' + (res.error || 'ส่งไปแล้ว ไม่สามารถส่งซ้ำได้')); }
       else{ showStatus(false, '⚠️ ส่งเข้าระบบไม่สำเร็จ (เซิร์ฟเวอร์ตอบผิดพลาด) — บันทึกในเครื่องไว้แล้ว'); }
+      if(onDone) onDone(res || {});
     })
-    .catch(()=>{ showStatus(false, '⚠️ ส่งเข้าระบบไม่สำเร็จ (ออฟไลน์/เชื่อมต่อไม่ได้) — บันทึกในเครื่องไว้แล้ว'); });
+    .catch(()=>{
+      showStatus(false, '⚠️ ส่งเข้าระบบไม่สำเร็จ (ออฟไลน์/เชื่อมต่อไม่ได้) — บันทึกในเครื่องไว้แล้ว');
+      if(onDone) onDone({ ok:false, offline:true });
+    });
 }
 
 /* ---------- tab navigation ---------- */
@@ -720,6 +735,30 @@ function gradeQuiz(dataName, resultId, actKey){
   submitToServer('quiz1', { activity: actKey, answers, clientScorePct: pct }, 'quiz1_sync');
 }
 
+/* ---------- ล็อกแบบวัด CCPR (ทำได้ครั้งเดียว) ---------- */
+function lockPosttest(whenText){
+  document.querySelectorAll('#likertTable input[type=radio]').forEach(r=>{ r.disabled = true; });
+  const btn = document.getElementById('btnGradeCCPR');
+  if(btn) btn.disabled = true;
+  const note = document.getElementById('posttest_lock');
+  if(note){
+    note.style.display = 'block';
+    note.innerHTML = '🔒 <b>ส่งแบบวัดเรียบร้อยแล้ว' + (whenText ? ' เมื่อ ' + whenText : '') + '</b><br>' +
+      'แบบวัดคุณลักษณะ CCPR ทำได้ครั้งเดียว หากจำเป็นต้องทำใหม่ (เช่น กดพลาดหรือเน็ตหลุด) กรุณาแจ้งครูผู้สอน';
+  }
+}
+
+/* ถามเซิร์ฟเวอร์ว่านักเรียนคนนี้ส่งแบบวัดไปแล้วหรือยัง (กันการทำซ้ำข้ามเครื่อง) */
+function checkPosttestStatus(){
+  const student = getProfile();
+  if(!student || !GAS_URL || GAS_URL.indexOf('PASTE_') === 0) return;
+  const body = JSON.stringify({ type:'status', student, payload:{}, ts:new Date().toISOString() });
+  fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body })
+    .then(r=>r.json())
+    .then(res=>{ if(res && res.ok && res.posttestDone) lockPosttest(res.submittedAt); })
+    .catch(()=>{});
+}
+
 /* ---------- CCPR post-test (20 items, 5-point Likert) ---------- */
 const ccprItems = [
   ["C1","ข้าพเจ้าพิจารณาข้อมูลรอบด้านก่อนตัดสินใจเลือกแนวทางอาชีพของตนเอง"],
@@ -803,9 +842,12 @@ function gradeCCPR(){
   });
   overallPct = Math.round(overallPct/4);
   lsSet('ccpr_overall', overallPct);
-  bars.innerHTML += `<p style="margin-top:10px"><b>ค่าเฉลี่ยรวม ${overallPct}%</b> — ${overallPct>=70? '✅ ผ่านเกณฑ์ร้อยละ 70':'⚠️ ยังไม่ผ่านเกณฑ์ร้อยละ 70'}</p>`;
+  bars.innerHTML += `<p style="margin-top:12px;color:var(--sub)">แถบด้านบนคือภาพสะท้อนคุณลักษณะของนักเรียนเอง
+    ลองดูว่าด้านใดเป็นจุดแข็ง และด้านใดที่อยากพัฒนาต่อในอนาคต</p>`;
   markTabDone('posttest');
-  submitToServer('posttest', { scores: rawScores }, 'posttest_sync');
+  submitToServer('posttest', { scores: rawScores }, 'posttest_sync', function(res){
+    if(res && (res.ok || res.locked)) lockPosttest(res.submittedAt);
+  });
 }
 
 /* ---------- misc ---------- */
@@ -825,9 +867,9 @@ function renderSummary(){
     return `<div class="mini-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
       <span>${label}</span><span>${done? '✅ ทำแล้ว':'⬜ ยังไม่ทำ'}</span></div>`;
   }).join('');
-  const overall = lsGet('ccpr_overall');
-  if(overall){
-    el.innerHTML += `<p style="margin-top:14px"><b>ผลรวมคุณลักษณะเชิงก้าวหน้า CCPR: ${overall}%</b></p>`;
+  if(lsGet('ccpr_overall')){
+    el.innerHTML += `<p style="margin-top:14px;color:var(--sub)">ส่งแบบวัดคุณลักษณะเชิงก้าวหน้า CCPR เรียบร้อยแล้ว
+      ผลการประเมินตามเกณฑ์อยู่ในระบบของครูผู้สอน</p>`;
   }
 }
 
