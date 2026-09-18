@@ -748,6 +748,7 @@ function lockPosttest(whenText){
   if(note){
     note.style.display = 'block';
     note.innerHTML = '🔒 <b>ส่งแบบวัดเรียบร้อยแล้ว' + (whenText ? ' เมื่อ ' + whenText : '') + '</b><br>' +
+      'ดูผลคุณลักษณะ 4 ด้านของตนเองได้ที่หน้า <b>สรุปผล</b><br>' +
       'แบบวัดคุณลักษณะ CCPR ทำได้ครั้งเดียว หากจำเป็นต้องทำใหม่ (เช่น กดพลาดหรือเน็ตหลุด) กรุณาแจ้งครูผู้สอน';
   }
 }
@@ -825,29 +826,16 @@ function gradeCCPR(){
           '\nระบบไฮไลต์สีแดงให้แล้ว เลื่อนไปตอบให้ครบแล้วกดประมวลผลอีกครั้ง');
     return;
   }
-  const resultBox = document.getElementById('ccprResult');
-  resultBox.style.display='block';
-  const bars = document.getElementById('ccprBars');
-  bars.innerHTML = '';
+  // คำนวณและเก็บผลไว้ ส่วนการแสดงแถบ 4 ด้าน ไปอยู่ที่หน้า "สรุปผล"
   let overallPct = 0;
   Object.keys(sums).forEach(k=>{
     const max = counts[k]*5;
     const pct = Math.round(sums[k]/max*100);
     overallPct += pct;
     lsSet('ccpr_'+k, pct);
-    bars.innerHTML += `
-      <div class="dim-result">
-        <div class="lab">${dimNames[k]}</div>
-        <div style="flex:1">
-          <div class="progress-bar"><div style="width:${pct}%;background:${dimColor[k]}"></div></div>
-        </div>
-        <div class="pct" style="color:${dimColor[k]}">${pct}%</div>
-      </div>`;
   });
   overallPct = Math.round(overallPct/4);
   lsSet('ccpr_overall', overallPct);
-  bars.innerHTML += `<p style="margin-top:12px;color:var(--sub)">แถบด้านบนคือภาพสะท้อนคุณลักษณะของนักเรียนเอง
-    ลองดูว่าด้านใดเป็นจุดแข็ง และด้านใดที่อยากพัฒนาต่อในอนาคต</p>`;
   markTabDone('posttest');
   submitToServer('posttest', { scores: rawScores }, 'posttest_sync', function(res){
     if(res && (res.ok || res.locked)) lockPosttest(res.submittedAt);
@@ -873,8 +861,26 @@ function renderSummary(){
   }).join('');
   if(lsGet('posttest_worksheet_done')==='1'){
     const when = lsGet('posttest_submitted_at');
-    el.innerHTML += `<p style="margin-top:14px;color:var(--sub)">ส่งแบบวัดคุณลักษณะเชิงก้าวหน้า CCPR เรียบร้อยแล้ว${when? ' เมื่อ ' + when : ''}
-      ผลการประเมินตามเกณฑ์อยู่ในระบบของครูผู้สอน</p>`;
+    let html = `<h3 style="margin-top:24px">คุณลักษณะเชิงก้าวหน้า CCPR ของฉัน</h3>`;
+    let hasBars = false;
+    ['C1','C2','P','R'].forEach(k=>{
+      const pct = lsGet('ccpr_'+k);
+      if(pct===null) return;
+      hasBars = true;
+      html += `
+      <div class="dim-result">
+        <div class="lab">${dimNames[k]}</div>
+        <div style="flex:1">
+          <div class="progress-bar"><div style="width:${pct}%;background:${dimColor[k]}"></div></div>
+        </div>
+        <div class="pct" style="color:${dimColor[k]}">${pct}%</div>
+      </div>`;
+    });
+    html += `<p style="margin-top:12px;color:var(--sub)">แถบด้านบนคือภาพสะท้อนคุณลักษณะที่นักเรียนประเมินตนเอง
+      ลองดูว่าด้านใดเป็นจุดแข็ง และด้านใดที่อยากพัฒนาต่อในอนาคต</p>`;
+    html += `<p style="color:var(--sub);font-size:.88rem">ส่งแบบวัดเรียบร้อยแล้ว${when? ' เมื่อ ' + when : ''}
+      · ผลการประเมินตามเกณฑ์อยู่ในระบบของครูผู้สอน</p>`;
+    if(hasBars) el.innerHTML += html;
   }
 }
 
