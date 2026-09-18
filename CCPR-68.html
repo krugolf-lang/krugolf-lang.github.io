@@ -737,6 +737,10 @@ function gradeQuiz(dataName, resultId, actKey){
 
 /* ---------- ล็อกแบบวัด CCPR (ทำได้ครั้งเดียว) ---------- */
 function lockPosttest(whenText){
+  // จำไว้ว่าทำแบบวัดแล้ว เพื่อให้หน้า "สรุปผล" และแถบด้านบนแสดงสถานะถูกต้องหลังรีเฟรช
+  lsSet('posttest_worksheet_done','1');
+  if(whenText) lsSet('posttest_submitted_at', whenText);
+  markTabDone('posttest');
   document.querySelectorAll('#likertTable input[type=radio]').forEach(r=>{ r.disabled = true; });
   const btn = document.getElementById('btnGradeCCPR');
   if(btn) btn.disabled = true;
@@ -867,8 +871,9 @@ function renderSummary(){
     return `<div class="mini-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
       <span>${label}</span><span>${done? '✅ ทำแล้ว':'⬜ ยังไม่ทำ'}</span></div>`;
   }).join('');
-  if(lsGet('ccpr_overall')){
-    el.innerHTML += `<p style="margin-top:14px;color:var(--sub)">ส่งแบบวัดคุณลักษณะเชิงก้าวหน้า CCPR เรียบร้อยแล้ว
+  if(lsGet('posttest_worksheet_done')==='1'){
+    const when = lsGet('posttest_submitted_at');
+    el.innerHTML += `<p style="margin-top:14px;color:var(--sub)">ส่งแบบวัดคุณลักษณะเชิงก้าวหน้า CCPR เรียบร้อยแล้ว${when? ' เมื่อ ' + when : ''}
       ผลการประเมินตามเกณฑ์อยู่ในระบบของครูผู้สอน</p>`;
   }
 }
