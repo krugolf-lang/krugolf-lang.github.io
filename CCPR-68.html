@@ -768,6 +768,46 @@ function checkPosttestStatus(){
           if(res.acts[k]){ lsSet(k+'_worksheet_done','1'); markTabDone(k); }
         });
       }
+      // ดึงคำตอบใบงานเดิมจากชีตมาเติมในฟอร์ม (เติมเฉพาะช่องที่ยังว่าง จะได้ไม่ทับของที่เพิ่งพิมพ์)
+      if(res.answers){
+        Object.keys(res.answers).forEach(k=>{
+          const d = res.answers[k];
+          if(!d) return;
+          if(d.fields){
+            Object.keys(d.fields).forEach(id=>{
+              const el = document.getElementById(id);
+              if(el && !el.value){ el.value = d.fields[id]; lsSet(id, d.fields[id]); }
+            });
+          }
+          if(d.quiz && Array.isArray(d.quiz)){
+            d.quiz.forEach((v,i)=>{
+              if(v===null || v===undefined) return;
+              const name = 'quiz1_q'+i;
+              if(document.querySelector('input[name="'+name+'"]:checked')) return;   // ไม่ทับของที่เพิ่งเลือก
+              const r = document.querySelector('input[name="'+name+'"][value="'+v+'"]');
+              if(r){ r.checked = true; lsSet('radio::'+name, String(v)); }
+            });
+            if(d.quizScore !== undefined && d.quizScore !== null && d.quizScore !== ''){
+              const resEl = document.getElementById('quiz1_result');
+              if(resEl && !resEl.classList.contains('show')){
+                const pct = Number(d.quizScore);
+                resEl.classList.add('show');
+                resEl.classList.toggle('pass', pct>=70);
+                resEl.classList.toggle('fail', pct<70);
+                resEl.textContent = 'คะแนนที่บันทึกไว้ในระบบ: ' + pct + '% — ' +
+                  (pct>=70 ? 'ผ่านเกณฑ์ 👏' : 'ยังไม่ผ่านเกณฑ์ร้อยละ 70 ลองทบทวนแล้วทำใหม่ได้');
+                lsSet('act1_quiz_score', pct);
+              }
+            }
+          }
+          if(d.checklist){
+            Object.keys(d.checklist).forEach(key=>{
+              const cb = document.querySelector('.checklist input[data-k="'+key+'"]');
+              if(cb && lsGet(key)===null){ cb.checked = (d.checklist[key]===true || d.checklist[key]==='true' || d.checklist[key]==='1'); lsSet(key, cb.checked?'1':'0'); }
+            });
+          }
+        });
+      }
       if(res.posttestDone){
         // นำร้อยละรายด้านจากชีตมาเก็บไว้ เพื่อให้หน้า "สรุปผล" แสดงผลได้แม้เปิดจากเครื่องอื่น
         if(res.dims){
