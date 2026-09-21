@@ -761,7 +761,14 @@ function checkPosttestStatus(){
   fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body })
     .then(r=>r.json())
     .then(res=>{
-      if(res && res.ok && res.posttestDone){
+      if(!res || !res.ok) return;
+      // จุดสถานะของกิจกรรม 1-4 ให้ยึดตามข้อมูลจริงในชีตของครู
+      if(res.acts){
+        Object.keys(res.acts).forEach(k=>{
+          if(res.acts[k]){ lsSet(k+'_worksheet_done','1'); markTabDone(k); }
+        });
+      }
+      if(res.posttestDone){
         // นำร้อยละรายด้านจากชีตมาเก็บไว้ เพื่อให้หน้า "สรุปผล" แสดงผลได้แม้เปิดจากเครื่องอื่น
         if(res.dims){
           ['C1','C2','P','R'].forEach(k=>{
@@ -770,9 +777,9 @@ function checkPosttestStatus(){
           });
         }
         lockPosttest(res.submittedAt);
-        const sumPage = document.getElementById('summary');
-        if(sumPage && sumPage.classList.contains('active')) renderSummary();
       }
+      const sumPage = document.getElementById('summary');
+      if(sumPage && sumPage.classList.contains('active')) renderSummary();
     })
     .catch(()=>{});
 }
