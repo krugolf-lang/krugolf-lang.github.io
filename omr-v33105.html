@@ -320,6 +320,7 @@ function processImage(im){
   for(let i=0,p=0;i<gray.length;i++,p+=4)gray[i]=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];
   const found=detectTable();
   if(found)autoOrient();
+  uprightImage();
   $('detectPill').className='pill '+(found?'ok':'warn');
   $('detectPill').textContent=found?'พบตาราง':'หาตารางไม่เจอ ลากมุมเอง';
   ['adjustCard','resultCard','part2Card','saveCard'].forEach(id=>$(id).hidden=false);
@@ -438,6 +439,20 @@ function autoOrient(){
   doWarp(rot(quad,base+2));const c2=numberColScore();
   quad=rot(quad,c2>c0?base+2:base);
 }
+// turn the photo so the table header sits at the top of the preview
+function uprightImage(){
+  const vx=quad[1][0]-quad[0][0],vy=quad[1][1]-quad[0][1];
+  const ang=Math.atan2(vy,vx)*180/Math.PI; // 0 = upright
+  const turns=ang>45&&ang<=135?3:ang<-45&&ang>=-135?1:Math.abs(ang)>135?2:0; // 90° clockwise turns
+  for(let t=0;t<turns;t++){
+    const c=document.createElement('canvas');c.width=sh;c.height=sw;const cx=c.getContext('2d');
+    cx.translate(sh,0);cx.rotate(Math.PI/2);cx.drawImage(img,0,0);
+    const g=new Float32Array(sw*sh);
+    for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)g[x*sh+(sh-1-y)]=gray[y*sw+x];
+    quad=quad.map(([x,y])=>[sh-1-y,x]);
+    img=c;gray=g;[sw,sh]=[sh,sw];
+  }
+}
 function readAnswers(){
   doWarp(quad);
   // measure ink per option cell + detect cancelled marks (X with 2 strike lines)
@@ -486,7 +501,7 @@ srcCv.addEventListener('pointerdown',e=>{if(!quad)return;const[x,y]=ptr(e);let b
 srcCv.addEventListener('pointermove',e=>{if(drag<0)return;const[x,y]=ptr(e);quad[drag]=[Math.max(0,Math.min(sw,x)),Math.max(0,Math.min(sh,y))];drawSrc()});
 const endDrag=()=>{if(drag<0)return;drag=-1;readAnswers()};
 srcCv.addEventListener('pointerup',endDrag);srcCv.addEventListener('pointercancel',endDrag);
-$('rotBtn').onclick=()=>{if(!quad)return;quad=rot(quad,1);drawSrc();readAnswers()};
+$('rotBtn').onclick=()=>{if(!quad)return;quad=rot(quad,1);uprightImage();drawSrc();readAnswers()};
 window.addEventListener('resize',()=>{if(img)drawSrc()});
 
 function drawWarpOverlay(){
