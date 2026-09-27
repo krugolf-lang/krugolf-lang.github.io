@@ -65,6 +65,7 @@ canvas{display:block;max-width:100%;border-radius:8px;touch-action:none}
 .chip{width:32px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:600 14px var(--font);cursor:pointer;padding:0}
 .chip.sel{background:var(--ink);border-color:var(--ink);color:#fff}
 .chip.key{box-shadow:inset 0 0 0 2px var(--ok)}
+.chip.cxl{text-decoration:line-through double;color:var(--bad)}
 .q .mark{width:18px;text-align:center;font-weight:700}
 .q.ok .mark{color:var(--ok)} .q.bad .mark{color:var(--bad)} .q.warn .mark{color:var(--warn)}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
@@ -118,6 +119,7 @@ textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var
     <p id="loadMsg" class="pill ok" style="margin:10px 0 0" hidden>กำลังอ่านรูป...</p>
     <ul class="steps" style="margin-top:12px">
       <li>ถ่ายให้เห็นตาราง ตอนที่ 1 ครบทั้ง 4 มุม วางกระดาษบนพื้นเรียบ แสงสม่ำเสมอ</li>
+      <li>ถ้านักเรียนเปลี่ยนคำตอบ ให้ขีด 2 เส้นทับกากบาทเดิม (แบบ ≠) แล้วกาช่องใหม่ ระบบจะไม่นับช่องที่ขีดฆ่า</li>
       <li>ระบบหาตารางให้อัตโนมัติ ถ้าเส้นกริดไม่ตรง ลากจุดมุมสีน้ำเงินให้ตรงมุมตาราง</li>
     </ul>
   </div>
@@ -144,6 +146,7 @@ textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var
       <span><i style="background:var(--bad-soft)"></i>ผิด</span>
       <span><i style="background:var(--warn-soft)"></i>ไม่แน่ใจ/ว่าง ควรดูอีกที</span>
       <span><i style="box-shadow:inset 0 0 0 2px var(--ok)"></i>ข้อที่ถูก</span>
+      <span style="color:var(--bad);text-decoration:line-through double">ข</span><span>= ขีดฆ่า (ยกเลิก)</span>
     </div>
     <p class="muted" style="margin:0 0 8px">แตะตัวเลือกเพื่อแก้คำตอบที่ระบบอ่านผิด</p>
     <div class="answers" id="ansGrid"></div>
@@ -275,8 +278,8 @@ function renderAnswers(){
     r.className='q '+(flags[i]?'warn':ok?'ok':'bad');
     r.innerHTML=`<span class="n">${i+1}</span>`;
     OPTS.forEach((o,j)=>{const c=document.createElement('button');
-      c.className='chip'+(a===j?' sel':'')+(KEY[i]===j?' key':'');c.textContent=o;
-      c.onclick=()=>{answers[i]=answers[i]===j?-1:j;flags[i]=0;renderAnswers();drawWarpOverlay()};r.appendChild(c)});
+      c.className='chip'+(a===j?' sel':'')+(KEY[i]===j?' key':'')+(cancelled[i]&&cancelled[i][j]?' cxl':'');c.textContent=o;
+      c.onclick=()=>{answers[i]=answers[i]===j?-1:j;flags[i]=0;if(cancelled[i])cancelled[i]=[0,0,0,0];renderAnswers();drawWarpOverlay()};r.appendChild(c)});
     const m=document.createElement('span');m.className='mark';m.textContent=flags[i]?'?':ok?'✓':'✗';r.appendChild(m);
     g.appendChild(r);
   }
@@ -377,6 +380,26 @@ function homography(s,d){
 const apply=(h,x,y)=>{const w=h[6]*x+h[7]*y+h[8];return[(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]};
 const RECT=[[0,0],[WW,0],[WW,WH],[0,WH]];
 
+const INK_MIN=0.035;let cancelled=[];
+// count near-horizontal parallel strike lines drawn across a cell (the "cancel" sign)
+function lineCov(xa,xb,c,t,xm){let hit=0,n=0;
+  for(let x=xa;x<xb;x++){if(x<0||x>=WW)continue;n++;const y=Math.round(c+t*(x-xm));if(y<1||y>=WH-1)continue;const p=y*WW+x;
+    if(warpBin[p]||warpBin[p-WW]||warpBin[p+WW])hit++}return n?hit/n:0}
+function strikeCount(x0,x1,y0,y1,dbg){
+  const cw=x1-x0,xa=Math.round(x0+cw*0.1),xb=Math.round(x1-cw*0.1);
+  const ya=Math.round(y0+(y1-y0)*0.12),yb=Math.round(y1-(y1-y0)*0.12),xm=(xa+xb)/2;
+  const cand=[];
+  for(let a=-20;a<=20;a+=2){const t=Math.tan(a*Math.PI/180);
+    for(let c=ya;c<=yb;c++){const cov=lineCov(xa,xb,c,t,xm);if(cov<0.55)continue;
+      // reject table grid lines: they continue through the neighbouring cells
+      const L=lineCov(Math.round(xa-cw*0.8),Math.round(xa-cw*0.2),c,t,xm),R=lineCov(Math.round(xb+cw*0.2),Math.round(xb+cw*0.8),c,t,xm);
+      if(L>0.6||R>0.6)continue;cand.push({a,c,cov})}}
+  cand.sort((p,q)=>q.cov-p.cov);const lines=[];
+  for(const L of cand){if(lines.some(K=>Math.abs(K.c-L.c)<5))continue;lines.push(L)}
+  if(dbg)return lines;
+  if(!lines.length)return 0;const a0=lines[0].a;
+  return lines.filter(L=>Math.abs(L.a-a0)<=10).length;
+}
 function readAnswers(){
   const H=homography(RECT,quad);
   warpGray=new Float32Array(WW*WH);
@@ -396,19 +419,22 @@ function readAnswers(){
         const v=sum[k]+(sum[k-1]||0)+(sum[k+1]||0);if(v>bv){bv=v;bi=k}}
       out.push(bi)}return out};
   gridX=refine(colSum,COLS,WW);gridY=refine(rowSum,ROWS,WH);
-  // measure ink per option cell
+  // measure ink per option cell + detect cancelled marks (X with 2 strike lines)
+  cancelled=[];
   for(let q=0;q<30;q++){
-    const row=(q%15)+1,c0=q<15?1:6,vals=[];
+    const row=(q%15)+1,c0=q<15?1:6,vals=[],cx=[];
     for(let o=0;o<4;o++){
       const x0=gridX[c0+o],x1=gridX[c0+o+1],y0=gridY[row],y1=gridY[row+1];
       const ix=(x1-x0)*0.17,iy=(y1-y0)*0.2;let ink=0,n=0;
       for(let y=Math.round(y0+iy);y<Math.round(y1-iy);y++)for(let x=Math.round(x0+ix);x<Math.round(x1-ix);x++){n++;ink+=warpBin[y*WW+x]}
-      vals.push(n?ink/n:0);
+      const v=n?ink/n:0;vals.push(v);
+      cx.push(v>=INK_MIN?strikeCount(x0,x1,y0,y1):0);
     }
-    const sorted=vals.slice().sort((a,b)=>b-a),mx=sorted[0];
-    const idx=vals.indexOf(mx);
-    if(mx<0.035){answers[q]=-1;flags[q]=1}
-    else{answers[q]=idx;flags[q]=(sorted[1]>mx*0.6&&sorted[1]>0.035)?1:0}
+    cancelled[q]=cx.map(c=>c>=2);
+    const live=[0,1,2,3].filter(o=>vals[o]>=INK_MIN&&!cancelled[q][o]).sort((a,b)=>vals[b]-vals[a]);
+    const anyStrike=cx.some(c=>c===1);
+    if(!live.length){answers[q]=-1;flags[q]=1}
+    else{answers[q]=live[0];flags[q]=(live.length>1&&vals[live[1]]>vals[live[0]]*0.6)||anyStrike?1:0}
   }
   renderAnswers();drawWarpOverlay();
 }
@@ -451,6 +477,7 @@ function drawWarpOverlay(){
     const row=(q%15)+1,c0=q<15?1:6,y0=gridY[row],y1=gridY[row+1];
     const k=KEY[q];c.strokeStyle='#17875A';c.lineWidth=4;
     c.strokeRect(gridX[c0+k]+4,y0+4,gridX[c0+k+1]-gridX[c0+k]-8,y1-y0-8);
+    (cancelled[q]||[]).forEach((cx,o)=>{if(!cx)return;const xa=gridX[c0+o],xb=gridX[c0+o+1];c.strokeStyle='rgba(201,58,52,.9)';c.lineWidth=3;c.setLineDash([6,4]);c.strokeRect(xa+3,y0+3,xb-xa-6,y1-y0-6);c.setLineDash([])});
     const a=answers[q];if(a<0)continue;
     c.fillStyle=flags[q]?'rgba(232,160,40,.35)':a===k?'rgba(23,135,90,.28)':'rgba(201,58,52,.35)';
     c.fillRect(gridX[c0+a]+2,y0+2,gridX[c0+a+1]-gridX[c0+a]-4,y1-y0-4);
@@ -466,7 +493,7 @@ $('saveBtn').onclick=()=>{
   toast(`บันทึกแล้ว ${rec.name||'(ไม่มีชื่อ)'} ได้ ${rec.total} คะแนน`);
   $('stName').value='';const n=parseInt(rec.no,10);$('stNo').value=isNaN(n)?'':n+1;
   ['adjustCard','resultCard','part2Card','saveCard'].forEach(id=>$(id).hidden=true);
-  answers.fill(-1);flags.fill(0);window.scrollTo({top:0,behavior:'smooth'});
+  answers.fill(-1);flags.fill(0);cancelled=[];window.scrollTo({top:0,behavior:'smooth'});
 };
 function sortedResults(){return results.map((r,i)=>({...r,i})).sort((a,b)=>(a.room||'').localeCompare(b.room||'','th')||(parseInt(a.no)||999)-(parseInt(b.no)||999))}
 function renderResults(){
@@ -490,7 +517,7 @@ $('clearNo').onclick=()=>{$('clearConfirm').hidden=true};
 $('clearYes').onclick=()=>{results=[];store.set('omr.results',results);$('clearConfirm').hidden=true;renderResults();toast('ล้างคะแนนแล้ว')};
 
 renderKey();renderRubric();
-window.__omr={get answers(){return answers},get flags(){return flags},get quad(){return quad}};
+window.__omr={dbg:(q,o,dbg)=>{const row=(q%15)+1,c0=q<15?1:6;return strikeCount(gridX[c0+o],gridX[c0+o+1],gridY[row],gridY[row+1],dbg)},get answers(){return answers},get flags(){return flags},get quad(){return quad}};
 })();
 </script>
 
