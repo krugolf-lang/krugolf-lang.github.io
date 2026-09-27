@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>สแกนตรวจ ว33105</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+body{margin:0}
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface2:#F5F7FA; --line:#D5DBE4;
+  --text:#18202E; --muted:#5B6678; --ink:#2B45C8; --ink-soft:#E3E8FB;
+  --ok:#17875A; --ok-soft:#DDF3E8; --bad:#C93A34; --bad-soft:#FBE3E1;
+  --warn:#B7791F; --warn-soft:#FBF0DA;
+  --font:"IBM Plex Sans Thai",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#10141C;--surface:#181E29;--surface2:#1F2633;--line:#2C3545;
+  --text:#E6EAF2;--muted:#95A0B3;--ink:#8FA2FF;--ink-soft:#243056;
+  --ok:#4CC98E;--ok-soft:#173A2A;--bad:#FF7A72;--bad-soft:#44201F;--warn:#E8B45A;--warn-soft:#3D2F16;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#10141C;--surface:#181E29;--surface2:#1F2633;--line:#2C3545;
+  --text:#E6EAF2;--muted:#95A0B3;--ink:#8FA2FF;--ink-soft:#243056;
+  --ok:#4CC98E;--ok-soft:#173A2A;--bad:#FF7A72;--bad-soft:#44201F;--warn:#E8B45A;--warn-soft:#3D2F16;}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.55;padding-inline:16px;padding-block:0 96px}
+.wrap{max-width:760px;margin:0 auto}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:18px 10px;flex-wrap:wrap}
+h1{font-size:20px;margin:0;font-weight:700;text-wrap:balance}
+h1 small{display:block;font-size:13px;font-weight:500;color:var(--muted)}
+h2{font-size:16px;margin:0 0 10px;font-weight:600}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+.tabs button{flex:1;border:0;background:none;padding:12px 4px;font:600 14px var(--font);color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);box-shadow:inset 0 3px 0 var(--ink)}
+section.panel{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:600 15px var(--font);padding:11px 16px;border-radius:10px;cursor:pointer}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0E1330}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0E1330}}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grow{flex:1 1 150px}
+.shoot{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shoot .pick{position:relative;overflow:hidden;min-height:84px;flex-direction:column;font-size:15px}
+.shoot .pick svg{width:26px;height:26px}
+.shoot .pick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:100px}
+.shoot .pick:focus-within{outline:3px solid var(--ink);outline-offset:2px}
+.muted{color:var(--muted);font-size:13px}
+canvas{display:block;max-width:100%;border-radius:8px;touch-action:none}
+#stage{position:relative}
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.score div{background:var(--surface2);border-radius:10px;padding:10px 4px}
+.score b{display:block;font:600 26px var(--mono);font-variant-numeric:tabular-nums}
+.score span{font-size:12px;color:var(--muted)}
+.score .total{background:var(--ink-soft)}
+.score .total b{color:var(--ink)}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:4px 16px}
+.q{display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:8px}
+.q .n{width:26px;font:600 13px var(--mono);color:var(--muted);text-align:right;margin-right:4px}
+.q.ok{background:var(--ok-soft)} .q.bad{background:var(--bad-soft)} .q.warn{background:var(--warn-soft)}
+.chip{width:32px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:600 14px var(--font);cursor:pointer;padding:0}
+.chip.sel{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.key{box-shadow:inset 0 0 0 2px var(--ok)}
+.q .mark{width:18px;text-align:center;font-weight:700}
+.q.ok .mark{color:var(--ok)} .q.bad .mark{color:var(--bad)} .q.warn .mark{color:var(--warn)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.field input{font:500 15px var(--font);padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);width:100%}
+.rubric{display:flex;flex-direction:column;gap:2px}
+.rubric label{display:flex;gap:10px;align-items:flex-start;padding:6px 4px;border-radius:6px;cursor:pointer}
+.rubric input{width:18px;height:18px;margin-top:3px;accent-color:var(--ok)}
+.rubric .en{color:var(--muted);font-size:13px}
+.sub{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 4px}
+.sub b{font-family:var(--mono)}
+details summary{cursor:pointer;font-weight:600}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.del{border:0;background:none;color:var(--bad);cursor:pointer;font:600 13px var(--font)}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:20;max-width:90vw}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.steps{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>สแกนตรวจกระดาษคำตอบ<small>วิทยาการคำนวณ ว33105 · ม.6 · ปรนัย 30 ข้อ + อัตนัย 2 ข้อ</small></h1>
+</header>
+
+<!-- ============ ตรวจ ============ -->
+<section class="panel" id="p-scan">
+  <div class="card">
+    <h2>1. ถ่ายรูปกระดาษคำตอบ</h2>
+    <div class="shoot">
+      <div class="btn primary pick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        ถ่ายรูป
+        <input type="file" id="camIn" accept="image/*" capture="environment" aria-label="ถ่ายรูป">
+      </div>
+      <div class="btn pick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>
+        เลือกรูปจากเครื่อง
+        <input type="file" id="fileIn" accept="image/*" aria-label="เลือกรูปจากเครื่อง">
+      </div>
+    </div>
+    <p id="loadMsg" class="pill ok" style="margin:10px 0 0" hidden>กำลังอ่านรูป...</p>
+    <ul class="steps" style="margin-top:12px">
+      <li>ถ่ายให้เห็นตาราง ตอนที่ 1 ครบทั้ง 4 มุม วางกระดาษบนพื้นเรียบ แสงสม่ำเสมอ</li>
+      <li>ระบบหาตารางให้อัตโนมัติ ถ้าเส้นกริดไม่ตรง ลากจุดมุมสีน้ำเงินให้ตรงมุมตาราง</li>
+    </ul>
+  </div>
+
+  <div class="card" id="adjustCard" hidden>
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">2. ตรวจตำแหน่งตาราง</h2>
+      <span id="detectPill" class="pill ok">พบตาราง</span>
+    </div>
+    <div id="stage"><canvas id="srcCv"></canvas></div>
+    <p class="muted" style="margin:8px 0 0">ลากจุดมุมทั้ง 4 ให้ตรงมุมนอกของตาราง (รวมแถวหัว "ข้อ ก ข ค ง") ระบบจะอ่านคำตอบใหม่ทันทีที่ปล่อยนิ้ว</p>
+  </div>
+
+  <div class="card" id="resultCard" hidden>
+    <h2>3. ผลการตรวจ</h2>
+    <div class="score">
+      <div><b id="s1">0</b><span>ตอนที่ 1 / 30</span></div>
+      <div><b id="s2">0</b><span>ตอนที่ 2 / <span id="s2max">12</span></span></div>
+      <div class="total"><b id="st">0</b><span>รวม / <span id="stmax">42</span></span></div>
+    </div>
+    <p id="warnMsg" class="muted" style="margin:10px 0 0" hidden></p>
+    <div class="legend" style="margin:12px 0 8px">
+      <span><i style="background:var(--ok-soft)"></i>ถูก</span>
+      <span><i style="background:var(--bad-soft)"></i>ผิด</span>
+      <span><i style="background:var(--warn-soft)"></i>ไม่แน่ใจ/ว่าง ควรดูอีกที</span>
+      <span><i style="box-shadow:inset 0 0 0 2px var(--ok)"></i>ข้อที่ถูก</span>
+    </div>
+    <p class="muted" style="margin:0 0 8px">แตะตัวเลือกเพื่อแก้คำตอบที่ระบบอ่านผิด</p>
+    <div class="answers" id="ansGrid"></div>
+
+    <details style="margin-top:14px">
+      <summary>ดูภาพตารางที่ระบบอ่าน</summary>
+      <canvas id="warpCv" style="margin-top:10px;max-width:420px;width:100%"></canvas>
+    </details>
+  </div>
+
+  <div class="card" id="part2Card" hidden>
+    <h2>4. ตอนที่ 2 (ติ๊กข้อที่นักเรียนตอบถูก)</h2>
+    <div class="sub"><span>ข้อ 1 หลักการคุ้มครองข้อมูลส่วนบุคคล OECD 8 ประการ</span><b id="r1s">0/8</b></div>
+    <div class="rubric" id="rub1"></div>
+    <div class="sub"><span>ข้อ 2 จริยธรรม PAPA 4 ประเด็น</span><b id="r2s">0/4</b></div>
+    <div class="rubric" id="rub2"></div>
+  </div>
+
+  <div class="card" id="saveCard" hidden>
+    <h2>5. บันทึกคะแนน</h2>
+    <div class="row">
+      <label class="field grow" for="stName">ชื่อ-นามสกุล<input id="stName" autocomplete="off" placeholder="พิมพ์ชื่อนักเรียน"></label>
+      <label class="field" style="width:90px" for="stRoom">ชั้น<input id="stRoom" placeholder="6/1" inputmode="text"></label>
+      <label class="field" style="width:80px" for="stNo">เลขที่<input id="stNo" inputmode="numeric" placeholder="1"></label>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary grow" id="saveBtn">บันทึกและตรวจคนถัดไป</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ เฉลย ============ -->
+<section class="panel" id="p-key" hidden>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:6px">
+      <h2 style="margin:0">เฉลยตอนที่ 1</h2>
+      <button class="btn" id="resetKey">คืนค่าเฉลยจากไฟล์</button>
+    </div>
+    <p class="muted" style="margin:0 0 10px">ตั้งจากไฟล์ เฉลย2.docx แล้ว แตะเพื่อแก้ได้ ระบบจำไว้ในเครื่องนี้</p>
+    <div class="answers" id="keyGrid"></div>
+  </div>
+  <div class="card">
+    <h2>คะแนนตอนที่ 2</h2>
+    <p class="muted" style="margin:0">ข้อละ 1 คะแนนต่อ 1 ประเด็นที่ตอบถูก · ข้อ 1 เต็ม 8 · ข้อ 2 เต็ม 4 · รวมตอนที่ 2 เต็ม 12</p>
+  </div>
+</section>
+
+<!-- ============ คะแนน ============ -->
+<section class="panel" id="p-res" hidden>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <h2 style="margin:0">คะแนนที่บันทึกแล้ว <span class="muted" id="resCount"></span></h2>
+      <div class="row">
+        <button class="btn" id="copyBtn">คัดลอกไป Excel</button>
+      </div>
+    </div>
+    <div class="tablewrap"><table id="resTable"></table></div>
+    <p class="muted" id="resEmpty">ยังไม่มีคะแนน สแกนกระดาษแล้วกด "บันทึก" คะแนนจะมาอยู่ที่นี่</p>
+    <textarea id="copyArea" rows="6" hidden readonly></textarea>
+    <p class="muted" style="margin:10px 0 0">คะแนนเก็บในเบราว์เซอร์ของเครื่องนี้ กด "คัดลอกไป Excel" แล้ววางใน Excel หรือ Google Sheets ได้เลย</p>
+  </div>
+  <div class="card">
+    <button class="btn" id="clearAll" style="color:var(--bad)">ล้างคะแนนทั้งหมด</button>
+    <span id="clearConfirm" hidden> <span class="muted">แน่ใจไหม?</span> <button class="btn" id="clearYes" style="color:var(--bad)">ลบเลย</button> <button class="btn" id="clearNo">ยกเลิก</button></span>
+  </div>
+</section>
+</div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-p="p-scan" aria-selected="true">ตรวจ</button>
+  <button role="tab" data-p="p-key" aria-selected="false">เฉลย</button>
+  <button role="tab" data-p="p-res" aria-selected="false">คะแนน</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(()=>{
+const OPTS=['ก','ข','ค','ง'];
+// เฉลยจาก เฉลย2.docx (0=ก 1=ข 2=ค 3=ง)
+const DEFAULT_KEY=[0,1,1,2,3,1,0,2,1,2,2,2,0,1,2, 0,0,1,1,1,1,1,1,1,2,0,1,1,1,1];
+const RUB1=[['หลักข้อจำกัดในการเก็บรวบรวมข้อมูล','Collection Limitation'],['หลักคุณภาพของข้อมูล','Data Quality'],['หลักการกำหนดวัตถุประสงค์','Purpose Specification'],['หลักข้อจำกัดในการนำไปใช้','Use Limitation'],['หลักการรักษาความมั่นคงปลอดภัย','Security Safeguards'],['หลักการเปิดเผยข้อมูล','Openness'],['หลักการมีส่วนร่วมของบุคคล','Individual Participation'],['หลักความรับผิดชอบ','Accountability']];
+const RUB2=[['ความเป็นส่วนตัว','Privacy'],['ความถูกต้อง','Accuracy'],['ความเป็นเจ้าของ','Property'],['การเข้าถึงข้อมูล','Accessibility']];
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+let KEY=store.get('omr.key',DEFAULT_KEY.slice());
+let results=store.get('omr.results',[]);
+let answers=new Array(30).fill(-1), flags=new Array(30).fill(0);
+let rub1=new Array(8).fill(false), rub2=new Array(4).fill(false);
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  document.querySelectorAll('section.panel').forEach(s=>s.hidden=s.id!==b.dataset.p);
+  if(b.dataset.p==='p-res')renderResults();
+  window.scrollTo(0,0);
+});
+function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
+
+/* ---------- key editor ---------- */
+function renderKey(){
+  const g=$('keyGrid');g.innerHTML='';
+  for(let i=0;i<30;i++){
+    const r=document.createElement('div');r.className='q';
+    r.innerHTML=`<span class="n">${i+1}</span>`;
+    OPTS.forEach((o,j)=>{const c=document.createElement('button');c.className='chip'+(KEY[i]===j?' sel':'');c.textContent=o;
+      c.onclick=()=>{KEY[i]=j;store.set('omr.key',KEY);renderKey();if(!$('resultCard').hidden)renderAnswers()};r.appendChild(c)});
+    g.appendChild(r);
+  }
+}
+$('resetKey').onclick=()=>{KEY=DEFAULT_KEY.slice();store.set('omr.key',KEY);renderKey();toast('คืนค่าเฉลยแล้ว')};
+
+/* ---------- rubric ---------- */
+function renderRubric(){
+  [[RUB1,rub1,'rub1'],[RUB2,rub2,'rub2']].forEach(([R,st,id])=>{
+    const box=$(id);box.innerHTML='';
+    R.forEach((it,i)=>{const l=document.createElement('label');
+      l.innerHTML=`<input type="checkbox" id="${id}_${i}" ${st[i]?'checked':''}><span>${it[0]} <span class="en">${it[1]}</span></span>`;
+      l.querySelector('input').onchange=e=>{st[i]=e.target.checked;updateScore()};box.appendChild(l)});
+  });
+}
+
+/* ---------- answers ---------- */
+function renderAnswers(){
+  const g=$('ansGrid');g.innerHTML='';
+  for(let i=0;i<30;i++){
+    const a=answers[i],ok=a===KEY[i];
+    const r=document.createElement('div');
+    r.className='q '+(flags[i]?'warn':ok?'ok':'bad');
+    r.innerHTML=`<span class="n">${i+1}</span>`;
+    OPTS.forEach((o,j)=>{const c=document.createElement('button');
+      c.className='chip'+(a===j?' sel':'')+(KEY[i]===j?' key':'');c.textContent=o;
+      c.onclick=()=>{answers[i]=answers[i]===j?-1:j;flags[i]=0;renderAnswers();drawWarpOverlay()};r.appendChild(c)});
+    const m=document.createElement('span');m.className='mark';m.textContent=flags[i]?'?':ok?'✓':'✗';r.appendChild(m);
+    g.appendChild(r);
+  }
+  updateScore();
+}
+function updateScore(){
+  const s1=answers.reduce((s,a,i)=>s+(a===KEY[i]?1:0),0);
+  const a=rub1.filter(Boolean).length,b=rub2.filter(Boolean).length;
+  $('s1').textContent=s1;$('s2').textContent=a+b;$('st').textContent=s1+a+b;
+  $('r1s').textContent=a+'/8';$('r2s').textContent=b+'/4';
+  const nf=flags.filter(Boolean).length;
+  $('warnMsg').hidden=!nf;$('warnMsg').innerHTML=nf?`<span class="pill warn">ตรวจซ้ำ ${nf} ข้อ</span> ข้อสีเหลืองอาจกาไม่ชัด ว่าง หรือกาหลายช่อง แตะเลือกคำตอบที่ถูกต้อง`:'';
+}
+
+/* ======================================================
+   Image processing (no external library)
+   ====================================================== */
+const COLS=10,ROWS=16,WW=800,WH=864; // warped size: cell 80 x 54
+let img=null,sw=0,sh=0,gray=null,quad=null,warpGray=null,warpBin=null,gridX=null,gridY=null;
+
+function loadFile(f){
+  if(!f)return;
+  $('loadMsg').hidden=false;
+  const url=URL.createObjectURL(f);const im=new Image();
+  im.onload=()=>{setTimeout(()=>{processImage(im);URL.revokeObjectURL(url);$('loadMsg').hidden=true},30)};
+  im.onerror=()=>{$('loadMsg').hidden=true;toast('เปิดรูปไม่ได้ ลองถ่ายใหม่ หรือเลือกไฟล์ JPG')};
+  im.src=url;
+}
+['camIn','fileIn'].forEach(id=>$(id).addEventListener('change',e=>{loadFile(e.target.files&&e.target.files[0]);setTimeout(()=>e.target.value='',0)}));
+
+function processImage(im){
+  const max=1400,s=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+  sw=Math.round(im.naturalWidth*s);sh=Math.round(im.naturalHeight*s);
+  const c=document.createElement('canvas');c.width=sw;c.height=sh;
+  const cx=c.getContext('2d');cx.drawImage(im,0,0,sw,sh);
+  img=c;const d=cx.getImageData(0,0,sw,sh).data;
+  gray=new Float32Array(sw*sh);
+  for(let i=0,p=0;i<gray.length;i++,p+=4)gray[i]=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];
+  const found=detectTable();
+  $('detectPill').className='pill '+(found?'ok':'warn');
+  $('detectPill').textContent=found?'พบตาราง':'หาตารางไม่เจอ ลากมุมเอง';
+  ['adjustCard','resultCard','part2Card','saveCard'].forEach(id=>$(id).hidden=false);
+  rub1.fill(false);rub2.fill(false);renderRubric();
+  drawSrc();readAnswers();
+  $('adjustCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Bradley adaptive threshold -> Uint8Array (1 = ink)
+function adaptive(g,w,h,rad,t){
+  const I=new Float64Array((w+1)*(h+1));
+  for(let y=0;y<h;y++){let rs=0;for(let x=0;x<w;x++){rs+=g[y*w+x];I[(y+1)*(w+1)+x+1]=I[y*(w+1)+x+1]+rs}}
+  const b=new Uint8Array(w*h);
+  for(let y=0;y<h;y++){const y0=Math.max(0,y-rad),y1=Math.min(h-1,y+rad);
+    for(let x=0;x<w;x++){const x0=Math.max(0,x-rad),x1=Math.min(w-1,x+rad);
+      const cnt=(x1-x0+1)*(y1-y0+1);
+      const sum=I[(y1+1)*(w+1)+x1+1]-I[y0*(w+1)+x1+1]-I[(y1+1)*(w+1)+x0]+I[y0*(w+1)+x0];
+      if(g[y*w+x]*cnt<sum*(1-t))b[y*w+x]=1}}
+  return b;
+}
+
+function detectTable(){
+  const rad=Math.round(Math.max(sw,sh)/50);
+  const bin=adaptive(gray,sw,sh,rad,0.15);
+  // largest connected component (by pixel count) = grid lines
+  const lab=new Int32Array(sw*sh),stack=new Int32Array(sw*sh);
+  let best=-1,bestN=0,id=0;
+  for(let i=0;i<bin.length;i++){
+    if(!bin[i]||lab[i])continue;id++;let sp=0,n=0;stack[sp++]=i;lab[i]=id;
+    while(sp){const p=stack[--sp];n++;const x=p%sw,y=(p/sw)|0;
+      if(x>0&&bin[p-1]&&!lab[p-1]){lab[p-1]=id;stack[sp++]=p-1}
+      if(x<sw-1&&bin[p+1]&&!lab[p+1]){lab[p+1]=id;stack[sp++]=p+1}
+      if(y>0&&bin[p-sw]&&!lab[p-sw]){lab[p-sw]=id;stack[sp++]=p-sw}
+      if(y<sh-1&&bin[p+sw]&&!lab[p+sw]){lab[p+sw]=id;stack[sp++]=p+sw}}
+    if(n>bestN){bestN=n;best=id}
+  }
+  let tl=[0,0,1e9],tr=[0,0,-1e9],bl=[0,0,1e9],br=[0,0,-1e9];
+  if(best>0){for(let p=0;p<lab.length;p++){if(lab[p]!==best)continue;const x=p%sw,y=(p/sw)|0;
+    if(x+y<tl[2])tl=[x,y,x+y];if(x+y>br[2])br=[x,y,x+y];
+    if(x-y>tr[2])tr=[x,y,x-y];if(x-y<bl[2])bl=[x,y,x-y];}}
+  const q=[[tl[0],tl[1]],[tr[0],tr[1]],[br[0],br[1]],[bl[0],bl[1]]];
+  const area=Math.abs(polyArea(q));
+  if(best<0||area<sw*sh*0.04){ // fallback: centered box
+    quad=[[sw*.2,sh*.2],[sw*.8,sh*.2],[sw*.8,sh*.6],[sw*.2,sh*.6]];return false}
+  quad=q;return true;
+}
+function polyArea(q){let a=0;for(let i=0;i<4;i++){const j=(i+1)%4;a+=q[i][0]*q[j][1]-q[j][0]*q[i][1]}return a/2}
+
+// homography mapping src pts -> dst pts
+function homography(s,d){
+  const A=[],B=[];
+  for(let i=0;i<4;i++){const[x,y]=s[i],[u,v]=d[i];
+    A.push([x,y,1,0,0,0,-u*x,-u*y]);B.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);B.push(v)}
+  const n=8;for(let i=0;i<n;i++){let m=i;for(let r=i+1;r<n;r++)if(Math.abs(A[r][i])>Math.abs(A[m][i]))m=r;
+    [A[i],A[m]]=[A[m],A[i]];[B[i],B[m]]=[B[m],B[i]];
+    for(let r=0;r<n;r++){if(r===i)continue;const f=A[r][i]/A[i][i];for(let c=i;c<n;c++)A[r][c]-=f*A[i][c];B[r]-=f*B[i]}}
+  const h=B.map((b,i)=>b/A[i][i]);h.push(1);return h;
+}
+const apply=(h,x,y)=>{const w=h[6]*x+h[7]*y+h[8];return[(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]};
+const RECT=[[0,0],[WW,0],[WW,WH],[0,WH]];
+
+function readAnswers(){
+  const H=homography(RECT,quad);
+  warpGray=new Float32Array(WW*WH);
+  for(let y=0;y<WH;y++)for(let x=0;x<WW;x++){
+    const[u,v]=apply(H,x+.5,y+.5);const xi=Math.floor(u),yi=Math.floor(v);
+    if(xi<0||yi<0||xi>=sw-1||yi>=sh-1){warpGray[y*WW+x]=255;continue}
+    const fx=u-xi,fy=v-yi,p=yi*sw+xi;
+    warpGray[y*WW+x]=gray[p]*(1-fx)*(1-fy)+gray[p+1]*fx*(1-fy)+gray[p+sw]*(1-fx)*fy+gray[p+sw+1]*fx*fy;
+  }
+  warpBin=adaptive(warpGray,WW,WH,20,0.18);
+  // refine grid line positions with projection profiles
+  const colSum=new Float32Array(WW),rowSum=new Float32Array(WH);
+  for(let y=0;y<WH;y++)for(let x=0;x<WW;x++)if(warpBin[y*WW+x]){colSum[x]++;rowSum[y]++}
+  const refine=(sum,n,len)=>{const step=len/n,out=[];
+    for(let i=0;i<=n;i++){const e=i*step,r=Math.round(step*0.22);let bi=Math.round(e),bv=-1;
+      for(let k=Math.max(0,Math.round(e-r));k<=Math.min(len-1,Math.round(e+r));k++){
+        const v=sum[k]+(sum[k-1]||0)+(sum[k+1]||0);if(v>bv){bv=v;bi=k}}
+      out.push(bi)}return out};
+  gridX=refine(colSum,COLS,WW);gridY=refine(rowSum,ROWS,WH);
+  // measure ink per option cell
+  for(let q=0;q<30;q++){
+    const row=(q%15)+1,c0=q<15?1:6,vals=[];
+    for(let o=0;o<4;o++){
+      const x0=gridX[c0+o],x1=gridX[c0+o+1],y0=gridY[row],y1=gridY[row+1];
+      const ix=(x1-x0)*0.17,iy=(y1-y0)*0.2;let ink=0,n=0;
+      for(let y=Math.round(y0+iy);y<Math.round(y1-iy);y++)for(let x=Math.round(x0+ix);x<Math.round(x1-ix);x++){n++;ink+=warpBin[y*WW+x]}
+      vals.push(n?ink/n:0);
+    }
+    const sorted=vals.slice().sort((a,b)=>b-a),mx=sorted[0];
+    const idx=vals.indexOf(mx);
+    if(mx<0.035){answers[q]=-1;flags[q]=1}
+    else{answers[q]=idx;flags[q]=(sorted[1]>mx*0.6&&sorted[1]>0.035)?1:0}
+  }
+  renderAnswers();drawWarpOverlay();
+}
+
+/* ---------- drawing ---------- */
+const srcCv=$('srcCv');let dispScale=1,drag=-1;
+function drawSrc(){
+  const W=$('stage').clientWidth||360;dispScale=W/sw;
+  const dpr=window.devicePixelRatio||1;
+  srcCv.width=Math.round(W*dpr);srcCv.height=Math.round(sh*dispScale*dpr);
+  srcCv.style.width=W+'px';srcCv.style.height=(sh*dispScale)+'px';
+  const c=srcCv.getContext('2d');c.setTransform(dpr*dispScale,0,0,dpr*dispScale,0,0);
+  c.drawImage(img,0,0);
+  const H=homography(RECT,quad);const lw=1.5/dispScale;
+  c.strokeStyle='rgba(43,69,200,.85)';c.lineWidth=lw;
+  for(let i=0;i<=COLS;i++){const a=apply(H,i*WW/COLS,0),b=apply(H,i*WW/COLS,WH);c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke()}
+  for(let j=0;j<=ROWS;j++){const a=apply(H,0,j*WH/ROWS),b=apply(H,WW,j*WH/ROWS);c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke()}
+  c.lineWidth=3/dispScale;c.strokeStyle='#2B45C8';c.beginPath();quad.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();c.stroke();
+  quad.forEach(p=>{c.beginPath();c.arc(p[0],p[1],12/dispScale,0,7);c.fillStyle='rgba(43,69,200,.35)';c.fill();c.lineWidth=2.5/dispScale;c.strokeStyle='#fff';c.stroke();
+    c.beginPath();c.arc(p[0],p[1],3/dispScale,0,7);c.fillStyle='#2B45C8';c.fill()});
+}
+function ptr(e){const r=srcCv.getBoundingClientRect();return[(e.clientX-r.left)/dispScale,(e.clientY-r.top)/dispScale]}
+srcCv.addEventListener('pointerdown',e=>{if(!quad)return;const[x,y]=ptr(e);let bd=1e9;
+  quad.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;drag=i}});
+  if(bd*dispScale>40){drag=-1;return}srcCv.setPointerCapture(e.pointerId);e.preventDefault()});
+srcCv.addEventListener('pointermove',e=>{if(drag<0)return;const[x,y]=ptr(e);quad[drag]=[Math.max(0,Math.min(sw,x)),Math.max(0,Math.min(sh,y))];drawSrc()});
+const endDrag=()=>{if(drag<0)return;drag=-1;readAnswers()};
+srcCv.addEventListener('pointerup',endDrag);srcCv.addEventListener('pointercancel',endDrag);
+window.addEventListener('resize',()=>{if(img)drawSrc()});
+
+function drawWarpOverlay(){
+  if(!warpGray)return;const cv=$('warpCv');cv.width=WW;cv.height=WH;const c=cv.getContext('2d');
+  const id=c.createImageData(WW,WH);
+  for(let i=0;i<warpGray.length;i++){const v=warpGray[i];id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=v;id.data[i*4+3]=255}
+  c.putImageData(id,0,0);
+  c.strokeStyle='rgba(43,69,200,.5)';c.lineWidth=2;
+  gridX.forEach(x=>{c.beginPath();c.moveTo(x,0);c.lineTo(x,WH);c.stroke()});
+  gridY.forEach(y=>{c.beginPath();c.moveTo(0,y);c.lineTo(WW,y);c.stroke()});
+  for(let q=0;q<30;q++){
+    const row=(q%15)+1,c0=q<15?1:6,y0=gridY[row],y1=gridY[row+1];
+    const k=KEY[q];c.strokeStyle='#17875A';c.lineWidth=4;
+    c.strokeRect(gridX[c0+k]+4,y0+4,gridX[c0+k+1]-gridX[c0+k]-8,y1-y0-8);
+    const a=answers[q];if(a<0)continue;
+    c.fillStyle=flags[q]?'rgba(232,160,40,.35)':a===k?'rgba(23,135,90,.28)':'rgba(201,58,52,.35)';
+    c.fillRect(gridX[c0+a]+2,y0+2,gridX[c0+a+1]-gridX[c0+a]-4,y1-y0-4);
+  }
+}
+
+/* ---------- save & results ---------- */
+$('saveBtn').onclick=()=>{
+  const s1=answers.reduce((s,a,i)=>s+(a===KEY[i]?1:0),0),s2=rub1.filter(Boolean).length+rub2.filter(Boolean).length;
+  const rec={name:$('stName').value.trim(),room:$('stRoom').value.trim(),no:$('stNo').value.trim(),
+    ans:answers.map(a=>a<0?'-':OPTS[a]).join(''),s1,s2,total:s1+s2,t:Date.now()};
+  results.push(rec);store.set('omr.results',results);
+  toast(`บันทึกแล้ว ${rec.name||'(ไม่มีชื่อ)'} ได้ ${rec.total} คะแนน`);
+  $('stName').value='';const n=parseInt(rec.no,10);$('stNo').value=isNaN(n)?'':n+1;
+  ['adjustCard','resultCard','part2Card','saveCard'].forEach(id=>$(id).hidden=true);
+  answers.fill(-1);flags.fill(0);window.scrollTo({top:0,behavior:'smooth'});
+};
+function sortedResults(){return results.map((r,i)=>({...r,i})).sort((a,b)=>(a.room||'').localeCompare(b.room||'','th')||(parseInt(a.no)||999)-(parseInt(b.no)||999))}
+function renderResults(){
+  const t=$('resTable');$('resEmpty').hidden=results.length>0;$('resCount').textContent=results.length?`(${results.length} คน)`:'';
+  if(!results.length){t.innerHTML='';return}
+  t.innerHTML='<tr><th>ชั้น</th><th class="num">เลขที่</th><th>ชื่อ</th><th class="num">ตอน 1</th><th class="num">ตอน 2</th><th class="num">รวม</th><th></th></tr>'+
+    sortedResults().map(r=>`<tr><td>${esc(r.room)}</td><td class="num">${esc(r.no)}</td><td>${esc(r.name)}</td><td class="num">${r.s1}</td><td class="num">${r.s2}</td><td class="num"><b>${r.total}</b></td><td><button class="del" data-i="${r.i}">ลบ</button></td></tr>`).join('');
+  t.querySelectorAll('.del').forEach(b=>b.onclick=()=>{results.splice(+b.dataset.i,1);store.set('omr.results',results);renderResults()});
+}
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('copyBtn').onclick=()=>{
+  if(!results.length){toast('ยังไม่มีคะแนน');return}
+  const head=['ชั้น','เลขที่','ชื่อ-นามสกุล','ตอนที่1(30)','ตอนที่2(12)','รวม(42)'].concat(Array.from({length:30},(_,i)=>'ข้อ'+(i+1)));
+  const tsv=[head.join('\t')].concat(sortedResults().map(r=>[r.room,r.no,r.name,r.s1,r.s2,r.total].concat(r.ans.split('')).join('\t'))).join('\n');
+  const ta=$('copyArea');ta.value=tsv;
+  navigator.clipboard.writeText(tsv).then(()=>{ta.hidden=true;toast('คัดลอกแล้ว วางใน Excel ได้เลย')})
+    .catch(()=>{ta.hidden=false;ta.focus();ta.select();toast('กดค้างที่กล่องข้อความแล้วเลือกคัดลอก')});
+};
+$('clearAll').onclick=()=>{$('clearConfirm').hidden=false};
+$('clearNo').onclick=()=>{$('clearConfirm').hidden=true};
+$('clearYes').onclick=()=>{results=[];store.set('omr.results',results);$('clearConfirm').hidden=true;renderResults();toast('ล้างคะแนนแล้ว')};
+
+renderKey();renderRubric();
+window.__omr={get answers(){return answers},get flags(){return flags},get quad(){return quad}};
+})();
+</script>
+
+</body>
+</html>
