@@ -127,10 +127,10 @@ textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var
   <div class="card" id="adjustCard" hidden>
     <div class="row" style="justify-content:space-between;margin-bottom:8px">
       <h2 style="margin:0">2. ตรวจตำแหน่งตาราง</h2>
-      <span id="detectPill" class="pill ok">พบตาราง</span>
+      <div class="row"><span id="detectPill" class="pill ok">พบตาราง</span><button class="btn" id="rotBtn" style="padding:6px 12px;font-size:13px">หมุน 90°</button></div>
     </div>
     <div id="stage"><canvas id="srcCv"></canvas></div>
-    <p class="muted" style="margin:8px 0 0">ลากจุดมุมทั้ง 4 ให้ตรงมุมนอกของตาราง (รวมแถวหัว "ข้อ ก ข ค ง") ระบบจะอ่านคำตอบใหม่ทันทีที่ปล่อยนิ้ว</p>
+    <p class="muted" style="margin:8px 0 0">แถบสีเขียวต้องอยู่ที่แถวหัว "ข้อ ก ข ค ง" และเลข 1 อยู่ที่ข้อ 1 ถ้าไม่ตรงให้กด "หมุน 90°" · ลากจุดมุมทั้ง 4 ให้ตรงมุมนอกของตาราง ระบบจะอ่านใหม่ทันที</p>
   </div>
 
   <div class="card" id="resultCard" hidden>
@@ -319,6 +319,7 @@ function processImage(im){
   gray=new Float32Array(sw*sh);
   for(let i=0,p=0;i<gray.length;i++,p+=4)gray[i]=0.299*d[p]+0.587*d[p+1]+0.114*d[p+2];
   const found=detectTable();
+  if(found)autoOrient();
   $('detectPill').className='pill '+(found?'ok':'warn');
   $('detectPill').textContent=found?'พบตาราง':'หาตารางไม่เจอ ลากมุมเอง';
   ['adjustCard','resultCard','part2Card','saveCard'].forEach(id=>$(id).hidden=false);
@@ -400,8 +401,10 @@ function strikeCount(x0,x1,y0,y1,dbg){
   if(!lines.length)return 0;const a0=lines[0].a;
   return lines.filter(L=>Math.abs(L.a-a0)<=10).length;
 }
-function readAnswers(){
-  const H=homography(RECT,quad);
+const rot=(q,k)=>[0,1,2,3].map(i=>q[(i+k)%4]);
+// warp the quad to a flat grid; returns how well printed grid lines line up (higher = better)
+function doWarp(q){
+  const H=homography(RECT,q);
   warpGray=new Float32Array(WW*WH);
   for(let y=0;y<WH;y++)for(let x=0;x<WW;x++){
     const[u,v]=apply(H,x+.5,y+.5);const xi=Math.floor(u),yi=Math.floor(v);
@@ -419,6 +422,24 @@ function readAnswers(){
         const v=sum[k]+(sum[k-1]||0)+(sum[k+1]||0);if(v>bv){bv=v;bi=k}}
       out.push(bi)}return out};
   gridX=refine(colSum,COLS,WW);gridY=refine(rowSum,ROWS,WH);
+  const at=(sum,i)=>sum[i]+(sum[i-1]||0)+(sum[i+1]||0);
+  const fit=(sum,g)=>{let on=0,off=0;for(let i=1;i<g.length-1;i++)on+=at(sum,g[i]);for(let i=0;i<g.length-1;i++)off+=at(sum,Math.round((g[i]+g[i+1])/2));return (on/(g.length-2))/(off/(g.length-1)+1)};
+  return fit(colSum,gridX)+fit(rowSum,gridY);
+}
+function cellInk(c,r){const x0=gridX[c],x1=gridX[c+1],y0=gridY[r],y1=gridY[r+1];let ink=0,n=0;
+  for(let y=Math.round(y0+(y1-y0)*.2);y<Math.round(y1-(y1-y0)*.2);y++)for(let x=Math.round(x0+(x1-x0)*.17);x<Math.round(x1-(x1-x0)*.17);x++){n++;ink+=warpBin[y*WW+x]}return n?ink/n:0}
+// question-number columns (0 and 5) have print on every row; option ง columns (4 and 9) mostly don't
+function numberColScore(){let s=0;for(let r=1;r<=15;r++){s+=(cellInk(0,r)>0.03)+(cellInk(5,r)>0.03)-(cellInk(4,r)>0.03)-(cellInk(9,r)>0.03)}return s}
+// pick the rotation of the detected corners that matches the answer-sheet layout
+function autoOrient(){
+  const g0=doWarp(rot(quad,0)),g1=doWarp(rot(quad,1));
+  const base=g1>g0*1.08?1:0;
+  doWarp(rot(quad,base));const c0=numberColScore();
+  doWarp(rot(quad,base+2));const c2=numberColScore();
+  quad=rot(quad,c2>c0?base+2:base);
+}
+function readAnswers(){
+  doWarp(quad);
   // measure ink per option cell + detect cancelled marks (X with 2 strike lines)
   cancelled=[];
   for(let q=0;q<30;q++){
@@ -452,6 +473,8 @@ function drawSrc(){
   c.strokeStyle='rgba(43,69,200,.85)';c.lineWidth=lw;
   for(let i=0;i<=COLS;i++){const a=apply(H,i*WW/COLS,0),b=apply(H,i*WW/COLS,WH);c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke()}
   for(let j=0;j<=ROWS;j++){const a=apply(H,0,j*WH/ROWS),b=apply(H,WW,j*WH/ROWS);c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke()}
+  {const hp=[apply(H,0,0),apply(H,WW,0),apply(H,WW,WH/ROWS),apply(H,0,WH/ROWS)];c.fillStyle='rgba(23,135,90,.35)';c.beginPath();hp.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();c.fill();
+   const n1=apply(H,WW/COLS/2,WH/ROWS*1.5);c.fillStyle='#17875A';c.font=`bold ${20/dispScale}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('1',n1[0],n1[1]);}
   c.lineWidth=3/dispScale;c.strokeStyle='#2B45C8';c.beginPath();quad.forEach((p,i)=>i?c.lineTo(...p):c.moveTo(...p));c.closePath();c.stroke();
   quad.forEach(p=>{c.beginPath();c.arc(p[0],p[1],12/dispScale,0,7);c.fillStyle='rgba(43,69,200,.35)';c.fill();c.lineWidth=2.5/dispScale;c.strokeStyle='#fff';c.stroke();
     c.beginPath();c.arc(p[0],p[1],3/dispScale,0,7);c.fillStyle='#2B45C8';c.fill()});
@@ -463,6 +486,7 @@ srcCv.addEventListener('pointerdown',e=>{if(!quad)return;const[x,y]=ptr(e);let b
 srcCv.addEventListener('pointermove',e=>{if(drag<0)return;const[x,y]=ptr(e);quad[drag]=[Math.max(0,Math.min(sw,x)),Math.max(0,Math.min(sh,y))];drawSrc()});
 const endDrag=()=>{if(drag<0)return;drag=-1;readAnswers()};
 srcCv.addEventListener('pointerup',endDrag);srcCv.addEventListener('pointercancel',endDrag);
+$('rotBtn').onclick=()=>{if(!quad)return;quad=rot(quad,1);drawSrc();readAnswers()};
 window.addEventListener('resize',()=>{if(img)drawSrc()});
 
 function drawWarpOverlay(){
