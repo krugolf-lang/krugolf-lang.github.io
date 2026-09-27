@@ -486,7 +486,7 @@ function readAnswers(){
     const live=[0,1,2,3].filter(o=>vals[o]>=INK_MIN&&!cancelled[q][o]).sort((a,b)=>vals[b]-vals[a]);
     const anyStrike=F[q].some(f=>f&&f.strikes===1);
     if(!live.length){answers[q]=-1;flags[q]=1}
-    else{answers[q]=live[0];flags[q]=(live.length>1&&vals[live[1]]>vals[live[0]]*0.6)||anyStrike?1:0}
+    else{answers[q]=live[0];flags[q]=(live.length>1&&vals[live[1]]>vals[live[0]]*0.6)||(anyStrike&&live.length>1)?1:0}
   }
   renderAnswers();drawWarpOverlay();
 }
