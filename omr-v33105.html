@@ -119,7 +119,7 @@ textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var
     <p id="loadMsg" class="pill ok" style="margin:10px 0 0" hidden>กำลังอ่านรูป...</p>
     <ul class="steps" style="margin-top:12px">
       <li>ถ่ายให้เห็นตาราง ตอนที่ 1 ครบทั้ง 4 มุม วางกระดาษบนพื้นเรียบ แสงสม่ำเสมอ</li>
-      <li>ถ้านักเรียนเปลี่ยนคำตอบ ให้ขีด 2 เส้นทับกากบาทเดิม (แบบ ≠) แล้วกาช่องใหม่ ระบบจะไม่นับช่องที่ขีดฆ่า</li>
+      <li>ถ้านักเรียนเปลี่ยนคำตอบ ให้ขีด 2 เส้นทับกากบาทเดิม (แบบ ≠) หรือขีดทึบทับจนเป็นก้อน แล้วกาช่องใหม่ ระบบนับเฉพาะช่องที่เป็นกากบาท</li>
       <li>ระบบหาตารางให้อัตโนมัติ ถ้าเส้นกริดไม่ตรง ลากจุดมุมสีน้ำเงินให้ตรงมุมตาราง</li>
     </ul>
   </div>
@@ -146,7 +146,7 @@ textarea{width:100%;font:13px var(--mono);border-radius:8px;border:1px solid var
       <span><i style="background:var(--bad-soft)"></i>ผิด</span>
       <span><i style="background:var(--warn-soft)"></i>ไม่แน่ใจ/ว่าง ควรดูอีกที</span>
       <span><i style="box-shadow:inset 0 0 0 2px var(--ok)"></i>ข้อที่ถูก</span>
-      <span style="color:var(--bad);text-decoration:line-through double">ข</span><span>= ขีดฆ่า (ยกเลิก)</span>
+      <span style="color:var(--bad);text-decoration:line-through double">ข</span><span>= ขีดฆ่า/ขีดทึบ (ไม่นับ)</span>
     </div>
     <p class="muted" style="margin:0 0 8px">แตะตัวเลือกเพื่อแก้คำตอบที่ระบบอ่านผิด</p>
     <div class="answers" id="ansGrid"></div>
@@ -382,11 +382,21 @@ function homography(s,d){
 const apply=(h,x,y)=>{const w=h[6]*x+h[7]*y+h[8];return[(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]};
 const RECT=[[0,0],[WW,0],[WW,WH],[0,WH]];
 
-const INK_MIN=0.035;let cancelled=[];
+const INK_MIN=0.035;let cancelled=[],scribbled=[];
 // count near-horizontal parallel strike lines drawn across a cell (the "cancel" sign)
 function lineCov(xa,xb,c,t,xm){let hit=0,n=0;
   for(let x=xa;x<xb;x++){if(x<0||x>=WW)continue;n++;const y=Math.round(c+t*(x-xm));if(y<1||y>=WH-1)continue;const p=y*WW+x;
     if(warpBin[p]||warpBin[p-WW]||warpBin[p+WW])hit++}return n?hit/n:0}
+// scribble-out detector: dense, many-stroke blob (not an open X)
+function scribbleFeat(x0,x1,y0,y1){
+  const xa=Math.round(x0+(x1-x0)*0.08),xb=Math.round(x1-(x1-x0)*0.08),ya=Math.round(y0+(y1-y0)*0.1),yb=Math.round(y1-(y1-y0)*0.1);
+  let runs=0,rowsInk=0,ink=0,minx=1e9,maxx=-1,miny=1e9,maxy=-1;
+  for(let y=ya;y<yb;y++){let r=0,prev=0,any=0;
+    for(let x=xa;x<xb;x++){const v=warpBin[y*WW+x];if(v){ink++;any=1;if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y}if(v&&!prev)r++;prev=v}
+    if(any){runs+=r;rowsInk++}}
+  const box=(maxx-minx+1)*(maxy-miny+1);
+  return {runs:rowsInk?runs/rowsInk:0,dens:box>0?ink/box:0,ink};
+}
 function strikeCount(x0,x1,y0,y1,dbg){
   const cw=x1-x0,xa=Math.round(x0+cw*0.1),xb=Math.round(x1-cw*0.1);
   const ya=Math.round(y0+(y1-y0)*0.12),yb=Math.round(y1-(y1-y0)*0.12),xm=(xa+xb)/2;
@@ -456,19 +466,25 @@ function uprightImage(){
 function readAnswers(){
   doWarp(quad);
   // measure ink per option cell + detect cancelled marks (X with 2 strike lines)
-  cancelled=[];
+  cancelled=[];scribbled=[];
+  const V=[],F=[];
   for(let q=0;q<30;q++){
-    const row=(q%15)+1,c0=q<15?1:6,vals=[],cx=[];
+    const row=(q%15)+1,c0=q<15?1:6;V[q]=[];F[q]=[];
     for(let o=0;o<4;o++){
       const x0=gridX[c0+o],x1=gridX[c0+o+1],y0=gridY[row],y1=gridY[row+1];
-      const ix=(x1-x0)*0.17,iy=(y1-y0)*0.2;let ink=0,n=0;
-      for(let y=Math.round(y0+iy);y<Math.round(y1-iy);y++)for(let x=Math.round(x0+ix);x<Math.round(x1-ix);x++){n++;ink+=warpBin[y*WW+x]}
-      const v=n?ink/n:0;vals.push(v);
-      cx.push(v>=INK_MIN?strikeCount(x0,x1,y0,y1):0);
+      V[q].push(cellInk(c0+o,row));
+      F[q].push(V[q][o]>=INK_MIN?{...scribbleFeat(x0,x1,y0,y1),strikes:strikeCount(x0,x1,y0,y1)}:null);
     }
-    cancelled[q]=cx.map(c=>c>=2);
+  }
+  const inks=F.flat().filter(Boolean).map(f=>f.ink).sort((a,b)=>a-b);
+  const med=inks.length?inks[inks.length>>1]:1;
+  for(let q=0;q<30;q++){
+    const vals=V[q];
+    // cancelled = two strike lines over the X, or the cell is scribbled out (dense solid blob)
+    scribbled[q]=F[q].map(f=>!!f&&(f.dens>=0.42||(f.dens>=0.36&&f.ink>=1.7*med)));
+    cancelled[q]=F[q].map((f,o)=>!!f&&(f.strikes>=2||scribbled[q][o]));
     const live=[0,1,2,3].filter(o=>vals[o]>=INK_MIN&&!cancelled[q][o]).sort((a,b)=>vals[b]-vals[a]);
-    const anyStrike=cx.some(c=>c===1);
+    const anyStrike=F[q].some(f=>f&&f.strikes===1);
     if(!live.length){answers[q]=-1;flags[q]=1}
     else{answers[q]=live[0];flags[q]=(live.length>1&&vals[live[1]]>vals[live[0]]*0.6)||anyStrike?1:0}
   }
@@ -556,7 +572,7 @@ $('clearNo').onclick=()=>{$('clearConfirm').hidden=true};
 $('clearYes').onclick=()=>{results=[];store.set('omr.results',results);$('clearConfirm').hidden=true;renderResults();toast('ล้างคะแนนแล้ว')};
 
 renderKey();renderRubric();
-window.__omr={dbg:(q,o,dbg)=>{const row=(q%15)+1,c0=q<15?1:6;return strikeCount(gridX[c0+o],gridX[c0+o+1],gridY[row],gridY[row+1],dbg)},get answers(){return answers},get flags(){return flags},get quad(){return quad}};
+window.__omr={feat:(q,o)=>{const row=(q%15)+1,c0=q<15?1:6;return scribbleFeat(gridX[c0+o],gridX[c0+o+1],gridY[row],gridY[row+1])},dbg:(q,o,dbg)=>{const row=(q%15)+1,c0=q<15?1:6;return strikeCount(gridX[c0+o],gridX[c0+o+1],gridY[row],gridY[row+1],dbg)},get answers(){return answers},get flags(){return flags},get quad(){return quad}};
 })();
 </script>
 
